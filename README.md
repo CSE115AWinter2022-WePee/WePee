@@ -53,4 +53,4 @@ npm run android
 ```
 
 ## File structure
-Our working directory is called components. Files will be added as we move along.
+Our working directory is called screens. Files will be added as we move along.
