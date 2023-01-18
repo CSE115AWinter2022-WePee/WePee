@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "334150569935",
+    "project_id": "bathroomfinder-3a36b",
+    "storage_bucket": "bathroomfinder-3a36b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:334150569935:android:69fd60052cb88e00d80cba",
+        "android_client_info": {
+          "package_name": "com.wepee"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "334150569935-e5p0rorp8miub7kqvq56h2jqir2sls72.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wepee",
+            "certificate_hash": "acfc866f816ebe981b0bd81b378b17f240c31814"
+          }
+        },
+        {
+          "client_id": "334150569935-5en1jop1li7gdod5q6ninn8d49esptbs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC28WhajPOaFsXsdvk9Wdm6CT_32pSblZM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "334150569935-5en1jop1li7gdod5q6ninn8d49esptbs.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "334150569935-fj8k5f7vg187q7hnkrcs6ksrad5ons8s.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.wepee.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

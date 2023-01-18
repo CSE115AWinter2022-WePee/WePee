@@ -1,3 +1,4 @@
+#import <Firebase.h>
 #import "AppDelegate.h"
 
 #import <React/RCTBundleURLProvider.h>
@@ -6,6 +7,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+  [FIRApp configure];
   self.moduleName = @"WePee";
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
