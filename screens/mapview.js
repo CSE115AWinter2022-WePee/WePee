@@ -63,7 +63,7 @@ const Mapview = ({ navigation }) => {
                     </View>
                 
                     <MapView
-                        style={{width:'100%', height:'100%'}}
+                        style={{width:'100%', height:'70%'}}
                         mapType="standard"
                         initialRegion={region}
                         region={region}
@@ -85,7 +85,7 @@ const Mapview = ({ navigation }) => {
 
             <BottomSheet
                 ref={bottomSheetRef}
-                index={1}
+                index={0}
                 snapPoints={snapPoints}
                 onChange={handleSheetChanges}
             >
