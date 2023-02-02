@@ -5,6 +5,9 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import { lightColors, SearchBar } from '@rneui/themed'
 import IconFA from 'react-native-vector-icons/FontAwesome'
 
+import { requestLocation } from '../modules/requestLocation';
+
+
 import {
     Platform,
     SafeAreaView,
@@ -16,7 +19,6 @@ import {
     View,
   } from 'react-native';
 
-
 const Mapview = ({ navigation }) => {
 
     const [searchTxt, setSearchTxt] = useState('')
@@ -27,6 +29,9 @@ const Mapview = ({ navigation }) => {
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
     })
+
+    // we need to able to get location to have mapview working properly
+    const getLocation = requestLocation();
 
     function updateSearchFunc(txt) {
         setSearchTxt(txt)
