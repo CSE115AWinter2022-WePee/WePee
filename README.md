@@ -2,22 +2,60 @@
 
 ## Setting up the development environment
 
-### BASICS
+### [Getting Started](https://reactnative.dev/docs/environment-setup) with React Native setup
+
+### BASICS for MacOS setup
 ``` sh
 brew install node
 brew install watchman
 npm install react-native-cli @react-native-community/cli
-
 ```
 
 ### MACOS
-#### IOS
+#### iOS
 - Install Xcode by going to the Mac app Store.
 - Install Command Line Tools: Open Xcode, then choose "Preferences..." from the Xcode menu. Go to the Locations panel and install the tools by selecting the most recent version in the Command Line Tools dropdown.
-- Install CocoaPods. it is a dependency management system available for iOS
+- Install CocoaPods. it is a dependency management system available for iOS. On most platforms, the following works:
     ```sh
     $ sudo gem install cocoapods
+    $ brew install cocoapods (for Apple Silicon)
     ```
+    However for Apple Silicon, run the following instead:
+    ```sh
+    $ brew install cocoapods
+    ```
+    Then run the following:
+    ```sh
+    $ cd ios && pod install && cd ..
+    ```
+    If you get the following error
+    ```
+    [!] Failed to load 'hermes-engine' podspec: 
+    [!] Invalid `hermes-engine.podspec` file: undefined method `exists?' for File:Class.
+    ```
+    see [this](https://github.com/facebook/react-native/issues/35807) React-Native issue for a workaround.
+- Also for M1 or other Apple silicon devices, see [this](https://stackoverflow.com/questions/71933392/react-native-ios-undefined-symbols-for-architecture-x86-64) for a workaround for `undefined symbol` errors when building for iOS. Specifically, the workaround is replacing the original `post_install do` directive with the following:
+    ```ruby
+    post_install do |installer|
+        react_native_post_install(
+        installer,
+        # Set `mac_catalyst_enabled` to `true` in order to apply patches
+        # necessary for Mac Catalyst builds
+        :mac_catalyst_enabled => false
+        )
+        __apply_Xcode_12_5_M1_post_install_workaround(installer)
+
+        installer.pods_project.targets.each do |target|
+            target.build_configurations.each do |config|
+                config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = "arm64"
+            end
+        end
+    end
+    ```
+
+    
+
+
 #### Android
 - Install Java Development Kit
     ``` sh
@@ -48,9 +86,10 @@ Next, select the "SDK Tools" tab and check the box next to "Show Package Details
 ## How to run 
 ``` sh
 npm install 
+cd ios && pod install && cd ..
 npm run ios
 npm run android
 ```
 
 ## File structure
-Our working directory is called screens. Files will be added as we move along.
+Our working directory is called `screens`. Files will be added as we move along.
