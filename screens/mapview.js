@@ -7,7 +7,8 @@ import { lightColors, SearchBar } from '@rneui/themed'
 import IconFA from 'react-native-vector-icons/FontAwesome'
 
 import { requestLocation, requestLocationPermission } from '../modules/requestLocation';
-
+import { bathroomList } from '../modules/database/getBathrooms';
+console.log(bathroomList);
 
 import {
     Platform,
@@ -19,6 +20,7 @@ import {
     FlatList,
     View,
   } from 'react-native';
+import { print } from '@gorhom/bottom-sheet/lib/typescript/utilities/logger';
 
 
 const Mapview = ({ navigation }) => {
