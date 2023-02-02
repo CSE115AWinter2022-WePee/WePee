@@ -1,12 +1,12 @@
 
-import React, { useState, useCallback, useMemo, useRef} from 'react'
+import React, { useState, useCallback, useMemo, useRef, useEffect} from 'react'
 import MapView, { Marker } from 'react-native-maps'
-//import Geolocation from 'react-native-geolocation-service';
+import Geolocation from 'react-native-geolocation-service';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { lightColors, SearchBar } from '@rneui/themed'
 import IconFA from 'react-native-vector-icons/FontAwesome'
 
-import { requestLocation } from '../modules/requestLocation';
+import { requestLocation, requestLocationPermission } from '../modules/requestLocation';
 
 
 import {
@@ -21,20 +21,53 @@ import {
   } from 'react-native';
 
 
-
 const Mapview = ({ navigation }) => {
     const [searchTxt, setSearchTxt] = useState('')
     const bottomSheetRef = useRef(null);
+    // set default region
     const [region, setRegion] = useState({
         latitude: 37.78825,
         longitude: -122.4324,
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
-    })
+    });
 
-    // we need to able to get location to have mapview working properly
-    const getLocation = requestLocation(); // true or false
-    //const initialLocation = Location.getCurrentPositionAsync
+
+     // state to hold location, default is false. setLocation(something) sets location to something
+    const [location, setLocation] = useState(false);
+    // function to check permissions and get Location
+    const getCurrentLocation = () => {
+        const result = requestLocationPermission();
+        result.then(res => {
+        console.log('res is:', res);
+        if (res) {
+            Geolocation.getCurrentPosition(
+            position => {
+                console.log(position);
+                setLocation(position);
+                setRegion({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    latitudeDelta: 0.0922,
+                    longitudeDelta: 0.0421,
+                  });
+            },
+            error => {
+                // See error code charts below.
+                console.log(error.code, error.message);
+                setLocation(false);
+            },
+            {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+            );
+        }
+        });
+        //console.log('Location: ${location}');
+    };
+
+    //getCurrentLocation();
+    useEffect(() => {
+        getCurrentLocation();
+    }, []);
 
     function updateSearchFunc(txt) {
         setSearchTxt(txt)
@@ -47,70 +80,72 @@ const Mapview = ({ navigation }) => {
         console.log('handleSheetChanges', index);
     }, []);
 
-
-  return (
-    <View style={{backgroundColor:'white'}}>
-        <SafeAreaView>
-            <View style={{height:'100%'}}>
-
-                <View style={{alignItems:'center'}}>
-                    
-                    <Text style={{fontSize:30, fontWeight:'bold'}}>WePee</Text>
-                    
-                    <View style={{height:60, flexDirection:'row',
-                            justifyContent:'space-between', alignItems:'center', marginLeft:10, marginRight:10}}>
-                        <IconFA name='sliders' size={25} color='darkgray' />
-                        <SearchBar 
-                            placeholder='looking for a bathroom?'
-                            onChangeText={updateSearchFunc}
-                            showCancel={true}
-                            containerStyle={{flex:1, marginHorizontal:15,backgroundColor:lightColors.white, borderTopColor:'white'}}
-                            value={searchTxt}/>
-                        <IconFA name='plus' size={25} color='darkgray' 
-                            onPress={() => navigation.navigate('Add')}/>
+    if(location){
+        return (
+            <View style={{backgroundColor:'white'}}>
+                <SafeAreaView>
+                    <View style={{height:'100%'}}>
+        
+                        <View style={{alignItems:'center'}}>
+                            
+                            <Text style={{fontSize:30, fontWeight:'bold'}}>WePee</Text>
+                            
+                            <View style={{height:60, flexDirection:'row',
+                                    justifyContent:'space-between', alignItems:'center', marginLeft:10, marginRight:10}}>
+                                <IconFA name='sliders' size={25} color='darkgray' />
+                                <SearchBar 
+                                    placeholder='looking for a bathroom?'
+                                    onChangeText={updateSearchFunc}
+                                    showCancel={true}
+                                    containerStyle={{flex:1, marginHorizontal:15,backgroundColor:lightColors.white, borderTopColor:'white'}}
+                                    value={searchTxt}/>
+                                <IconFA name='plus' size={25} color='darkgray' 
+                                    onPress={() => navigation.navigate('Add')}/>
+                            </View>
+                        
+                            <MapView
+                                style={{width:'100%', height:'70%'}}
+                                mapType="standard"
+                                initialRegion={region}
+                                showsUserLocation={true}
+                                showsMyLocationButton={true}
+                                region={region}
+                                onRegionChange={() => {}}>
+                                <Marker
+                                    key={1}
+                                    coordinate={{
+                                        latitude: 37.78825,
+                                        longitude: -122.4324
+                                    }}
+                                    title= "Origin"
+                                    description= "Origin"/>
+        
+                            </MapView>
+                        
+                        </View>
+        
                     </View>
-                
-                    <MapView
-                        style={{width:'100%', height:'70%'}}
-                        mapType="standard"
-                        initialRegion={region}
-                        showsUserLocation={true}
-                        showsMyLocationButton={true}
-                        region={region}
-                        onRegionChange={() => {}}>
-                        <Marker
-                            key={1}
-                            coordinate={{
-                                latitude: 37.78825,
-                                longitude: -122.4324
-                            }}
-                            title= "Origin"
-                            description= "Origin"/>
-
-                    </MapView>
-                
-                </View>
-
+        
+                    <BottomSheet
+                        ref={bottomSheetRef}
+                        index={0}
+                        snapPoints={snapPoints}
+                        onChange={handleSheetChanges}
+                    >
+                        <View style={{flex:1, alignItems:'center', padding:10}}>
+                            <Text style={{fontSize:18, fontWeight:'bold'}} onPress={() => navigation.navigate('Details')}>
+                                List of bathrooms near by. Press to display an empty details screen
+                            </Text>
+                        </View>
+                    </BottomSheet>
+        
+                </SafeAreaView>
+               
             </View>
-
-            <BottomSheet
-                ref={bottomSheetRef}
-                index={0}
-                snapPoints={snapPoints}
-                onChange={handleSheetChanges}
-            >
-                <View style={{flex:1, alignItems:'center', padding:10}}>
-                    <Text style={{fontSize:18, fontWeight:'bold'}} onPress={() => navigation.navigate('Details')}>
-                        List of bathrooms near by. Press to display an empty details screen
-                    </Text>
-                </View>
-            </BottomSheet>
-
-        </SafeAreaView>
-       
-    </View>
- 
-  )
+         
+          )
+    }
+  
 }
 
 export default Mapview
