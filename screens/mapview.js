@@ -9,6 +9,8 @@ import IconFA from 'react-native-vector-icons/FontAwesome'
 import { requestLocation, requestLocationPermission } from '../modules/requestLocation';
 import { bathroomList } from '../modules/database/getBathrooms';
 console.log(bathroomList);
+import { getCurrentLocation } from '../modules/getLocation';
+
 
 import {
     Platform,
@@ -24,6 +26,7 @@ import { print } from '@gorhom/bottom-sheet/lib/typescript/utilities/logger';
 
 
 const Mapview = ({ navigation }) => {
+    const result = requestLocationPermission();
     const [searchTxt, setSearchTxt] = useState('')
     const bottomSheetRef = useRef(null);
     // set default region
@@ -37,38 +40,10 @@ const Mapview = ({ navigation }) => {
 
      // state to hold location, default is false. setLocation(something) sets location to something
     const [location, setLocation] = useState(false);
-    // function to check permissions and get Location
-    const getCurrentLocation = () => {
-        const result = requestLocationPermission();
-        result.then(res => {
-        console.log('res is:', res);
-        if (res) {
-            Geolocation.getCurrentPosition(
-            position => {
-                console.log(position);
-                setLocation(position);
-                setRegion({
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
-                    latitudeDelta: 0.0922,
-                    longitudeDelta: 0.0421,
-                  });
-            },
-            error => {
-                // See error code charts below.
-                console.log(error.code, error.message);
-                setLocation(false);
-            },
-            {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
-            );
-        }
-        });
-        //console.log('Location: ${location}');
-    };
 
-    //getCurrentLocation();
+    //call getCurrentLocation, have it set location and region details
     useEffect(() => {
-        getCurrentLocation();
+        getCurrentLocation(setLocation, setRegion);
     }, []);
 
     function updateSearchFunc(txt) {
