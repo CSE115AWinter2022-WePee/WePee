@@ -20,8 +20,9 @@ import {
     View,
   } from 'react-native';
 
-const Mapview = ({ navigation }) => {
 
+
+const Mapview = ({ navigation }) => {
     const [searchTxt, setSearchTxt] = useState('')
     const bottomSheetRef = useRef(null);
     const [region, setRegion] = useState({
