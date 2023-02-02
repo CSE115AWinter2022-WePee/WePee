@@ -1,6 +1,7 @@
 
 import React, { useState, useCallback, useMemo, useRef} from 'react'
 import MapView, { Marker } from 'react-native-maps'
+//import Geolocation from 'react-native-geolocation-service';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { lightColors, SearchBar } from '@rneui/themed'
 import IconFA from 'react-native-vector-icons/FontAwesome'
@@ -31,7 +32,8 @@ const Mapview = ({ navigation }) => {
     })
 
     // we need to able to get location to have mapview working properly
-    const getLocation = requestLocation();
+    const getLocation = requestLocation(); // true or false
+    //const initialLocation = Location.getCurrentPositionAsync
 
     function updateSearchFunc(txt) {
         setSearchTxt(txt)
@@ -71,6 +73,8 @@ const Mapview = ({ navigation }) => {
                         style={{width:'100%', height:'70%'}}
                         mapType="standard"
                         initialRegion={region}
+                        showsUserLocation={true}
+                        showsMyLocationButton={true}
                         region={region}
                         onRegionChange={() => {}}>
                         <Marker

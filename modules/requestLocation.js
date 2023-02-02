@@ -15,10 +15,13 @@ export const requestLocation = async () => {
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         console.log('Location is go');
+        return true;
       } else {
         console.log('Location denied for some reason');
+        return false;
       }
     } catch (err) {
       console.warn(err);
+      return false;
     }
   };
