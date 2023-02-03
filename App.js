@@ -18,6 +18,7 @@ import {
   useColorScheme,
   View,
 } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const theme = createTheme({
   lightColors: {
@@ -45,34 +46,40 @@ const Stack = createNativeStackNavigator()
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
+    <GestureHandlerRootView style={{flex:1}}>
 
-      <SafeAreaProvider>
+      <ThemeProvider theme={theme}>
 
-        <NavigationContainer>
-          <Stack.Navigator initialRouteName='Mapview'>
-            <Stack.Screen name="Mapview" 
-                component={Mapview}
-                options={{
-                  headerShown:false
-                }} />
-            <Stack.Screen name="Add" 
-                component={AddBathroomScreen}
-                options={{
-                  headerTitle: 'Add Bathroom',
-                  headerRight:() => <IconFA name='check' size={25} color='darkgray' onPress={() => {}}/>
-                }} />
-            <Stack.Screen name="Details" 
-                component={BathroomDetailsScreen}
-                options={{
-                  headerTitle: 'Bathroom Details'
-                }} />
-          </Stack.Navigator>
-        </NavigationContainer>
+        <SafeAreaProvider>
 
-      </SafeAreaProvider>
+          <NavigationContainer>
+            <Stack.Navigator initialRouteName='Mapview'>
+              <Stack.Screen name="Mapview" 
+                  component={Mapview}
+                  options={{
+                    headerShown:false
+                  }} />
+              <Stack.Screen name="Add" 
+                  component={AddBathroomScreen}
+                  options={{
+                    headerTitle: 'Add Bathroom',
+                    headerTitleStyle: {color: 'black'},
+                    headerRight:() => <IconFA name='check' size={25} color='darkgray' onPress={() => {}}/>
+                  }} />
+              <Stack.Screen name="Details" 
+                  component={BathroomDetailsScreen}
+                  options={{
+                    headerTitle: 'Bathroom Details',
+                    headerTitleStyle: {color: 'black'},
+                  }} />
+            </Stack.Navigator>
+          </NavigationContainer>
 
-    </ThemeProvider>
+        </SafeAreaProvider>
+
+      </ThemeProvider>
+
+    </GestureHandlerRootView>
     
   );
 }

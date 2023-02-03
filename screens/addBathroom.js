@@ -1,8 +1,10 @@
 
-import React, { useState, useCallback, useMemo, useRef} from 'react'
+import React, { useState, useCallback, useMemo, useRef, useEffect} from 'react'
 import BottomSheet from '@gorhom/bottom-sheet';
 import MapView, { Marker } from 'react-native-maps'
-import { Input } from '@rneui/themed'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Input, Icon } from '@rneui/themed'
+import { getCurrentLocation } from '../modules/getLocation';
 
 import {
     Platform,
@@ -15,8 +17,12 @@ import {
     View,
   } from 'react-native';
 
+
 const AddBathroomScreen = () => {
     const inputRef = useRef(null)
+    const [coordinate, setCoordinate] = useState({ latitude: 37.78825, longitude: -122.4324 });
+    const bottomSheetRef = useRef(null);
+    const snapPoints = useMemo(() => ['30%', '60%'], []);
     const [region, setRegion] = useState({
         latitude: 37.78825,
         longitude: -122.4324,
@@ -24,8 +30,24 @@ const AddBathroomScreen = () => {
         longitudeDelta: 0.0421,
     })
 
-    const bottomSheetRef = useRef(null);
-    const snapPoints = useMemo(() => ['30%', '60%'], []);
+    //call getCurrentLocation, have it set location and region details
+    useEffect(() => {
+        _getLocation()
+     }, []);
+ 
+     const _getLocation = async () => {
+        // fetch from cached data
+         try {
+             const coordinates = await AsyncStorage.getItem('coordinates')
+             const region  = await  AsyncStorage.getItem('region')
+             setCoordinate(JSON.parse(coordinates))
+             setRegion(JSON.parse(region))
+             console.log("add bathroom ", coordinates)
+         } catch (error) {
+             console.log(error)
+         }
+        
+     }
 
     // callbacks
     const handleSheetChanges = useCallback( index => {
@@ -44,10 +66,7 @@ const AddBathroomScreen = () => {
                     onRegionChange={() => {}}>
                     <Marker
                         key={1}
-                        coordinate={{
-                            latitude: 37.78825,
-                            longitude: -122.4324
-                        }}
+                        coordinate={ coordinate }
                         title= "Origin"
                         description= "Origin"/>
 
@@ -67,7 +86,7 @@ const AddBathroomScreen = () => {
                         placeholder="Name" 
                         inputContainerStyle={{backgroundColor:'lightgrey', paddingHorizontal:10, paddingVertical:5, 
                                 borderBottomColor:'lightgrey', borderRadius: 5}}/>
-                    <Text style={{fontSize:14, fontWeight:'bold', marginTop:-10}}>1156 High St, Santa Cruz, CA 95064</Text>
+                    <Text style={{fontSize:14, fontWeight:'bold', marginTop:-15}}>1156 High St, Santa Cruz, CA 95064</Text>
                 </View>
             </BottomSheet>
       </SafeAreaView>
@@ -80,4 +99,4 @@ export default AddBathroomScreen
 
 const styles = StyleSheet.create({})
 
-//CSE115AWinter2022-WePee/WePee
+
