@@ -59,11 +59,10 @@ const Mapview = ({ navigation }) => {
     const fetchBathrooms = async () => {
         try {
             const snap = await firestore().collection('bathrooms').get()
-            if (!snap.empty) setBathrooms(snap.docs)
+            if (!snap.empty) setBathrooms(snap.docs.map(doc => doc._data))
         } catch (error) {
             console.log(error)
         }
-       
     }
 
     function updateSearchFunc(txt) {
@@ -78,7 +77,6 @@ const Mapview = ({ navigation }) => {
     }, []);
 
     const Item = ({ props, index, id }) => (
-   
         <TouchableOpacity style={{width:'100%', backgroundColor: index % 2 ? 'lightgray' : null, 
             justifyContent:'center', padding:10, marginVertical: 5}}
             onPress={() => navigation.navigate('Details', {bathroomId: id})}>
@@ -90,6 +88,32 @@ const Mapview = ({ navigation }) => {
         </TouchableOpacity>
     
     )
+
+    console.log("bathroom[0]: ")
+    console.log(bathrooms[0]);
+    //console.dir(bathrooms[0]);
+    //console.log('bathroom name: ' + bathrooms[0]);
+
+    let bathroomMarkers;
+    if (bathrooms.length > 0) {
+    bathroomMarkers = bathrooms.map(bathroom => {
+        if (bathroom.latitude && bathroom.longitude) {
+            console.log('bathroom data: ');
+            console.log(bathroom);
+            return (
+                <Marker
+                key={bathroom.id}
+                coordinate={{
+                    latitude: bathroom.latitude,
+                    longitude: bathroom.longitude,
+                }}
+                title={bathroom.name ? bathroom.name : ''}
+                description={bathroom.description ? bathroom.description : ''}
+                />
+            );
+            }
+    });
+    }
 
     if (!coordinate) return <></>
     return (
@@ -126,12 +150,8 @@ const Mapview = ({ navigation }) => {
                             showsMyLocationButton={true}
                             region={region}
                             onRegionChange={() => {}}>
-                            <Marker
-                                key={1}
-                                coordinate={coordinate}
-                                title= "Origin"
-                                description= "Origin"/>
-    
+                            
+                            {bathroomMarkers}
                         </MapView>
                     
                     </View>
@@ -147,8 +167,8 @@ const Mapview = ({ navigation }) => {
                     <View style={{flex:1, alignItems:'center', padding:0}}>
                         <FlatList
                             data={bathrooms}
-                            renderItem={({item, index}) => <Item props={item.data()} index={index} id={item.id}/>}
-                            keyExtractor={item => item.data().id}
+                            renderItem={({item, index}) => <Item props={item} index={index} id={item.id}/>}
+                            keyExtractor={item => item.id}
                             style={{width:'100%'}}/>
                         {/* <Text style={{fontSize:18, fontWeight:'bold', color:'black'}} onPress={() => navigation.navigate('Details')}>
                             List of bathrooms near by. Press to display an empty details screen

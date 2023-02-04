@@ -58,6 +58,8 @@ const BathroomDetailsScreen = ({route}) => {
                     style={{width:'100%', height:'50%'}}
                     mapType="standard"
                     initialRegion={region}
+                    showsUserLocation={true}
+                    showsMyLocationButton={true}
                     region={region}
                     onRegionChange={() => {}}>
                     <Marker
@@ -81,11 +83,11 @@ const BathroomDetailsScreen = ({route}) => {
                     <Text style={[styles.txt, {fontWeight:'bold'}] }>
                         Name: {bathroomData?.name}
                     </Text>
+                    <Text style={[styles.txt, {fontWeight:'bold'}] }>
+                        Rating: {bathroomData?.rating}/5
+                    </Text>
                     <Text style={[styles.txt, {fontWeight:'bold', marginVertical:15}] }>
                         Description: {bathroomData?.description}
-                    </Text>
-                    <Text style={[styles.txt, {fontWeight:'bold'}] }>
-                        Rating: {bathroomData?.rating}
                     </Text>
                 </View>
             </BottomSheet>
