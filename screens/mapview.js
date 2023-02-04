@@ -83,7 +83,7 @@ const Mapview = ({ navigation }) => {
         
             <View style={{flex:1, alignItems: 'center', flexDirection:'row', justifyContent:'space-between'}}>
                 <Text style={[styles.txt, {fontSize:16, fontWeight:'bold'}]}>{props.name}</Text> 
-                <Text style={[styles.txt]}>{index} mil</Text>  
+                <Text style={[styles.txt]}>{index} mi.</Text>  
             </View>
         </TouchableOpacity>
     
