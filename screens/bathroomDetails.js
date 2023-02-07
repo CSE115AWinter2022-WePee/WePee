@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo, useRef, useEffect} from 'react'
 import BottomSheet from '@gorhom/bottom-sheet';
 import MapView, { Marker } from 'react-native-maps'
 import firestore from '@react-native-firebase/firestore'
+import { tags } from '../modules/tags';
 
 import { 
     StyleSheet, 
@@ -11,10 +12,15 @@ import {
     FlatList
 } from 'react-native'
 
+import { Input, Icon, AirbnbRating } from '@rneui/themed'
+
+import { ScrollView } from 'react-native-gesture-handler'
+
 const BathroomDetailsScreen = ({route}) => {
     const [bathroomData, setBathroomData] = useState()
     const bottomSheetRef = useRef(null);
     const [coordinate, setCoordinate] = useState({latitude: 37.78825, longitude: -122.4324})
+    const [tagsSection, setTagsSection] = useState()
     const snapPoints = useMemo(() => ['50%', '70%'], []);
 
     const [region, setRegion] = useState({
@@ -26,7 +32,8 @@ const BathroomDetailsScreen = ({route}) => {
 
     useEffect(() => {
         fetchBathroomData(route.params?.bathroomId)
-    }, route.params)
+       
+    }, [])
 
     const fetchBathroomData = async (bathroomId) => {
         try {
@@ -38,6 +45,8 @@ const BathroomDetailsScreen = ({route}) => {
                     latitude: snap.data().latitude, 
                     longitude:snap.data().longitude})
                 setCoordinate({latitude: snap.data().latitude, longitude:snap.data().longitude})
+
+                displayTags(snap.data())
             }
         } catch (error) {
             console.log(error)
@@ -45,9 +54,42 @@ const BathroomDetailsScreen = ({route}) => {
        
     }
 
+    function displayTags(bathroomData) {
+        const data = tags.map((tag, index) => {
+            const dbName = tag.db_name
+            if (!bathroomData[dbName]) return null
+            return (
+                
+                <View style={{width:'100%',justifyContent:'center'}} key={tag.key}>
+                    <View style={{width:'100%',flexDirection:'row', justifyContent:'space-between', 
+                            alignItems:'center', padding:10}}>
+                        <View style={{flexDirection:'row', alignItems:'center'}}>
+                            <Icon 
+                                name={tag.icon} 
+                                type={ tag.iconType || "font-awesome-5" }
+                                color='white' 
+                                size={25} 
+                                containerStyle={{width:40, height:40, backgroundColor:tag.iconColor,
+                                    borderRadius:5, padding:5, justifyContent:'center'}} />
+                            <Text style={{fontSize:15, marginHorizontal:10, color:'black', fontWeight:'bold'}}>{tag.name}</Text>
+                        </View>
+                       
+                    
+                    </View>
+                    { index == tags.length - 1 
+                        || <View style={{width:'100%', height:0.5, backgroundColor:'gray', marginLeft:10}}/>}
+                    
+                </View> 
+        )})
+    
+        setTagsSection(data)
+    }
+
+   
+
     // callbacks
     const handleSheetChanges = useCallback( index => {
-        console.log('handleSheetChanges', index);
+        // console.log('handleSheetChanges', index);
     }, []);
 
   return (
@@ -55,7 +97,7 @@ const BathroomDetailsScreen = ({route}) => {
       <SafeAreaView >
             <View style={{height:'100%'}}>
                 <MapView
-                    style={{width:'100%', height:'50%'}}
+                    style={{width:'100%', height:'100%'}}
                     mapType="standard"
                     initialRegion={region}
                     showsUserLocation={true}
@@ -65,13 +107,14 @@ const BathroomDetailsScreen = ({route}) => {
                     <Marker
                         key={1}
                         coordinate={coordinate}
-                        title= "Origin"
-                        description= "Origin"/>
+                        title= {bathroomData?.name}
+                        description= {bathroomData?.description}/>
 
                 </MapView>
 
                 
             </View>
+
             <BottomSheet
                 ref={bottomSheetRef}
                 index={0}
@@ -79,18 +122,39 @@ const BathroomDetailsScreen = ({route}) => {
                 onChange={handleSheetChanges}
                 style={{marginBottom:0}}
             >   
-                <View style={{flex:1, padding:10}}>
-                    <Text style={[styles.txt, {fontWeight:'bold'}] }>
-                        Name: {bathroomData?.name}
-                    </Text>
-                    <Text style={[styles.txt, {fontWeight:'bold'}] }>
-                        Rating: {bathroomData?.rating}/5
-                    </Text>
-                    <Text style={[styles.txt, {fontWeight:'bold', marginVertical:15}] }>
-                        Description: {bathroomData?.description}
-                    </Text>
-                </View>
+                <ScrollView>
+                    <View style={{flex:1, alignItems:'center', backgroundColor:'lightgrey'}}>
+                        <View style={{width:"100%", alignItems:'center', backgroundColor:'white', padding:15}}>
+                            <Text style={[styles.txt, {fontWeight:'bold', fontSize:20}] }>
+                                {bathroomData?.name}
+                            </Text>
+                            <Text style={[styles.txt, {marginVertical:15}] }>
+                                {bathroomData?.description}
+                            </Text>
+                            <AirbnbRating 
+                                isDisabled={true} 
+                                showRating={false}
+                                size={25}
+                                count={5}
+                                defaultRating={bathroomData?.rating} 
+                                starContainerStyle={{alignSelf:'center'}}
+                                ratingContainerStyle={{ marginTop:0 }}/>
+                        </View>
+
+                        <View style={{width: '100%'}}>
+                             <Text style={[styles.txt, {fontWeight:'bold', fontSize:18, marginTop:30, marginLeft:15}] }>
+                                Features
+                            </Text>
+                            <View style={{ alignItems:'center', backgroundColor:'white', marginTop:15, padding:10}}>
+                                { tagsSection }
+                            </View>
+                        </View>
+                    
+                    </View>
+                </ScrollView>
+
             </BottomSheet>
+
       </SafeAreaView>
     </View>
   )
@@ -101,6 +165,6 @@ export default BathroomDetailsScreen
 const styles = StyleSheet.create({
     txt: {
         color:'black',
-        fontSize: 18
+        fontSize: 15
     }
 })

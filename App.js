@@ -10,13 +10,8 @@ import IconFA from 'react-native-vector-icons/FontAwesome'
 
 import {
   Platform,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
-  Text,
-  useColorScheme,
-  View,
+ 
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -63,8 +58,7 @@ function App() {
                   component={AddBathroomScreen}
                   options={{
                     headerTitle: 'Add Bathroom',
-                    headerTitleStyle: {color: 'black'},
-                    headerRight:() => <IconFA name='check' size={25} color='darkgray' onPress={() => {}}/>
+                    headerTitleStyle: {color: 'black'}
                   }} />
               <Stack.Screen name="Details" 
                   component={BathroomDetailsScreen}

@@ -10,7 +10,6 @@ export const getCurrentLocation = async () => {
             try {
                 Geolocation.getCurrentPosition(
                     position => {
-                        console.log(position);
                         const coordinates = {
                             latitude: position.coords.latitude,
                             longitude: position.coords.longitude,

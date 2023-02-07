@@ -11,8 +11,6 @@ import firestore from '@react-native-firebase/firestore';
 import {
     Platform,
     SafeAreaView,
-    ScrollView,
-    StatusBar,
     StyleSheet,
     Text,
     FlatList,
@@ -21,12 +19,12 @@ import {
   } from 'react-native';
 
 
-const Mapview = ({ navigation }) => {
+const Mapview = ({ navigation, route }) => {
       // state to hold location, default is false. setLocation(something) sets location to something
     const [coordinate, setCoordinate] = useState();
     const [searchTxt, setSearchTxt] = useState('')
     const [bathrooms, setBathrooms] = useState([])
-    const bottomSheetRef = useRef(null);
+    const bottomSheetRef = useRef(null); //bottomSheetRef.current.snapToPosition('3%')
 
     // set default region
     const [region, setRegion] = useState({
@@ -40,7 +38,9 @@ const Mapview = ({ navigation }) => {
     useEffect(() => {
        _getLocation()
        fetchBathrooms()
-    }, []);
+    }, [route.params]);
+
+    
 
     const _getLocation = async () => {
         try {
@@ -59,7 +59,7 @@ const Mapview = ({ navigation }) => {
     const fetchBathrooms = async () => {
         try {
             const snap = await firestore().collection('bathrooms').get()
-            if (!snap.empty) setBathrooms(snap.docs.map(doc => doc._data))
+            if (!snap.empty) setBathrooms(snap.docs)
         } catch (error) {
             console.log(error)
         }
@@ -73,8 +73,29 @@ const Mapview = ({ navigation }) => {
 
     // callbacks
     const handleSheetChanges = useCallback( index => {
-        console.log('handleSheetChanges', index);
+        // console.log('handleSheetChanges', index);
     }, []);
+
+    let bathroomMarkers;
+    if (bathrooms.length >= 1) {
+        bathroomMarkers = bathrooms.map(snap => {
+            const bathroom = snap.data()
+            if (bathroom.latitude && bathroom.longitude) {
+                console.log(bathroom);
+                return (
+                    <Marker
+                        key={bathroom.id}
+                        coordinate={{
+                            latitude: bathroom.latitude,
+                            longitude: bathroom.longitude,
+                        }}
+                        title={ bathroom.name || '' }
+                        description={ bathroom.description || '' }
+                    />
+                );
+                }
+        });
+    }
 
     const Item = ({ props, index, id }) => (
         <TouchableOpacity style={{width:'100%', backgroundColor: index % 2 ? 'lightgray' : null, 
@@ -89,31 +110,7 @@ const Mapview = ({ navigation }) => {
     
     )
 
-    console.log("bathroom[0]: ")
-    console.log(bathrooms[0]);
-    //console.dir(bathrooms[0]);
-    //console.log('bathroom name: ' + bathrooms[0]);
-
-    let bathroomMarkers;
-    if (bathrooms.length > 0) {
-    bathroomMarkers = bathrooms.map(bathroom => {
-        if (bathroom.latitude && bathroom.longitude) {
-            console.log('bathroom data: ');
-            console.log(bathroom);
-            return (
-                <Marker
-                key={bathroom.id}
-                coordinate={{
-                    latitude: bathroom.latitude,
-                    longitude: bathroom.longitude,
-                }}
-                title={bathroom.name ? bathroom.name : ''}
-                description={bathroom.description ? bathroom.description : ''}
-                />
-            );
-            }
-    });
-    }
+   
 
     if (!coordinate) return <></>
     return (
@@ -143,7 +140,7 @@ const Mapview = ({ navigation }) => {
                         </View>
                     
                         <MapView
-                            style={{width:'100%', height:'70%'}}
+                            style={{width:'100%', height:'100%'}}
                             mapType="standard"
                             initialRegion={region}
                             showsUserLocation={true}
@@ -151,7 +148,7 @@ const Mapview = ({ navigation }) => {
                             region={region}
                             onRegionChange={() => {}}>
                             
-                            {bathroomMarkers}
+                            { bathroomMarkers }
                         </MapView>
                     
                     </View>
@@ -167,12 +164,9 @@ const Mapview = ({ navigation }) => {
                     <View style={{flex:1, alignItems:'center', padding:0}}>
                         <FlatList
                             data={bathrooms}
-                            renderItem={({item, index}) => <Item props={item} index={index} id={item.id}/>}
+                            renderItem={({item, index}) => <Item props={item.data()} index={index} id={item.id}/>}
                             keyExtractor={item => item.id}
                             style={{width:'100%'}}/>
-                        {/* <Text style={{fontSize:18, fontWeight:'bold', color:'black'}} onPress={() => navigation.navigate('Details')}>
-                            List of bathrooms near by. Press to display an empty details screen
-                        </Text> */}
                     </View>
                 </BottomSheet>
     
