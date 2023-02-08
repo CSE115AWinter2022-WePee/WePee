@@ -104,50 +104,12 @@ const Mapview = ({ navigation, route }) => {
        
     }
 
-    const buildListOfTags = (listOfTags) => {
-        return listOfTags.map((tag, index) =>
-        <View key={tag.key}>
-            <TouchableOpacity
-                onPress={() => onTagPress(tag, index)}
-                style = {tag.state[0] ? styles.tagButtonPressed : styles.tagButtonNotPressed}>
-                <View style={{ justifyContent: 'center', alignItems: 'center', paddingBottom: 5}}>
-                {/* <Icon 
-                    name={tag.icon} 
-                    type={ tag.iconType || "font-awesome-5" }
-                    color='white' 
-                    size={5} 
-                    //</TouchableOpacity>containerStyle={{width:40, height:40, backgroundColor:tag.iconColor,
-                    //borderRadius:5, padding:5, justifyContent:'center'}}
-                /> */}
-                <Text style={styles.tagButtonText}>{tag.name}</Text>
-                </View>
-            </TouchableOpacity>
-        </View>
-    )
-      };
-
 
     // runs when a tag is pressed
     const onTagPress = (tag, index) => {
-        console.log(tag.name + ' state: ' + tag.state[0]);
-
         // Change the tags state
-        mTags[index].state[1](!tag.state[0]);
-
-        // Reorder the mTags list
-        const newMTags = [...mTags];
-        // Swap the tag at the given index with the first button thats false
-        for(let i=0; i < newMTags.length; i++){
-            if(newMTags[i].state[0] == false){
-                [newMTags[i], newMTags[index]] = [newMTags[index], newMTags[i]];
-            }
-        }
-        // Update the horizontalTags state with the new order
-        setHorizontalTags(buildListOfTags(newMTags));
-
-        //reorderTagList(index);
-        //console.log('tag pressed, name: ' + tag.name);
-        //console.log(tag.name + ' state after: ' + tag.state[0]);
+        tag.state[1](!tag.state[0]);
+        console.log(tag.name + ' state after: ' + tag.state[0]);
     }
 
     const fetchBathrooms = async () => {
@@ -170,8 +132,17 @@ const Mapview = ({ navigation, route }) => {
         // console.log('handleSheetChanges', index);
     }, []);
 
-    // list that renders tags
-    const [horizontalTags, setHorizontalTags] = useState(buildListOfTags(mTags));
+    const horizontalTags = mTags.map((tag, index) => 
+        <View key={tag.key}>
+            <TouchableOpacity
+                onPress={() => onTagPress(tag, index)}
+                style = {tag.state[0] ? styles.tagButtonPressed : styles.tagButtonNotPressed}>
+                <View style={{ justifyContent: 'center', alignItems: 'center', paddingBottom: 5}}>
+                <Text style={styles.tagButtonText}>{tag.name}</Text>
+                </View>
+            </TouchableOpacity>
+        </View>
+        )
 
     let bathroomMarkers;
     if (bathrooms.length >= 1) {
@@ -204,9 +175,7 @@ const Mapview = ({ navigation, route }) => {
                 <Text style={[styles.txt]}>{index} mi.</Text>  
             </View>
         </TouchableOpacity>
-    
     )
-
    
 
     if (!coordinate) return <></>
