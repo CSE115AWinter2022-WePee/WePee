@@ -125,6 +125,13 @@ const Mapview = ({ navigation, route }) => {
         setSearchTxt(txt)
     }
 
+    const dougsTestFunc = () => {
+        console.log("YOU PRESSED DOUGS SECRET BUTTON!")
+        for(let i=0; i<mTags.length; i++){
+            console.log(mTags[i].name + ' and state: ' + mTags[i].state[0]);
+        }
+    }
+
     const snapPoints = useMemo(() => ['30%', '60%'], []);
 
     // callbacks
@@ -137,9 +144,14 @@ const Mapview = ({ navigation, route }) => {
             <TouchableOpacity
                 onPress={() => onTagPress(tag, index)}
                 style = {tag.state[0] ? styles.tagButtonPressed : styles.tagButtonNotPressed}>
-                <View style={{ justifyContent: 'center', alignItems: 'center', paddingBottom: 5}}>
+                <Icon 
+                        name={tag.icon} 
+                        type={ tag.iconType || "font-awesome-5" }
+                        color='white' 
+                        size={10} 
+                        containerStyle={{width:15, height:15, backgroundColor:tag.iconColor,
+                            borderRadius:3, padding:0, marginRight: 4, justifyContent:'center'}} />
                 <Text style={styles.tagButtonText}>{tag.name}</Text>
-                </View>
             </TouchableOpacity>
         </View>
         )
@@ -190,7 +202,7 @@ const Mapview = ({ navigation, route }) => {
                         
                         <View style={{height:60, flexDirection:'row',
                                 justifyContent:'space-between', alignItems:'center', marginLeft:10, marginRight:10}}>
-                             <TouchableOpacity style={{width:40, height:40, borderRadius:20, justifyContent:'center'}} onPress={() => navigation.navigate('Add')}>
+                             <TouchableOpacity style={{width:40, height:40, borderRadius:20, justifyContent:'center'}} onPress={() => dougsTestFunc()}>
                                 <Icon name='sliders' type='font-awesome' size={25} color='darkgray' />
                             </TouchableOpacity>
                             <SearchBar 
@@ -267,7 +279,9 @@ const styles = StyleSheet.create({
         color:'black'
     },
     tagButtonNotPressed: {
-        height: 40,
+        height: 36,
+        flexDirection:'row',
+        alignItems:'center',
         justifyContent: 'center',
         alignItems: 'center',
         padding: 8,
@@ -277,7 +291,9 @@ const styles = StyleSheet.create({
         marginRight: 3,
     },
     tagButtonPressed: {
-    height: 40,
+    height: 36,
+    flexDirection:'row',
+    alignItems:'center',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 8,
@@ -288,7 +304,7 @@ const styles = StyleSheet.create({
     },
     tagButtonText: {
         color:'black',
-        fontWeight: 'bold',
+        //fontWeight: 'bold',
         //lineHeight: 15,
     }
 })
