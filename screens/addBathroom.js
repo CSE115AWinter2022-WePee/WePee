@@ -20,6 +20,7 @@ import {
 
 
 const AddBathroomScreen = ({ navigation }) => {
+    // tag states
     const [name, setName] = useState()
     const [desc, setDesc] = useState()
     const [cleanliness, setCleanliness] = useState(false)
@@ -30,6 +31,7 @@ const AddBathroomScreen = ({ navigation }) => {
     const [period_products, setPeriodProducts] = useState(false)
     const [unisex, setUnisex] = useState(false)
     const [urinal, setUrinal] = useState(false)
+
     const [pinnedCoordinate, setPinnedCoordinate] = useState({ latitude: null, longitude: null });
     const [coordinate, setCoordinate] = useState({ latitude: 37.78825, longitude: -122.4324 });
     const bottomSheetRef = useRef(null);

@@ -1,11 +1,13 @@
 
 import React, { useState, useCallback, useMemo, useRef, useEffect} from 'react'
 import MapView, { Marker } from 'react-native-maps'
+import { ScrollView } from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { lightColors, SearchBar, Icon } from '@rneui/themed'
+import { lightColors, SearchBar, Icon, Switch} from '@rneui/themed'
 import { getCurrentLocation } from '../modules/getLocation';
 import firestore from '@react-native-firebase/firestore';
+import { tags  } from '../modules/tags';
 
 
 import {
@@ -26,6 +28,16 @@ const Mapview = ({ navigation, route }) => {
     const [bathrooms, setBathrooms] = useState([])
     const bottomSheetRef = useRef(null); //bottomSheetRef.current.snapToPosition('3%')
 
+    // States to determine if tag is active or not
+    const [cleanliness, setCleanliness] = useState(false)
+    const [free, setFree] = useState(false)
+    const [accessibility, setAccessibility] = useState(false)
+    const [changing_station, setChangingStation] = useState(false)
+    const [condoms_sale, setCondomsSale] = useState(false)
+    const [period_products, setPeriodProducts] = useState(false)
+    const [unisex, setUnisex] = useState(false)
+    const [urinal, setUrinal] = useState(false)
+
     // set default region
     const [region, setRegion] = useState({
         latitude: 37.78825,
@@ -40,7 +52,43 @@ const Mapview = ({ navigation, route }) => {
        fetchBathrooms()
     }, [route.params]);
 
-    
+    const mTags = [
+        {   
+            ...tags[0],
+            state: [cleanliness, setCleanliness], 
+        },
+        {   
+            ...tags[1],
+            state: [free, setFree],  
+        },
+        {   
+            ...tags[2],
+            state: [accessibility, setAccessibility],
+        },
+        {   
+            ...tags[3],
+            state: [changing_station, setChangingStation],
+
+        },
+        {
+            ...tags[4],
+            state: [condoms_sale, setCondomsSale],
+        },
+        {
+            ...tags[5],
+            state: [period_products, setPeriodProducts],
+        },
+        {
+            ...tags[6],
+            state: [unisex,setUnisex],
+
+        },
+        {
+            ...tags[7],
+            state: [urinal,setUrinal],
+        }
+       
+    ]
 
     const _getLocation = async () => {
         try {
@@ -54,6 +102,52 @@ const Mapview = ({ navigation, route }) => {
             console.log(error)
         }
        
+    }
+
+    const buildListOfTags = (listOfTags) => {
+        return listOfTags.map((tag, index) =>
+        <View key={tag.key}>
+            <TouchableOpacity
+                onPress={() => onTagPress(tag, index)}
+                style = {tag.state[0] ? styles.tagButtonPressed : styles.tagButtonNotPressed}>
+                <View style={{ justifyContent: 'center', alignItems: 'center', paddingBottom: 5}}>
+                {/* <Icon 
+                    name={tag.icon} 
+                    type={ tag.iconType || "font-awesome-5" }
+                    color='white' 
+                    size={5} 
+                    //</TouchableOpacity>containerStyle={{width:40, height:40, backgroundColor:tag.iconColor,
+                    //borderRadius:5, padding:5, justifyContent:'center'}}
+                /> */}
+                <Text style={styles.tagButtonText}>{tag.name}</Text>
+                </View>
+            </TouchableOpacity>
+        </View>
+    )
+      };
+
+
+    // runs when a tag is pressed
+    const onTagPress = (tag, index) => {
+        console.log(tag.name + ' state: ' + tag.state[0]);
+
+        // Change the tags state
+        mTags[index].state[1](!tag.state[0]);
+
+        // Reorder the mTags list
+        const newMTags = [...mTags];
+        // Swap the tag at the given index with the first button thats false
+        for(let i=0; i < newMTags.length; i++){
+            if(newMTags[i].state[0] == false){
+                [newMTags[i], newMTags[index]] = [newMTags[index], newMTags[i]];
+            }
+        }
+        // Update the horizontalTags state with the new order
+        setHorizontalTags(buildListOfTags(newMTags));
+
+        //reorderTagList(index);
+        //console.log('tag pressed, name: ' + tag.name);
+        //console.log(tag.name + ' state after: ' + tag.state[0]);
     }
 
     const fetchBathrooms = async () => {
@@ -76,12 +170,15 @@ const Mapview = ({ navigation, route }) => {
         // console.log('handleSheetChanges', index);
     }, []);
 
+    // list that renders tags
+    const [horizontalTags, setHorizontalTags] = useState(buildListOfTags(mTags));
+
     let bathroomMarkers;
     if (bathrooms.length >= 1) {
         bathroomMarkers = bathrooms.map(snap => {
             const bathroom = snap.data()
             if (bathroom.latitude && bathroom.longitude) {
-                console.log(bathroom);
+                //console.log(bathroom);
                 return (
                     <Marker
                         key={bathroom.id}
@@ -138,7 +235,7 @@ const Mapview = ({ navigation, route }) => {
                             </TouchableOpacity>
                            
                         </View>
-                    
+
                         <MapView
                             style={{width:'100%', height:'100%'}}
                             mapType="standard"
@@ -150,6 +247,20 @@ const Mapview = ({ navigation, route }) => {
                             
                             { bathroomMarkers }
                         </MapView>
+
+                        <ScrollView 
+                            style={{
+                                position: 'absolute', //use absolute position to show the ScrollView on top of the map
+                                top: 112, //for center align
+                                alignSelf: 'flex-start', //for align to left
+                                width: '85%',
+                            }}
+                            horizontal={true}
+                            showsHorizontalScrollIndicator={false}
+                        >
+
+                            {horizontalTags}
+                        </ScrollView>
                     
                     </View>
     
@@ -185,5 +296,30 @@ const styles = StyleSheet.create({
     txt: {
         fontSize:14,
         color:'black'
+    },
+    tagButtonNotPressed: {
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 8,
+        borderRadius: 100,
+        backgroundColor: 'white',
+        marginLeft: 3,
+        marginRight: 3,
+    },
+    tagButtonPressed: {
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 8,
+    borderRadius: 100,
+    backgroundColor: 'gray',
+    marginLeft: 3,
+    marginRight: 3,
+    },
+    tagButtonText: {
+        color:'black',
+        fontWeight: 'bold',
+        //lineHeight: 15,
     }
 })
