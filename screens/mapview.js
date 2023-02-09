@@ -1,7 +1,6 @@
 
 import React, { useState, useCallback, useMemo, useRef, useEffect} from 'react'
 import MapView, { Marker } from 'react-native-maps'
-import { ScrollView } from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { lightColors, SearchBar, Icon, Switch} from '@rneui/themed'
@@ -13,6 +12,7 @@ import { tags  } from '../modules/tags';
 import {
     Platform,
     SafeAreaView,
+    ScrollView,
     StyleSheet,
     Text,
     FlatList,
@@ -201,15 +201,16 @@ const Mapview = ({ navigation, route }) => {
                         <Text style={{fontSize:30, fontWeight:'bold'}}>WePee</Text>
                         
                         <View style={{height:60, flexDirection:'row',
-                                justifyContent:'space-between', alignItems:'center', marginLeft:10, marginRight:10}}>
+                                justifyContent:'flex-start', alignItems:'center', marginLeft:6, marginRight:10}}>
                              {/* <TouchableOpacity style={{width:40, height:40, borderRadius:20, justifyContent:'center'}} onPress={() => dougsTestFunc()}>
                                 <Icon name='sliders' type='font-awesome' size={25} color='darkgray' />
                             </TouchableOpacity> */}
                             <SearchBar 
-                                placeholder='looking for a bathroom?'
+                                placeholder='Looking for a bathroom?'
                                 onChangeText={updateSearchFunc}
                                 showCancel={true}
-                                containerStyle={{flex:1, marginHorizontal:15,backgroundColor:lightColors.white, borderTopColor:'white'}}
+                                inputContainerStyle={{borderRadius: 23}}
+                                containerStyle={{flex:1, backgroundColor:lightColors.white, borderTopColor:'white'}}
                                 value={searchTxt}/>
                             <TouchableOpacity style={{width:40, height:40, borderRadius:20, justifyContent:'center'}} onPress={() => navigation.navigate('Add')}>
                                 <Icon name='plus' type='font-awesome' size={20} color='darkgray' />
@@ -222,7 +223,7 @@ const Mapview = ({ navigation, route }) => {
                             mapType="standard"
                             initialRegion={region}
                             showsUserLocation={true}
-                            showsMyLocationButton={true}
+                            showsMyLocationButton={false}
                             region={region}
                             onRegionChange={() => {}}>
                             
@@ -232,7 +233,7 @@ const Mapview = ({ navigation, route }) => {
                         <ScrollView 
                             style={{
                                 position: 'absolute', //use absolute position to show the ScrollView on top of the map
-                                top: 112, //for center align
+                                top: 108, //for center align
                                 alignSelf: 'flex-start', //for align to left
                                 width: '100%',
                             }}
