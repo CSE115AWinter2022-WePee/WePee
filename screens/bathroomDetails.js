@@ -30,6 +30,8 @@ const BathroomDetailsScreen = ({route}) => {
         longitudeDelta: 0.0421,
     })
 
+
+
     useEffect(() => {
         fetchBathroomData(route.params?.bathroomId)
        

@@ -202,9 +202,9 @@ const Mapview = ({ navigation, route }) => {
                         
                         <View style={{height:60, flexDirection:'row',
                                 justifyContent:'space-between', alignItems:'center', marginLeft:10, marginRight:10}}>
-                             <TouchableOpacity style={{width:40, height:40, borderRadius:20, justifyContent:'center'}} onPress={() => dougsTestFunc()}>
+                             {/* <TouchableOpacity style={{width:40, height:40, borderRadius:20, justifyContent:'center'}} onPress={() => dougsTestFunc()}>
                                 <Icon name='sliders' type='font-awesome' size={25} color='darkgray' />
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
                             <SearchBar 
                                 placeholder='looking for a bathroom?'
                                 onChangeText={updateSearchFunc}
@@ -234,13 +234,13 @@ const Mapview = ({ navigation, route }) => {
                                 position: 'absolute', //use absolute position to show the ScrollView on top of the map
                                 top: 112, //for center align
                                 alignSelf: 'flex-start', //for align to left
-                                width: '85%',
+                                width: '100%',
                             }}
                             horizontal={true}
                             showsHorizontalScrollIndicator={false}
                         >
 
-                            {horizontalTags}
+                            { horizontalTags }
                         </ScrollView>
                     
                     </View>
