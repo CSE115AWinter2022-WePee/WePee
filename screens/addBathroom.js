@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Input, Icon, Switch } from '@rneui/themed'
 import firestore from '@react-native-firebase/firestore';
 import { tags  } from '../modules/tags';
-
+import { Rating } from 'react-native-ratings';
 import {
     Platform,
     SafeAreaView,
