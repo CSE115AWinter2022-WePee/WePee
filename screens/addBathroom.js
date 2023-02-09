@@ -23,8 +23,8 @@ const AddBathroomScreen = ({ navigation }) => {
     // tag states
     const [name, setName] = useState()
     const [desc, setDesc] = useState()
-    const [cleanliness, setCleanliness] = useState(false)
-    const [free, setFree] = useState(false)
+    const [cleanliness, setCleanliness] = useState(true)
+    const [free, setFree] = useState(true)
     const [accessibility, setAccessibility] = useState(false)
     const [changing_station, setChangingStation] = useState(false)
     const [condoms_sale, setCondomsSale] = useState(false)
@@ -200,7 +200,7 @@ const AddBathroomScreen = ({ navigation }) => {
                             borderRadius:5, padding:5, justifyContent:'center'}} />
                     <Text style={[styles.txt, {fontSize:18, marginHorizontal:10}]}>{tag.name}</Text>
                 </View>
-                <Switch value={tag.state[0]} color='green' onValueChange={val => tag.state[1](val)}/>
+                <Switch value={tag.state[0]} onValueChange={val => tag.state[1](val)}/>
                 
             </View>
             { index == mTags.length - 1 
