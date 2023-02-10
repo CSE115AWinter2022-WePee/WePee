@@ -21,6 +21,7 @@ import {
 
 
 const Mapview = ({ navigation, route }) => {
+
       // state to hold location, default is false. setLocation(something) sets location to something
     const [coordinate, setCoordinate] = useState();
     const [searchTxt, setSearchTxt] = useState('')

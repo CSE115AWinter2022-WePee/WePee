@@ -10,6 +10,7 @@ import { tags  } from '../modules/tags';
 import {
     Platform,
     SafeAreaView,
+    TouchableOpacity,
     StyleSheet,
     Text,
     Alert,
@@ -20,6 +21,7 @@ import {
 
 
 const AddBathroomScreen = ({ navigation }) => {
+
     // tag states
     const [name, setName] = useState()
     const [desc, setDesc] = useState()
@@ -32,10 +34,13 @@ const AddBathroomScreen = ({ navigation }) => {
     const [unisex, setUnisex] = useState(false)
     const [urinal, setUrinal] = useState(false)
 
+    //refs
+    const bottomSheetRef = useRef(null);
+    const mapViewRef = useRef(null);
+
     const [pinnedCoordinate, setPinnedCoordinate] = useState({ latitude: null, longitude: null });
     const [coordinate, setCoordinate] = useState({ latitude: 37.78825, longitude: -122.4324 });
-    const bottomSheetRef = useRef(null);
-    const snapPoints = useMemo(() => ['30%', '60%'], []);
+    const snapPoints = useMemo(() => ['30%', '60%', '85%'], []);
     const [region, setRegion] = useState({
         latitude: 37.78825,
         longitude: -122.4324,
@@ -53,7 +58,7 @@ const AddBathroomScreen = ({ navigation }) => {
             headerRight:() => <Icon 
                                     name='check' 
                                     size={25} 
-                                    color='darkgray'
+                                    color='#3C99DC'
                                     type='font-awesome' 
                                     onPress={ () => addBathroom() }/>   
         })
@@ -220,11 +225,14 @@ const AddBathroomScreen = ({ navigation }) => {
       <SafeAreaView >
             <View style={{height:'100%'}}>
                 <MapView
-                    style={{width:'100%', height:'70%'}}
+                    ref={mapViewRef}
+                    style={{width:'100%', height:'100%'}}
                     mapType="standard"
-                    showsUserLocation
+                    showsUserLocation={true}
+                    showsMyLocationButton={false}
                     initialRegion={region}
                     region={region}
+                    onPress={() => {bottomSheetRef.current.close()}}
                     onRegionChange={() => {}}>
                     <Marker
                         draggable
@@ -233,12 +241,29 @@ const AddBathroomScreen = ({ navigation }) => {
                         onDragEnd={e => setPinnedCoordinate(e.nativeEvent.coordinate)}/>
 
                 </MapView>
+
+                <TouchableOpacity // Show list button
+                    onPress={() => bottomSheetRef.current.snapToIndex(0)}
+                    style = {styles.showListButton}>
+                    
+                    <Icon name='list' type='material' size={30}  color='white' containerStyle={{marginRight: 3}}/>
+                    <Text style={{fontSize: 14, fontWeight: 'bold', color: 'white'}}>View List</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity // Animate to user button
+                    onPress={() => {mapViewRef.current.animateToRegion(region, 400)}}
+                    style = {styles.userLocationButton}>
+                    <Icon name='person-pin' type='material' size={40} color='lightblue' />
+                </TouchableOpacity>
+
+
             </View>
             <BottomSheet
                 ref={bottomSheetRef}
                 index={0}
                 snapPoints={snapPoints}
                 onChange={handleSheetChanges}
+                enablePanDownToClose={true}
             >
                 <ScrollView>
                     <View style={{flex:1, alignItems:'center', backgroundColor:'lightgrey'}}>
@@ -269,6 +294,7 @@ const AddBathroomScreen = ({ navigation }) => {
                     </View>
                 </ScrollView>
             </BottomSheet>
+
       </SafeAreaView>
 
     </View>
@@ -289,7 +315,34 @@ const styles = StyleSheet.create({
         alignItems:'center',
         backgroundColor:'white', 
         padding:10
-    }
+    },
+    showListButton: {
+        position: 'absolute',
+        flexDirection:'row',
+        alignItems:'center',
+        justifyContent: 'center',
+        bottom: 15,
+        right: 15,
+        height: 50,
+        width: 130,
+        opacity: .8,
+        padding: 5,
+        borderRadius: 100,
+        backgroundColor: '#3C99DC',
+    },
+    userLocationButton: {
+        position: 'absolute',
+        alignItems:'center',
+        justifyContent: 'center',
+        top: 15,
+        right: 15,
+        height: 50,
+        width: 50,
+        opacity: .8,
+        padding: 5,
+        borderRadius: 100,
+        backgroundColor: 'gray',
+    },
 })
 
 
