@@ -8,7 +8,6 @@ import { getCurrentLocation } from '../modules/getLocation';
 import firestore from '@react-native-firebase/firestore';
 import { tags  } from '../modules/tags';
 
-
 import {
     Platform,
     SafeAreaView,
@@ -27,6 +26,7 @@ const Mapview = ({ navigation, route }) => {
     const [searchTxt, setSearchTxt] = useState('')
     const [bathrooms, setBathrooms] = useState([])
     const bottomSheetRef = useRef(null); //bottomSheetRef.current.snapToPosition('3%')
+    const mapViewRef = useRef(null);
 
     // States to determine if tag is active or not
     const [cleanliness, setCleanliness] = useState(false)
@@ -177,6 +177,8 @@ const Mapview = ({ navigation, route }) => {
         });
     }
 
+    console.log("here1")
+
     const Item = ({ props, index, id }) => (
         <TouchableOpacity style={{width:'100%', backgroundColor: index % 2 ? 'lightgray' : null, 
             justifyContent:'center', padding:10, marginVertical: 5}}
@@ -196,13 +198,14 @@ const Mapview = ({ navigation, route }) => {
             <SafeAreaView>
                 <View style={{height:'100%'}}>
     
+                    
+                    
                     <View style={{alignItems:'center'}}>
+                    <Text style={{fontSize:30, fontWeight:'bold', color:'#3C99DC', left:20}}>WePee</Text>
                         
-                        <Text style={{fontSize:30, fontWeight:'bold'}}>WePee</Text>
-                        
-                        <View style={{height:60, flexDirection:'row',
+                        <View style={{height:60, flexDirection:'row', 
                                 justifyContent:'flex-start', alignItems:'center', marginLeft:6, marginRight:10}}>
-                             {/* <TouchableOpacity style={{width:40, height:40, borderRadius:20, justifyContent:'center'}} onPress={() => dougsTestFunc()}>
+                            {/* <TouchableOpacity style={{width:40, height:40, borderRadius:20, justifyContent:'center'}} onPress={() => dougsTestFunc()}>
                                 <Icon name='sliders' type='font-awesome' size={25} color='darkgray' />
                             </TouchableOpacity> */}
                             <SearchBar 
@@ -213,24 +216,26 @@ const Mapview = ({ navigation, route }) => {
                                 containerStyle={{flex:1, backgroundColor:lightColors.white, borderTopColor:'white'}}
                                 value={searchTxt}/>
                             <TouchableOpacity style={{width:40, height:40, borderRadius:20, justifyContent:'center'}} onPress={() => navigation.navigate('Add')}>
-                                <Icon name='plus' type='font-awesome' size={20} color='darkgray' />
+                                <Icon name='plus' type='font-awesome' size={20} color='#3C99DC' />
                             </TouchableOpacity>
                            
                         </View>
 
                         <MapView
                             style={{width:'100%', height:'100%'}}
+                            ref={mapViewRef}
                             mapType="standard"
                             initialRegion={region}
                             showsUserLocation={true}
                             showsMyLocationButton={false}
                             region={region}
+                            onPress={() => {bottomSheetRef.current.close()}}
                             onRegionChange={() => {}}>
                             
                             { bathroomMarkers }
                         </MapView>
 
-                        <ScrollView 
+                        <ScrollView // scrollable tags
                             style={{
                                 position: 'absolute', //use absolute position to show the ScrollView on top of the map
                                 top: 108, //for center align
@@ -243,6 +248,20 @@ const Mapview = ({ navigation, route }) => {
 
                             { horizontalTags }
                         </ScrollView>
+
+                        <TouchableOpacity // Show list button
+                            onPress={() => bottomSheetRef.current.snapToIndex(0)}
+                            style = {styles.showListButton}>
+                            
+                            <Icon name='list' type='material' size={30} color='white' containerStyle={{marginRight: 3}}/>
+                            <Text style={{fontSize: 18,fontWeight: 500, color: 'white'}}>View List</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity // Animate to user button
+                            onPress={() => {mapViewRef.current.animateToRegion(region, 400)}}
+                            style = {styles.userLocationButton}>
+                            <Icon name='person-pin' type='material' size={40} color='lightblue' />
+                        </TouchableOpacity>
                     
                     </View>
     
@@ -253,6 +272,7 @@ const Mapview = ({ navigation, route }) => {
                     index={0}
                     snapPoints={snapPoints}
                     onChange={handleSheetChanges}
+                    enablePanDownToClose={true}
                 >
                     <View style={{flex:1, alignItems:'center', padding:0}}>
                         <FlatList
@@ -284,7 +304,6 @@ const styles = StyleSheet.create({
         flexDirection:'row',
         alignItems:'center',
         justifyContent: 'center',
-        alignItems: 'center',
         padding: 8,
         borderRadius: 100,
         backgroundColor: 'white',
@@ -296,7 +315,6 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     alignItems:'center',
     justifyContent: 'center',
-    alignItems: 'center',
     padding: 8,
     borderRadius: 100,
     backgroundColor: 'gray',
@@ -307,5 +325,32 @@ const styles = StyleSheet.create({
         color:'black',
         //fontWeight: 'bold',
         //lineHeight: 15,
-    }
+    },
+    showListButton: {
+        position: 'absolute',
+        flexDirection:'row',
+        alignItems:'center',
+        justifyContent: 'center',
+        bottom: '12%',
+        right: '3%',
+        height: 50,
+        width: 130,
+        opacity: .8,
+        padding: 5,
+        borderRadius: 100,
+        backgroundColor: '#3C99DC',
+    },
+    userLocationButton: {
+        position: 'absolute',
+        alignItems:'center',
+        justifyContent: 'center',
+        top: 156,
+        right: '3%',
+        height: 50,
+        width: 50,
+        opacity: .8,
+        padding: 5,
+        borderRadius: 100,
+        backgroundColor: 'gray',
+    },
 })
