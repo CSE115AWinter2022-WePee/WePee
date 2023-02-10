@@ -23,8 +23,8 @@ const AddBathroomScreen = ({ navigation }) => {
     // tag states
     const [name, setName] = useState()
     const [desc, setDesc] = useState()
-    const [cleanliness, setCleanliness] = useState(true)
-    const [free, setFree] = useState(true)
+    const [cleanliness, setCleanliness] = useState(false)
+    const [free, setFree] = useState(false)
     const [accessibility, setAccessibility] = useState(false)
     const [changing_station, setChangingStation] = useState(false)
     const [condoms_sale, setCondomsSale] = useState(false)

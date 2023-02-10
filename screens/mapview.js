@@ -177,7 +177,6 @@ const Mapview = ({ navigation, route }) => {
         });
     }
 
-    console.log("here1")
 
     const Item = ({ props, index, id }) => (
         <TouchableOpacity style={{width:'100%', backgroundColor: index % 2 ? 'lightgray' : null, 
@@ -253,8 +252,8 @@ const Mapview = ({ navigation, route }) => {
                             onPress={() => bottomSheetRef.current.snapToIndex(0)}
                             style = {styles.showListButton}>
                             
-                            <Icon name='list' type='material' size={30} color='white' containerStyle={{marginRight: 3}}/>
-                            <Text style={{fontSize: 18,fontWeight: 500, color: 'white'}}>View List</Text>
+                            <Icon name='list' type='material' size={30}  color='white' containerStyle={{marginRight: 3}}/>
+                            <Text style={{fontSize: 14, fontWeight: 'bold', color: 'white'}}>View List</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity // Animate to user button
