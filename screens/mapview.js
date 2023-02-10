@@ -42,7 +42,7 @@ const Mapview = ({ navigation, route }) => {
     const [region, setRegion] = useState({
         latitude: 37.78825,
         longitude: -122.4324,
-        latitudeDelta: 0.0922,
+        latitudeDelta: 0.0222,
         longitudeDelta: 0.0421,
     });
 
@@ -257,7 +257,7 @@ const Mapview = ({ navigation, route }) => {
                         </TouchableOpacity>
 
                         <TouchableOpacity // Animate to user button
-                            onPress={() => {mapViewRef.current.animateToRegion(region, 400)}}
+                            onPress={() => {mapViewRef.current.animateToRegion(region, 1000)}}
                             style = {styles.userLocationButton}>
                             <Icon name='person-pin' type='material' size={40} color='lightblue' />
                         </TouchableOpacity>
