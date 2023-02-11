@@ -30,11 +30,8 @@ const BathroomDetailsScreen = ({route}) => {
         longitudeDelta: 0.0421,
     })
 
-
-
     useEffect(() => {
         fetchBathroomData(route.params?.bathroomId)
-       
     }, [])
 
     const fetchBathroomData = async (bathroomId) => {
@@ -47,7 +44,6 @@ const BathroomDetailsScreen = ({route}) => {
                     latitude: snap.data().latitude, 
                     longitude:snap.data().longitude})
                 setCoordinate({latitude: snap.data().latitude, longitude:snap.data().longitude})
-
                 displayTags(snap.data())
             }
         } catch (error) {
@@ -59,9 +55,8 @@ const BathroomDetailsScreen = ({route}) => {
     function displayTags(bathroomData) {
         const data = tags.map((tag, index) => {
             const dbName = tag.db_name
-            if (!bathroomData[dbName]) return null
+            if (!bathroomData[dbName]) return undefined
             return (
-                
                 <View style={{width:'100%',justifyContent:'center'}} key={tag.key}>
                     <View style={{width:'100%',flexDirection:'row', justifyContent:'space-between', 
                             alignItems:'center', padding:10}}>
@@ -83,7 +78,6 @@ const BathroomDetailsScreen = ({route}) => {
                     
                 </View> 
         )})
-    
         setTagsSection(data)
     }
 
@@ -136,6 +130,7 @@ const BathroomDetailsScreen = ({route}) => {
                             <AirbnbRating 
                                 isDisabled={true} 
                                 showRating={false}
+                                onFinishRating  = {() => {/* Set rating here */}}
                                 size={25}
                                 count={5}
                                 defaultRating={bathroomData?.rating} 

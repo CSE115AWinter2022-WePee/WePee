@@ -19,6 +19,7 @@ import {
 
   import { ScrollView } from 'react-native-gesture-handler'
 
+// Currently not implemented: Set rating, delete/report bathroom, edit tags for bathroom
 
 const AddBathroomScreen = ({ navigation }) => {
 
@@ -150,8 +151,6 @@ const AddBathroomScreen = ({ navigation }) => {
         )
      }
 
-
-
      const mTags = [
         {   
             ...tags[0],
@@ -189,7 +188,6 @@ const AddBathroomScreen = ({ navigation }) => {
         }
        
      ]
-
 
     const tagsSection = mTags.map((tag,index) =>
         <View style={{width:'100%',justifyContent:'center'}} key={tag.key}>
@@ -251,7 +249,7 @@ const AddBathroomScreen = ({ navigation }) => {
                 </TouchableOpacity>
 
                 <TouchableOpacity // Animate to user button
-                    onPress={() => {mapViewRef.current.animateToRegion(region, 400)}}
+                    onPress={() => {mapViewRef.current.animateToRegion(region, 1000)}}
                     style = {styles.userLocationButton}>
                     <Icon name='person-pin' type='material' size={40} color='lightblue' />
                 </TouchableOpacity>
