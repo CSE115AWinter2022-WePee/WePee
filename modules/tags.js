@@ -24,7 +24,7 @@ export const tags = [
     },
     {   
         key:3,
-        dbRef_name: "changing_station",
+        db_name: "changing_station",
         name: "Family/changing station",
         icon: "human-baby-changing-table",
         iconColor: "chocolate",

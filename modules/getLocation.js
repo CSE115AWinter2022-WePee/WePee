@@ -1,42 +1,34 @@
+import { resolveConfig } from 'prettier';
 import Geolocation from 'react-native-geolocation-service';
 import { requestLocation, requestLocationPermission } from '../modules/requestLocation';
 
 
-// function to check permissions and get Location
-export const getCurrentLocation = async () => {
-    return new Promise(async (resolve, reject) => {
-        const res = await requestLocationPermission()
+// function to check permissions and get location
+export const getCurrentLocation = () => {
+    return new Promise((resolve, reject) => {
+        const res = requestLocationPermission()
         if (res) {
-            try {
-                Geolocation.getCurrentPosition(
-                    position => {
-                        const coordinates = {
-                            latitude: position.coords.latitude,
-                            longitude: position.coords.longitude,
-                        }
-                        const region = {
-                            latitude: position.coords.latitude,
-                            longitude: position.coords.longitude,
-                            latitudeDelta: 0.0922,
-                            longitudeDelta: 0.0421,
-                        }
-                        resolve({coordinates, region }) 
-                    },
-                    error => {
-                        // See error code charts below.
-                        console.log(error.code, error.message);
-                        reject('ERROR LOCATION')
-                    },
-                    {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
-                );
-            } catch (error) {
-                console.log(error.code, error.message);
-                reject('ERROR LOCATION')
-            }
-       
-        } else reject('ERROR LOCATION')
-
-    })
-    
-   
+            Geolocation.getCurrentPosition(
+                position => {
+                    const coordinates = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                    }
+                    const region = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,  
+                        latitudeDelta: 0.0922,
+                        longitudeDelta: 0.0421,
+                    }
+                    resolve({coordinates, region})
+                },
+                error => {
+                    reject(error.message);
+                },
+                {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+            );
+        } else {
+            reject("No location permission")
+        }
+    });
 };
