@@ -23,6 +23,7 @@ const BathroomDetailsScreen = ({route}) => {
     const [tagsSection, setTagsSection] = useState()
     const [stars, setStars] = useState(3)
     const snapPoints = useMemo(() => ['50%', '70%'], []);
+    const [dbDocument, setDbDocument] = useState()
 
     const [region, setRegion] = useState({
         latitude: 37.78825,
@@ -44,13 +45,23 @@ const BathroomDetailsScreen = ({route}) => {
         return [totalSum/numRatings, numRatings];
     }
 
+    const updateRating = async () => {
+        bathroomData["rating"][stars - 1]++
+        await dbDocument.update({
+            rating: bathroomData["rating"]
+        })
+        console.log("rating updated!")
+    }
+
     useEffect(() => {
         fetchBathroomData(route.params?.bathroomId)
     }, [])
 
     const fetchBathroomData = async (bathroomId) => {
-        try {
-            const snap = await firestore().collection('bathrooms').doc(bathroomId).get()
+        try {   
+            const doc = await firestore().collection('bathrooms').doc(bathroomId);
+            setDbDocument(doc);
+            const snap = await doc.get()
             if (snap.exists) {
                 setBathroomData(snap.data())
                 setRegion({
@@ -139,32 +150,40 @@ const BathroomDetailsScreen = ({route}) => {
                             <Text style={[styles.txt, {marginVertical:15}] }>
                                 {bathroomData?.description}
                             </Text>
-                            <AirbnbRating 
-                                    isDisabled={true} 
-                                    showRating={false}
-                                    size={25}
-                                    count={5}
-                                    defaultRating={getRating(bathroomData)[0]} 
-                                    ratingContainerStyle={{ marginTop:0 }}/>
+                            <View style={{flexDirection:'row', alignItems:'center'}}>
 
-                            <Text style={[styles.txt, {marginVertical:15}] }>
+                                <AirbnbRating 
+                                        isDisabled={true} 
+                                        showRating={false}
+                                        size={25}
+                                        count={5}
+                                        defaultRating={getRating(bathroomData)[0]} 
+                                        ratingContainerStyle={{ marginTop:0 }}/>
+                                <Text style={[styles.txt, {marginVertical:15}] }>
                                 {getRating(bathroomData)[0]} ({getRating(bathroomData)[1]})
                             </Text>
+                            </View>
+
+
                         </View>
 
                         <View style={{width: '100%'}}>
-                        <AirbnbRating
-                            showRating={false}
-                            size={35}
-                            count={5}
-                            defaultRating={stars}
-                            starContainerStyle={{alignSelf:'center'}}
-                            ratingContainerStyle={{ marginTop:20 }}
-                            onFinishRating={val => setStars(val)}
-                            />
-                            <Text style={[styles.txt, {marginVertical:15}] }>
-                                Leave a review
+                            <View style={{flexDirection:'row', alignItems:'center', justifyContent:'space-around'}}>
+
+                                <AirbnbRating
+                                    showRating={false}
+                                    size={35}
+                                    count={5}
+                                    defaultRating={stars}
+                                    starContainerStyle={{alignSelf:'center'}}
+                                    ratingContainerStyle={{ marginTop:20 }}
+                                    onFinishRating={val => setStars(val)}
+                                />
+                            <Text style={[styles.txt] } onPress={() => updateRating()}>
+                                Post
                             </Text>
+                            </View>
+
                              <Text style={[styles.txt, {fontWeight:'bold', fontSize:18, marginTop:30, marginLeft:15}] }>
                                 Features
                             </Text>
