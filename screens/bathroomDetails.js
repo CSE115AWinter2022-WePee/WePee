@@ -30,6 +30,19 @@ const BathroomDetailsScreen = ({route}) => {
         longitudeDelta: 0.0421,
     })
 
+    const getRating = function(data) {
+        if (!data) {
+            return 5;
+        }
+        totalSum = 0;
+        numRatings = 0;
+        for (let i = 0; i < data["rating"].length; i++) {
+            totalSum += (i + 1) * data["rating"][i];
+            numRatings += data["rating"][i];
+        }
+        return totalSum/numRatings;
+    }
+
 
 
     useEffect(() => {
@@ -138,7 +151,7 @@ const BathroomDetailsScreen = ({route}) => {
                                 showRating={false}
                                 size={25}
                                 count={5}
-                                defaultRating={bathroomData?.rating} 
+                                defaultRating={getRating(bathroomData)} 
                                 starContainerStyle={{alignSelf:'center'}}
                                 ratingContainerStyle={{ marginTop:0 }}/>
                         </View>
