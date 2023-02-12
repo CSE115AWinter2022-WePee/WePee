@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Input, Icon, Switch } from '@rneui/themed'
 import firestore from '@react-native-firebase/firestore';
 import { tags  } from '../modules/tags';
-
+import { AirbnbRating } from 'react-native-ratings'
 import {
     Platform,
     SafeAreaView,
@@ -34,6 +34,7 @@ const AddBathroomScreen = ({ navigation }) => {
     const [period_products, setPeriodProducts] = useState(false)
     const [unisex, setUnisex] = useState(false)
     const [urinal, setUrinal] = useState(false)
+    const [stars, setStars] = useState(3)
 
     //refs
     const bottomSheetRef = useRef(null);
@@ -92,7 +93,7 @@ const AddBathroomScreen = ({ navigation }) => {
             }
 
             const id = firestore().collection('bathrooms').doc().id
-            const data = {
+            let data = {
                 name: name,
                 description: desc || "",
                 latitude: pinnedCoordinate.latitude,
@@ -106,8 +107,9 @@ const AddBathroomScreen = ({ navigation }) => {
                 unisex: unisex,
                 urinal: urinal,
                 id: id,
-                rating: 0
+                rating: [0, 0, 0, 0, 0]
             }
+            data["rating"][stars - 1]++;
             await firestore().collection('bathrooms').doc(id).set(data)
 
             showAlert("Success", 
@@ -284,8 +286,17 @@ const AddBathroomScreen = ({ navigation }) => {
                                 inputContainerStyle={{backgroundColor:'lightgrey', height:'100%', 
                                                 paddingHorizontal:10, paddingVertical:5, 
                                                 borderBottomColor:'lightgrey', borderRadius: 5}}/>
-                        </View>
+                            <AirbnbRating
+                            showRating={false}
+                            size={35}
+                            count={5}
+                            defaultRating={stars}
+                            starContainerStyle={{alignSelf:'center'}}
+                            ratingContainerStyle={{ marginTop:20 }}
+                            onFinishRating={val => setStars(val)}
+                            />
 
+                        </View>
                         <View style={[styles.section, {marginTop:10, paddingBottom:20}]}>
                             { tagsSection }
                         </View>
