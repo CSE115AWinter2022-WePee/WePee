@@ -91,6 +91,17 @@ const Mapview = ({ navigation, route }) => {
        
     ]
 
+    const flatListSeparator = () => {
+        return (
+          <View
+            style={{
+              height: 1,
+              backgroundColor: "#CED0CE",
+              marginLeft: "3%",
+              marginRight: '3%'}}/>
+        );
+      };
+
     const _getLocation = async () => {
         try {
             const { coordinates, region } = await getCurrentLocation()
@@ -180,7 +191,7 @@ const Mapview = ({ navigation, route }) => {
 
 
     const Item = ({ props, index, id }) => (
-        <TouchableOpacity style={{width:'100%', backgroundColor: index % 2 ? 'lightgray' : null, 
+        <TouchableOpacity style={{width:'100%', backgroundColor:'white', 
             justifyContent:'center', padding:10, marginVertical: 5}}
             onPress={() => navigation.navigate('Details', {bathroomId: id})}>
         
@@ -277,6 +288,7 @@ const Mapview = ({ navigation, route }) => {
                     <View style={{flex:1, alignItems:'center', padding:0}}>
                         <FlatList
                             data={bathrooms}
+                            ItemSeparatorComponent={flatListSeparator}
                             renderItem={({item, index}) => <Item props={item.data()} index={index} id={item.id}/>}
                             keyExtractor={item => item.id}
                             style={{width:'100%'}}/>
