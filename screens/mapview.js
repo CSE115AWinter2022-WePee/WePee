@@ -3,7 +3,7 @@ import React, { useState, useCallback, useMemo, useRef, useEffect} from 'react'
 import MapView, { Marker } from 'react-native-maps'
 import BottomSheet from '@gorhom/bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { lightColors, SearchBar, Icon, Switch} from '@rneui/themed'
+import { lightColors, SearchBar, Icon, Switch, registerCustomIconType} from '@rneui/themed'
 import { getCurrentLocation } from '../modules/getLocation';
 import firestore from '@react-native-firebase/firestore';
 import { tags  } from '../modules/tags';
@@ -116,6 +116,30 @@ const Mapview = ({ navigation, route }) => {
        
     }
 
+    // 1º lat ~ 69 mi
+    // 1º long ~ 54.6 mi
+    // at 38º N latitude (Stockton, CA)
+    // https://www.usgs.gov/faqs/how-much-distance-does-degree-minute-and-second-cover-your-maps#:~:text=One%2Ddegree%20of%20longitude%20equals,one%20second%20equals%2080%20feet.
+    // Computes the stright line distance to bathroom, and rounds to 2 decimal places
+    const getDistance = (latitude, longitude) => {
+        return ((((coordinate.latitude - latitude) * 69) ** 2 + ((coordinate.longitude - longitude) * 54.6) ** 2) ** .5).toFixed(1)
+    }
+
+    const updateLocation = (coords) => {
+        console.log("you updated latitude" + coords.latitude)
+        const newCoordinates = {
+            latitude: coords.latitude,
+            longitude: coords.longitude,
+        }
+        const newRegion = {
+            latitude: coords.latitude,
+            longitude: coords.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+        }
+        setRegion(newRegion)
+        setCoordinate(newCoordinates)
+    }
 
     // runs when a tag is pressed
     const onTagPress = (tag, index) => {
@@ -137,11 +161,9 @@ const Mapview = ({ navigation, route }) => {
         setSearchTxt(txt)
     }
 
-    const dougsTestFunc = () => {
-        console.log("YOU PRESSED DOUGS SECRET BUTTON!")
-        for(let i=0; i<mTags.length; i++){
-            console.log(mTags[i].name + ' and state: ' + mTags[i].state[0]);
-        }
+    const goToUser = () => {
+        //_getLocation() // update user location
+        mapViewRef.current.animateToRegion(region, 1000)
     }
 
     const snapPoints = useMemo(() => ['30%', '60%'], []);
@@ -197,7 +219,7 @@ const Mapview = ({ navigation, route }) => {
         
             <View style={{flex:1, alignItems: 'center', flexDirection:'row', justifyContent:'space-between'}}>
                 <Text style={[styles.txt, {fontSize:16, fontWeight:'bold'}]}>{props.name}</Text> 
-                <Text style={[styles.txt]}>{index} mi.</Text>  
+                <Text style={[styles.txt]}>{getDistance(props.latitude, props.longitude)} mi.</Text>  
             </View>
         </TouchableOpacity>
     )
@@ -241,7 +263,10 @@ const Mapview = ({ navigation, route }) => {
                             showsMyLocationButton={false}
                             region={region}
                             onPress={() => {bottomSheetRef.current.close()}}
-                            onRegionChange={() => {}}>
+                            onRegionChange={() => {}}
+                            //onUserLocationChange={(newCoords) => {updateLocation(newCoords.nativeEvent.coordinate)}}
+                            >
+                            
                             
                             { bathroomMarkers }
                         </MapView>
@@ -269,7 +294,7 @@ const Mapview = ({ navigation, route }) => {
                         </TouchableOpacity>
 
                         <TouchableOpacity // Animate to user button
-                            onPress={() => {mapViewRef.current.animateToRegion(region, 1000)}}
+                            onPress={() => {goToUser()}}
                             style = {styles.userLocationButton}>
                             <Icon name='person-pin' type='material' size={40} color='lightblue' />
                         </TouchableOpacity>
