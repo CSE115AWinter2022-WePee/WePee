@@ -11,13 +11,16 @@ import { tags  } from '../modules/tags';
 import {
     Platform,
     SafeAreaView,
-    ScrollView,
     StyleSheet,
     Text,
-    FlatList,
     View,
     TouchableOpacity
   } from 'react-native';
+
+  import {
+    ScrollView,
+    FlatList
+  } from 'react-native-gesture-handler';
 
 
 const Mapview = ({ navigation, route }) => {
@@ -203,7 +206,6 @@ const Mapview = ({ navigation, route }) => {
         </TouchableOpacity>
     )
    
-
     if (!coordinate) return <></>
     return (
         <View style={{backgroundColor:'white'}}>
