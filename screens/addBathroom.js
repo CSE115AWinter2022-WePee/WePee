@@ -234,6 +234,7 @@ const AddBathroomScreen = ({ navigation }) => {
                     region={region}
                     onPress={() => {bottomSheetRef.current.close()}}
                     onRegionChange={() => {}}>
+                    
                     <Marker
                         draggable
                         key={1}

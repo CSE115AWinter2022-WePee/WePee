@@ -3,7 +3,7 @@ import React, { useState, useCallback, useMemo, useRef, useEffect} from 'react'
 import MapView, { Marker } from 'react-native-maps'
 import BottomSheet from '@gorhom/bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { lightColors, SearchBar, Icon, Switch} from '@rneui/themed'
+import { lightColors, SearchBar, Icon } from '@rneui/themed'
 import { getCurrentLocation } from '../modules/getLocation';
 import firestore from '@react-native-firebase/firestore';
 import { tags  } from '../modules/tags';
@@ -95,6 +95,14 @@ const Mapview = ({ navigation, route }) => {
        
     ]
 
+    const flatListSeparator = () => (<View
+        style={{
+          height: 1,
+          backgroundColor: "#CED0CE",
+          marginLeft: "3%",
+          marginRight: '3%'}}/>
+    );
+
     const _getLocation = () => {
         getCurrentLocation()
         .then(({coordinates, region}) => {
@@ -106,6 +114,7 @@ const Mapview = ({ navigation, route }) => {
         })
         .catch(message => console.log(message))
     }
+
 
     // runs when a tag is pressed
     const onTagPress = (tag, index) => {
@@ -132,11 +141,9 @@ const Mapview = ({ navigation, route }) => {
         setSearched(bathrooms.filter(e => txt.length > 0 ? RegExp(txt.toLowerCase()).test(e.data().name.toLowerCase()) : true))
     }
 
-    const dougsTestFunc = () => {
-        console.log("YOU PRESSED DOUGS SECRET BUTTON!")
-        for(let i=0; i<mTags.length; i++){
-            console.log(mTags[i].name + ' and state: ' + mTags[i].state[0]);
-        }
+    const goToUser = () => {
+        //_getLocation() // update user location
+        mapViewRef.current.animateToRegion(region, 1000)
     }
 
     const snapPoints = useMemo(() => ['30%', '60%'], []);
@@ -152,12 +159,12 @@ const Mapview = ({ navigation, route }) => {
                 onPress={() => onTagPress(tag, index)}
                 style = {tag.state[0] ? styles.tagButtonPressed : styles.tagButtonNotPressed}>
                 <Icon 
-                        name={tag.icon} 
-                        type={ tag.iconType || "font-awesome-5" }
-                        color='white' 
-                        size={10} 
-                        containerStyle={{width:15, height:15, backgroundColor:tag.iconColor,
-                            borderRadius:3, padding:0, marginRight: 4, justifyContent:'center'}} />
+                    name={tag.icon} 
+                    type={ tag.iconType || "font-awesome-5" }
+                    color='white' 
+                    size={10} 
+                    containerStyle={{width:15, height:15, backgroundColor:tag.iconColor,
+                        borderRadius:3, padding:0, marginRight: 4, justifyContent:'center'}} />
                 <Text style={styles.tagButtonText}>{tag.name}</Text>
             </TouchableOpacity>
         </View>
@@ -194,14 +201,12 @@ const Mapview = ({ navigation, route }) => {
     }
 
     const Item = ({ props, index, id }) => (
-        <TouchableOpacity style={{width:'100%', backgroundColor: index % 2 ? 'lightgray' : null, 
+        <TouchableOpacity style={{width:'100%', backgroundColor: 'white', 
             justifyContent:'center', padding:10, marginVertical: 5}}
             onPress={() => navigation.navigate('Details', {bathroomId: id})}>
             <View style={{flex:1, alignItems: 'center', flexDirection:'row', justifyContent:'space-between'}}>
                 <Text style={[styles.txt, {fontSize:16, fontWeight:'bold'}]}>{props.name}</Text> 
-                <Text style={[styles.txt]}>
-                    {getDistance(props.latitude, props.longitude)} mi.
-                </Text>  
+                <Text style={[styles.txt]}>{index} mi.</Text>  
             </View>
         </TouchableOpacity>
     )
@@ -212,10 +217,8 @@ const Mapview = ({ navigation, route }) => {
             <SafeAreaView>
                 <View style={{height:'100%'}}>
     
-                    
-                    
                     <View style={{alignItems:'center'}}>
-                    <Text style={{fontSize:30, fontWeight:'bold', color:'#3C99DC', left:20}}>WePee</Text>
+                        <Text style={{fontSize:30, fontWeight:'bold', color:'#3C99DC'}}>WePee</Text>
                         
                         <View style={{height:60, flexDirection:'row', 
                                 justifyContent:'flex-start', alignItems:'center', marginLeft:6, marginRight:10}}>
@@ -226,9 +229,11 @@ const Mapview = ({ navigation, route }) => {
                                 placeholder='Looking for a bathroom?'
                                 onChangeText={updateSearchFunc}
                                 showCancel={true}
+                                style={{color:'black', fontSize: 16, fontWeight: 'bold'}}
                                 inputContainerStyle={{borderRadius: 23}}
                                 containerStyle={{flex:1, backgroundColor:lightColors.white, borderTopColor:'white'}}
                                 value={searchTxt}/>
+
                             <TouchableOpacity style={{width:40, height:40, borderRadius:20, justifyContent:'center'}} onPress={() => navigation.navigate('Add')}>
                                 <Icon name='plus' type='font-awesome' size={20} color='#3C99DC' />
                             </TouchableOpacity>
@@ -244,7 +249,10 @@ const Mapview = ({ navigation, route }) => {
                             showsMyLocationButton={false}
                             region={region}
                             onPress={() => {bottomSheetRef.current.close()}}
-                            onRegionChange={() => {}}>
+                            onRegionChange={() => {}}
+                            //onUserLocationChange={(newCoords) => {updateLocation(newCoords.nativeEvent.coordinate)}}
+                            >
+                            
                             
                             { bathroomMarkers }
                         </MapView>
@@ -272,7 +280,7 @@ const Mapview = ({ navigation, route }) => {
                         </TouchableOpacity>
 
                         <TouchableOpacity // Animate to user button
-                            onPress={() => {_getLocation(); mapViewRef.current.animateToRegion(region, 1000)}}
+                            onPress={() => {mapViewRef.current.animateToRegion(region, 1000)}}
                             style = {styles.userLocationButton}>
                             <Icon name='person-pin' type='material' size={40} color='lightblue' />
                         </TouchableOpacity>
@@ -290,10 +298,10 @@ const Mapview = ({ navigation, route }) => {
                 >
                     <View style={{flex:1, alignItems:'center', padding:0}}>
                         <FlatList
-                            data={searched}
+                            data={bathrooms}
                             renderItem={({item, index}) => <Item props={item.data()} index={index} id={item.id}/>}
                             keyExtractor={item => item.id}
-                            style={{width:'100%'}}/>
+                            style={{width:'100%', marginBottom:20}}/>
                     </View>
                 </BottomSheet>
     
@@ -345,7 +353,7 @@ const styles = StyleSheet.create({
         flexDirection:'row',
         alignItems:'center',
         justifyContent: 'center',
-        bottom: '12%',
+        bottom: '15%',
         right: '3%',
         height: 50,
         width: 130,
