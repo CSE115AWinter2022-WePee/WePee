@@ -154,20 +154,28 @@ const Mapview = ({ navigation, route }) => {
             }
         }
 
-        console.log("searchedTagslength: " + searchedTags.length + " and tags: ")
+        console.log("onTagPress searchedTagslength: " + searchedTags.length + " and tags: ")
         for(const i of searchedTags){
             console.log("tagname: " + i.name)
         }
         
-
-        // change bathrooms state
-        filterBathrooms()
+        if(searchedTags.length == 0){ // no tags selected
+            setBathrooms(allBathrooms)
+        }else{ // tags selected
+            filterBathrooms()
+        }
+        
     }
 
     // changes the bathrooms state based on the tags in searchedTags
     // this could be modified to use text from the searchbar
     const filterBathrooms = () => {
         const newBathrooms = []
+
+        console.log("before filterBathrooms searchedTagslength: " + searchedTags.length + " and tags: ")
+        for(const i of searchedTags){
+            console.log("tagname: " + i.name)
+        }
 
         // runs for every bath, checking their qualities against the tags
         for(const bath of allBathrooms){
@@ -188,6 +196,11 @@ const Mapview = ({ navigation, route }) => {
 
         // set bathrooms state, triggers rerender of markers and flatlist
         setBathrooms(newBathrooms)
+
+        console.log("after filterBathrooms searchedTagslength: " + searchedTags.length + " and tags: ")
+        for(const i of searchedTags){
+            console.log("tagname: " + i.name)
+        }
     }
 
     // Searches case-insensitively through bathroom names for search text `txt` appaearing anywhere
