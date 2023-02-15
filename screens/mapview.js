@@ -206,7 +206,7 @@ const Mapview = ({ navigation, route }) => {
             onPress={() => navigation.navigate('Details', {bathroomId: id})}>
             <View style={{flex:1, alignItems: 'center', flexDirection:'row', justifyContent:'space-between'}}>
                 <Text style={[styles.txt, {fontSize:16, fontWeight:'bold'}]}>{props.name}</Text> 
-                <Text style={[styles.txt]}>{index} mi.</Text>  
+                <Text style={[styles.txt]}>{getDistance(props.latitude, props.longitude)} mi.</Text>  
             </View>
         </TouchableOpacity>
     )
@@ -280,7 +280,7 @@ const Mapview = ({ navigation, route }) => {
                         </TouchableOpacity>
 
                         <TouchableOpacity // Animate to user button
-                            onPress={() => {mapViewRef.current.animateToRegion(region, 1000)}}
+                            onPress={() => {_getLocation(); mapViewRef.current.animateToRegion(region, 1000)}}
                             style = {styles.userLocationButton}>
                             <Icon name='person-pin' type='material' size={40} color='lightblue' />
                         </TouchableOpacity>

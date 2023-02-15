@@ -65,12 +65,13 @@ const AddBathroomScreen = ({ navigation }) => {
                                     onPress={ () => addBathroom() }/>   
         })
      })
- 
+     
+     // Should we really be caching the user's location here? Say the user goes to the "addBathroom" screen, then closes app, changes location, and reopens the app to the same screen. The following will still get the old location instead of the new location, which could confuse the user. Perhaps it should be the function from "mapview.js" which actually gets the user's (possibly new) location.
      const _getLocation = async () => {
         // fetch from cached data
          try {
              const coordinates = await AsyncStorage.getItem('coordinates')
-             const region  = await  AsyncStorage.getItem('region')
+             const region  = await AsyncStorage.getItem('region')
              setCoordinate(JSON.parse(coordinates))
              setPinnedCoordinate(JSON.parse(coordinates))
              setRegion(JSON.parse(region))
@@ -252,7 +253,7 @@ const AddBathroomScreen = ({ navigation }) => {
                 </TouchableOpacity>
 
                 <TouchableOpacity // Animate to user button
-                    onPress={() => {mapViewRef.current.animateToRegion(region, 1000)}}
+                    onPress={() => {_getLocation(); mapViewRef.current.animateToRegion(region, 1000)}}
                     style = {styles.userLocationButton}>
                     <Icon name='person-pin' type='material' size={40} color='lightblue' />
                 </TouchableOpacity>
