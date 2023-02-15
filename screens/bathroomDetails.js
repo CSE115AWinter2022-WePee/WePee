@@ -9,7 +9,6 @@ import {
     Text, 
     View, 
     SafeAreaView,
-    FlatList
 } from 'react-native'
 
 import { Input, Icon, AirbnbRating } from '@rneui/themed'

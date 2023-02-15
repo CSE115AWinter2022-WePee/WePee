@@ -236,6 +236,7 @@ const AddBathroomScreen = ({ navigation }) => {
                     region={region}
                     onPress={() => {bottomSheetRef.current.close()}}
                     onRegionChange={() => {}}>
+                    
                     <Marker
                         draggable
                         key={1}
@@ -253,7 +254,7 @@ const AddBathroomScreen = ({ navigation }) => {
                 </TouchableOpacity>
 
                 <TouchableOpacity // Animate to user button
-                    onPress={() => {mapViewRef.current.animateToRegion(region, 400)}}
+                    onPress={() => {mapViewRef.current.animateToRegion(region, 1000)}}
                     style = {styles.userLocationButton}>
                     <Icon name='person-pin' type='material' size={40} color='lightblue' />
                 </TouchableOpacity>

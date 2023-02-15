@@ -3,7 +3,7 @@ import React, { useState, useCallback, useMemo, useRef, useEffect} from 'react'
 import MapView, { Marker } from 'react-native-maps'
 import BottomSheet from '@gorhom/bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { lightColors, SearchBar, Icon, Switch, registerCustomIconType} from '@rneui/themed'
+import { lightColors, SearchBar, Icon } from '@rneui/themed'
 import { getCurrentLocation } from '../modules/getLocation';
 import firestore from '@react-native-firebase/firestore';
 import { tags  } from '../modules/tags';
@@ -11,13 +11,16 @@ import { tags  } from '../modules/tags';
 import {
     Platform,
     SafeAreaView,
-    ScrollView,
     StyleSheet,
     Text,
-    FlatList,
     View,
     TouchableOpacity
   } from 'react-native';
+
+  import {
+    ScrollView,
+    FlatList
+  } from 'react-native-gesture-handler';
 
 
 const Mapview = ({ navigation, route }) => {
@@ -91,16 +94,13 @@ const Mapview = ({ navigation, route }) => {
        
     ]
 
-    const flatListSeparator = () => {
-        return (
-          <View
-            style={{
-              height: 1,
-              backgroundColor: "#CED0CE",
-              marginLeft: "3%",
-              marginRight: '3%'}}/>
-        );
-      };
+    const flatListSeparator = () => (<View
+        style={{
+          height: 1,
+          backgroundColor: "#CED0CE",
+          marginLeft: "3%",
+          marginRight: '3%'}}/>
+    );
 
     const _getLocation = async () => {
         try {
@@ -179,12 +179,12 @@ const Mapview = ({ navigation, route }) => {
                 onPress={() => onTagPress(tag, index)}
                 style = {tag.state[0] ? styles.tagButtonPressed : styles.tagButtonNotPressed}>
                 <Icon 
-                        name={tag.icon} 
-                        type={ tag.iconType || "font-awesome-5" }
-                        color='white' 
-                        size={10} 
-                        containerStyle={{width:15, height:15, backgroundColor:tag.iconColor,
-                            borderRadius:3, padding:0, marginRight: 4, justifyContent:'center'}} />
+                    name={tag.icon} 
+                    type={ tag.iconType || "font-awesome-5" }
+                    color='white' 
+                    size={10} 
+                    containerStyle={{width:15, height:15, backgroundColor:tag.iconColor,
+                        borderRadius:3, padding:0, marginRight: 4, justifyContent:'center'}} />
                 <Text style={styles.tagButtonText}>{tag.name}</Text>
             </TouchableOpacity>
         </View>
@@ -213,7 +213,7 @@ const Mapview = ({ navigation, route }) => {
 
 
     const Item = ({ props, index, id }) => (
-        <TouchableOpacity style={{width:'100%', backgroundColor:'white', 
+        <TouchableOpacity style={{width:'100%', backgroundColor: 'white', 
             justifyContent:'center', padding:10, marginVertical: 5}}
             onPress={() => navigation.navigate('Details', {bathroomId: id})}>
         
@@ -231,10 +231,8 @@ const Mapview = ({ navigation, route }) => {
             <SafeAreaView>
                 <View style={{height:'100%'}}>
     
-                    
-                    
                     <View style={{alignItems:'center'}}>
-                    <Text style={{fontSize:30, fontWeight:'bold', color:'#3C99DC', left:20}}>WePee</Text>
+                        <Text style={{fontSize:30, fontWeight:'bold', color:'#3C99DC'}}>WePee</Text>
                         
                         <View style={{height:60, flexDirection:'row', 
                                 justifyContent:'flex-start', alignItems:'center', marginLeft:6, marginRight:10}}>
@@ -245,9 +243,11 @@ const Mapview = ({ navigation, route }) => {
                                 placeholder='Looking for a bathroom?'
                                 onChangeText={updateSearchFunc}
                                 showCancel={true}
+                                style={{color:'black', fontSize: 16, fontWeight: 'bold'}}
                                 inputContainerStyle={{borderRadius: 23}}
                                 containerStyle={{flex:1, backgroundColor:lightColors.white, borderTopColor:'white'}}
                                 value={searchTxt}/>
+
                             <TouchableOpacity style={{width:40, height:40, borderRadius:20, justifyContent:'center'}} onPress={() => navigation.navigate('Add')}>
                                 <Icon name='plus' type='font-awesome' size={20} color='#3C99DC' />
                             </TouchableOpacity>
@@ -316,7 +316,7 @@ const Mapview = ({ navigation, route }) => {
                             ItemSeparatorComponent={flatListSeparator}
                             renderItem={({item, index}) => <Item props={item.data()} index={index} id={item.id}/>}
                             keyExtractor={item => item.id}
-                            style={{width:'100%'}}/>
+                            style={{width:'100%', marginBottom:20}}/>
                     </View>
                 </BottomSheet>
     
@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
         flexDirection:'row',
         alignItems:'center',
         justifyContent: 'center',
-        bottom: '12%',
+        bottom: '15%',
         right: '3%',
         height: 50,
         width: 130,
