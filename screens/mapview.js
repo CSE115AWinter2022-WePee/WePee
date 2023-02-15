@@ -27,8 +27,8 @@ const Mapview = ({ navigation, route }) => {
     // state to hold location, default is false. setLocation(something) sets location to something
     const [coordinate, setCoordinate] = useState();
     const [searchTxt, setSearchTxt] = useState('')
+    const [allBathrooms, setAllBathrooms] = useState([]) // only changes upon getting data
     const [bathrooms, setBathrooms] = useState([])
-    const [searched, setSearched] = useState([]); // For storing search results
     const bottomSheetRef = useRef(null); //bottomSheetRef.current.snapToPosition('3%')
     const mapViewRef = useRef(null);
 
@@ -45,6 +45,9 @@ const Mapview = ({ navigation, route }) => {
     // bottom sheet snap points
     const snapPoints = useMemo(() => ['30%', '60%'], []);
 
+    // For storing search results
+    const searchedTags = []; 
+
     // set default region
     const [region, setRegion] = useState({
         latitude: 37.78825,
@@ -52,12 +55,6 @@ const Mapview = ({ navigation, route }) => {
         latitudeDelta: 0.0222,
         longitudeDelta: 0.0421,
     });
-
-    //call getCurrentLocation, have it set location and region details
-    useEffect(() => {
-       _getLocation()
-       fetchBathrooms()
-    }, [route.params]);
 
     // Copy tags and add states
     const mTags = [
@@ -98,6 +95,26 @@ const Mapview = ({ navigation, route }) => {
        
     ]
 
+    
+    //call getCurrentLocation, have it set location and region details
+    useEffect(() => {
+        _getLocation()
+        fetchBathrooms()
+     }, [route.params]);
+ 
+    // grab bathrooms from 
+    const fetchBathrooms = async () => {
+        try {
+            const snap = await firestore().collection('bathrooms').get()
+            if (!snap.empty) {
+                setBathrooms(snap.docs)
+                setSearched(snap.docs)
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     // Separates the flatList, is a single pixel line
     const flatListSeparator = () => (<View
         style={{
@@ -107,6 +124,7 @@ const Mapview = ({ navigation, route }) => {
           marginRight: '5%'}}/>
     );
 
+    // 
     const _getLocation = () => {
         getCurrentLocation()
         .then(({coordinates, region}) => {
@@ -126,24 +144,50 @@ const Mapview = ({ navigation, route }) => {
         // Change the tags state
         tag.state[1](!tag.state[0]);
         
-        if(newState){
-            setSearched(searched.append(tag))
-        }else{
-            const tempIndex = searched.indexOf(tag)
-            setSearched()
+        // The below sets the searchedTags array
+        if(newState){ // if tag does not exist in searched (its just been set to true)
+            searchedTags.push(tag)
+        }else{ // tag has been set to false, if it was in searchedTags remove it
+            const removeIndex = searchedTags.indexOf(tag)
+            if(removeIndex != -1){
+                searchedTags.splice(removeIndex, 1)
+            }
         }
+
+        console.log("searchedTagslength: " + searchedTags.length + " and tags: ")
+        for(const i of searchedTags){
+            console.log("tagname: " + i.name)
+        }
+        
+
+        // change bathrooms state
+        filterBathrooms()
     }
 
-    const fetchBathrooms = async () => {
-        try {
-            const snap = await firestore().collection('bathrooms').get()
-            if (!snap.empty) {
-                setBathrooms(snap.docs)
-                setSearched(snap.docs)
+    // changes the bathrooms state based on the tags in searchedTags
+    // this could be modified to use text from the searchbar
+    const filterBathrooms = () => {
+        const newBathrooms = []
+
+        // runs for every bath, checking their qualities against the tags
+        for(const bath of allBathrooms){
+            let hasAllTags = true
+            for(const tag of searchedTags){
+                if(bath[tag.db_name] != true){
+                    // don't add bathroom
+                    hasAllTags = false
+                    break
+                }
             }
-        } catch (error) {
-            console.log(error)
+
+            // if the bath has all the tags, add it
+            if(hasAllTags){
+                newBathrooms.push(bath)
+            }
         }
+
+        // set bathrooms state, triggers rerender of markers and flatlist
+        setBathrooms(newBathrooms)
     }
 
     // Searches case-insensitively through bathroom names for search text `txt` appaearing anywhere
@@ -163,6 +207,7 @@ const Mapview = ({ navigation, route }) => {
         // console.log('handleSheetChanges', index);
     }, []);
 
+    // a list of the tags to display on the top of mapview
     const horizontalTags = mTags.map((tag, index) => 
         <View key={tag.key}>
             <TouchableOpacity
