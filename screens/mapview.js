@@ -24,7 +24,6 @@ import {
 
 
 const Mapview = ({ navigation, route }) => {
-
     // state to hold location, default is false. setLocation(something) sets location to something
     const [coordinate, setCoordinate] = useState();
     const [searchTxt, setSearchTxt] = useState('')
@@ -43,6 +42,9 @@ const Mapview = ({ navigation, route }) => {
     const [unisex, setUnisex] = useState(false)
     const [urinal, setUrinal] = useState(false)
 
+    // bottom sheet snap points
+    const snapPoints = useMemo(() => ['30%', '60%'], []);
+
     // set default region
     const [region, setRegion] = useState({
         latitude: 37.78825,
@@ -57,6 +59,7 @@ const Mapview = ({ navigation, route }) => {
        fetchBathrooms()
     }, [route.params]);
 
+    // Copy tags and add states
     const mTags = [
         {   
             ...tags[0],
@@ -95,12 +98,13 @@ const Mapview = ({ navigation, route }) => {
        
     ]
 
+    // Separates the flatList, is a single pixel line
     const flatListSeparator = () => (<View
         style={{
           height: 1,
           backgroundColor: "#CED0CE",
-          marginLeft: "3%",
-          marginRight: '3%'}}/>
+          marginLeft: "5%",
+          marginRight: '5%'}}/>
     );
 
     const _getLocation = () => {
@@ -118,9 +122,16 @@ const Mapview = ({ navigation, route }) => {
 
     // runs when a tag is pressed
     const onTagPress = (tag, index) => {
+        const newState = !tag.state[0]
         // Change the tags state
         tag.state[1](!tag.state[0]);
-        console.log(tag.name + ' state after: ' + tag.state[0]);
+        
+        if(newState){
+            setSearched(searched.append(tag))
+        }else{
+            const tempIndex = searched.indexOf(tag)
+            setSearched()
+        }
     }
 
     const fetchBathrooms = async () => {
@@ -141,12 +152,11 @@ const Mapview = ({ navigation, route }) => {
         setSearched(bathrooms.filter(e => txt.length > 0 ? RegExp(txt.toLowerCase()).test(e.data().name.toLowerCase()) : true))
     }
 
+    // runs when goToUser button is pressed
     const goToUser = () => {
         //_getLocation() // update user location
         mapViewRef.current.animateToRegion(region, 1000)
     }
-
-    const snapPoints = useMemo(() => ['30%', '60%'], []);
 
     // callbacks
     const handleSheetChanges = useCallback( index => {
@@ -170,26 +180,19 @@ const Mapview = ({ navigation, route }) => {
         </View>
         )
 
-    let bathroomMarkers;
-    if (bathrooms.length >= 1) {
-        bathroomMarkers = bathrooms.map(snap => {
-            const bathroom = snap.data()
-            if (bathroom.latitude && bathroom.longitude) {
-                //console.log(bathroom);
-                return (
-                    <Marker
-                        key={bathroom.id}
-                        coordinate={{
-                            latitude: bathroom.latitude,
-                            longitude: bathroom.longitude,
-                        }}
-                        title={ bathroom.name || '' }
-                        description={ bathroom.description || '' }
-                    />
-                );
-                }
-        });
-    }
+        const bathroomMarkers = bathrooms
+        .filter(snap => snap.data().latitude && snap.data().longitude)
+        .map(snap => (
+          <Marker
+            key={snap.id}
+            coordinate={{
+              latitude: snap.data().latitude,
+              longitude: snap.data().longitude,
+            }}
+            title={snap.data().name || ''}
+            description={snap.data().description || ''}
+          />
+        ));
 
     // 1º lat ~ 69 mi
     // 1º long ~ 54.6 mi
@@ -206,7 +209,7 @@ const Mapview = ({ navigation, route }) => {
             onPress={() => navigation.navigate('Details', {bathroomId: id})}>
             <View style={{flex:1, alignItems: 'center', flexDirection:'row', justifyContent:'space-between'}}>
                 <Text style={[styles.txt, {fontSize:16, fontWeight:'bold'}]}>{props.name}</Text> 
-                <Text style={[styles.txt]}>{index} mi.</Text>  
+                <Text style={[styles.txt]}>{getDistance(props.latitude, props.longitude)} mi.</Text>  
             </View>
         </TouchableOpacity>
     )
@@ -280,7 +283,7 @@ const Mapview = ({ navigation, route }) => {
                         </TouchableOpacity>
 
                         <TouchableOpacity // Animate to user button
-                            onPress={() => {mapViewRef.current.animateToRegion(region, 1000)}}
+                            onPress={() => {goToUser()}}
                             style = {styles.userLocationButton}>
                             <Icon name='person-pin' type='material' size={40} color='lightblue' />
                         </TouchableOpacity>
@@ -299,6 +302,7 @@ const Mapview = ({ navigation, route }) => {
                     <View style={{flex:1, alignItems:'center', padding:0}}>
                         <FlatList
                             data={bathrooms}
+                            ItemSeparatorComponent={flatListSeparator}
                             renderItem={({item, index}) => <Item props={item.data()} index={index} id={item.id}/>}
                             keyExtractor={item => item.id}
                             style={{width:'100%', marginBottom:20}}/>
