@@ -3,7 +3,7 @@ import React, { useState, useCallback, useMemo, useRef, useEffect} from 'react'
 import MapView, { Marker } from 'react-native-maps'
 import BottomSheet from '@gorhom/bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { lightColors, SearchBar, Icon, Switch} from '@rneui/themed'
+import { lightColors, SearchBar, Icon } from '@rneui/themed'
 import { getCurrentLocation } from '../modules/getLocation';
 import firestore from '@react-native-firebase/firestore';
 import { tags  } from '../modules/tags';
@@ -11,22 +11,24 @@ import { tags  } from '../modules/tags';
 import {
     Platform,
     SafeAreaView,
-    ScrollView,
     StyleSheet,
     Text,
-    FlatList,
     View,
     TouchableOpacity
   } from 'react-native';
 
+  import {
+    ScrollView,
+    FlatList
+  } from 'react-native-gesture-handler';
+
 
 const Mapview = ({ navigation, route }) => {
-
     // state to hold location, default is false. setLocation(something) sets location to something
     const [coordinate, setCoordinate] = useState();
     const [searchTxt, setSearchTxt] = useState('')
+    const [allBathrooms, setAllBathrooms] = useState([]) // only changes upon getting data
     const [bathrooms, setBathrooms] = useState([])
-    const [searched, setSearched] = useState([]); // For storing search results
     const bottomSheetRef = useRef(null); //bottomSheetRef.current.snapToPosition('3%')
     const mapViewRef = useRef(null);
 
@@ -40,6 +42,14 @@ const Mapview = ({ navigation, route }) => {
     const [unisex, setUnisex] = useState(false)
     const [urinal, setUrinal] = useState(false)
 
+    // bottom sheet snap points
+    const snapPoints = useMemo(() => ['30%', '60%'], []);
+
+    // For storing search results
+    const [searchedTags, setSearchedTags] = useState([])
+
+    const [searched, setSearched] = useState([])
+
     // set default region
     const [region, setRegion] = useState({
         latitude: 37.78825,
@@ -48,12 +58,7 @@ const Mapview = ({ navigation, route }) => {
         longitudeDelta: 0.0421,
     });
 
-    //call getCurrentLocation, have it set location and region details
-    useEffect(() => {
-       _getLocation()
-       fetchBathrooms()
-    }, [route.params]);
-
+    // Copy tags and add states
     const mTags = [
         {   
             ...tags[0],
@@ -92,6 +97,37 @@ const Mapview = ({ navigation, route }) => {
        
     ]
 
+    
+    //call getCurrentLocation, have it set location and region details
+    useEffect(() => {
+        _getLocation()
+        fetchBathrooms()
+     }, [route.params]);
+ 
+    // grab bathrooms from 
+    const fetchBathrooms = async () => {
+        try {
+            const snap = await firestore().collection('bathrooms').get()
+            if (!snap.empty) {
+                setBathrooms(snap.docs)
+                setAllBathrooms(snap.docs)
+                setSearched(snap.docs)
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    // Separates the flatList, is a single pixel line
+    const flatListSeparator = () => (<View
+        style={{
+          height: 1,
+          backgroundColor: "#CED0CE",
+          marginLeft: "5%",
+          marginRight: '5%'}}/>
+    );
+
+    // 
     const _getLocation = () => {
         getCurrentLocation()
         .then(({coordinates, region}) => {
@@ -104,23 +140,58 @@ const Mapview = ({ navigation, route }) => {
         .catch(message => console.log(message))
     }
 
+
     // runs when a tag is pressed
     const onTagPress = (tag, index) => {
+        console.log("called onTag pressed")
+        const newState = !tag.state[0]
         // Change the tags state
-        tag.state[1](!tag.state[0]);
-        console.log(tag.name + ' state after: ' + tag.state[0]);
+        tag.state[1](newState);
+    
+        
+        // // if no tags selected update bathrooms else run filter func with selected tags
+        const searchedTags = getSelectedTags(tag, newState)
+        searchedTags.length == 0 ? setBathrooms(allBathrooms) : filterBathrooms(searchedTags) 
     }
 
-    const fetchBathrooms = async () => {
-        try {
-            const snap = await firestore().collection('bathrooms').get()
-            if (!snap.empty) {
-                setBathrooms(snap.docs)
-                setSearched(snap.docs)
+
+    const getSelectedTags = (tag, add) => {
+        // get previously selected tags
+        const data =  mTags.filter(tag => {
+            if (tag.state[0])  return tag 
+        })
+
+        // check if current selected shoud be added to previously selected tags
+        add ? data.push(tag) : data.splice(data.indexOf(tag), 1)
+
+        console.log("selected tags ", JSON.stringify(data))
+        return data 
+    }
+
+    // changes the bathrooms state based on the tags in searchedTags
+    // this could be modified to use text from the searchbar
+    const filterBathrooms = (searchedTags) => {
+        const newBathrooms = []
+
+        // runs for every bath, checking their qualities against the tags
+        for(const bath of allBathrooms){
+            let hasAllTags = true
+            for(const tag of searchedTags){ // for each tag
+                if(bath.data()[tag.db_name] != true){
+                    // don't add bathroom
+                    hasAllTags = false
+                    break
+                }
             }
-        } catch (error) {
-            console.log(error)
+
+            // if the bath has all the tags, add it
+            if(hasAllTags){
+                newBathrooms.push(bath)
+            }
         }
+
+        // set bathrooms state, triggers rerender of markers and flatlist
+        setBathrooms(newBathrooms)
     }
 
     // Searches case-insensitively through bathroom names for search text `txt` appaearing anywhere
@@ -129,57 +200,32 @@ const Mapview = ({ navigation, route }) => {
         setSearched(bathrooms.filter(e => txt.length > 0 ? RegExp(txt.toLowerCase()).test(e.data().name.toLowerCase()) : true))
     }
 
-    const dougsTestFunc = () => {
-        console.log("YOU PRESSED DOUGS SECRET BUTTON!")
-        for(let i=0; i<mTags.length; i++){
-            console.log(mTags[i].name + ' and state: ' + mTags[i].state[0]);
-        }
+    // runs when goToUser button is pressed
+    const goToUser = () => {
+        //_getLocation() // update user location
+        mapViewRef.current.animateToRegion(region, 1000)
     }
-
-    const snapPoints = useMemo(() => ['30%', '60%'], []);
 
     // callbacks
     const handleSheetChanges = useCallback( index => {
         // console.log('handleSheetChanges', index);
     }, []);
 
-    const horizontalTags = mTags.map((tag, index) => 
-        <View key={tag.key}>
-            <TouchableOpacity
-                onPress={() => onTagPress(tag, index)}
-                style = {tag.state[0] ? styles.tagButtonPressed : styles.tagButtonNotPressed}>
-                <Icon 
-                        name={tag.icon} 
-                        type={ tag.iconType || "font-awesome-5" }
-                        color='white' 
-                        size={10} 
-                        containerStyle={{width:15, height:15, backgroundColor:tag.iconColor,
-                            borderRadius:3, padding:0, marginRight: 4, justifyContent:'center'}} />
-                <Text style={styles.tagButtonText}>{tag.name}</Text>
-            </TouchableOpacity>
-        </View>
-        )
+    
 
-    let bathroomMarkers;
-    if (bathrooms.length >= 1) {
-        bathroomMarkers = bathrooms.map(snap => {
-            const bathroom = snap.data()
-            if (bathroom.latitude && bathroom.longitude) {
-                //console.log(bathroom);
-                return (
-                    <Marker
-                        key={bathroom.id}
-                        coordinate={{
-                            latitude: bathroom.latitude,
-                            longitude: bathroom.longitude,
-                        }}
-                        title={ bathroom.name || '' }
-                        description={ bathroom.description || '' }
-                    />
-                );
-                }
-        });
-    }
+    const bathroomMarkers = bathrooms
+        .filter(snap => snap.data().latitude && snap.data().longitude)
+        .map(snap => (
+            <Marker
+            key={snap.id}
+            coordinate={{
+                latitude: snap.data().latitude,
+                longitude: snap.data().longitude,
+            }}
+            title={snap.data().name || ''}
+            description={snap.data().description || ''}
+            />
+        ));
 
     // 1º lat ~ 69 mi
     // 1º long ~ 54.6 mi
@@ -191,29 +237,43 @@ const Mapview = ({ navigation, route }) => {
     }
 
     const Item = ({ props, index, id }) => (
-        <TouchableOpacity style={{width:'100%', backgroundColor: index % 2 ? 'lightgray' : null, 
+        <TouchableOpacity style={{width:'100%', backgroundColor: 'white', 
             justifyContent:'center', padding:10, marginVertical: 5}}
             onPress={() => navigation.navigate('Details', {bathroomId: id})}>
             <View style={{flex:1, alignItems: 'center', flexDirection:'row', justifyContent:'space-between'}}>
                 <Text style={[styles.txt, {fontSize:16, fontWeight:'bold'}]}>{props.name}</Text> 
-                <Text style={[styles.txt]}>
-                    {getDistance(props.latitude, props.longitude)} mi.
-                </Text>  
+                <Text style={[styles.txt]}>{getDistance(props.latitude, props.longitude)} mi.</Text>  
             </View>
         </TouchableOpacity>
     )
-   
 
+    const TagItem = ({tag, index}) => (
+        <View key={tag.key}>
+            <TouchableOpacity
+                onPress={() => onTagPress(tag, index)}
+                style = {tag.state[0] ? styles.tagButtonPressed : styles.tagButtonNotPressed}>
+                <Icon 
+                    name={tag.icon} 
+                    type={ tag.iconType || "font-awesome-5" }
+                    color='white' 
+                    size={10} 
+                    containerStyle={{width:15, height:15, backgroundColor:tag.iconColor,
+                        borderRadius:3, padding:0, marginRight: 4, justifyContent:'center'}} />
+                <Text style={styles.tagButtonText}>{tag.name}</Text>
+            </TouchableOpacity>
+        </View>
+    )
+    
+                    
+   
     if (!coordinate) return <></>
     return (
         <View style={{backgroundColor:'white'}}>
             <SafeAreaView>
                 <View style={{height:'100%'}}>
     
-                    
-                    
                     <View style={{alignItems:'center'}}>
-                    <Text style={{fontSize:30, fontWeight:'bold', color:'#3C99DC', left:20}}>WePee</Text>
+                        <Text style={{fontSize:30, fontWeight:'bold', color:'#3C99DC'}}>WePee</Text>
                         
                         <View style={{height:60, flexDirection:'row', 
                                 justifyContent:'flex-start', alignItems:'center', marginLeft:6, marginRight:10}}>
@@ -224,9 +284,11 @@ const Mapview = ({ navigation, route }) => {
                                 placeholder='Looking for a bathroom?'
                                 onChangeText={updateSearchFunc}
                                 showCancel={true}
+                                style={{color:'black', fontSize: 16, fontWeight: 'bold'}}
                                 inputContainerStyle={{borderRadius: 23}}
                                 containerStyle={{flex:1, backgroundColor:lightColors.white, borderTopColor:'white'}}
                                 value={searchTxt}/>
+
                             <TouchableOpacity style={{width:40, height:40, borderRadius:20, justifyContent:'center'}} onPress={() => navigation.navigate('Add')}>
                                 <Icon name='plus' type='font-awesome' size={20} color='#3C99DC' />
                             </TouchableOpacity>
@@ -242,24 +304,21 @@ const Mapview = ({ navigation, route }) => {
                             showsMyLocationButton={false}
                             region={region}
                             onPress={() => {bottomSheetRef.current.close()}}
-                            onRegionChange={() => {}}>
+                            onRegionChange={() => {}}
+                            //onUserLocationChange={(newCoords) => {updateLocation(newCoords.nativeEvent.coordinate)}}
+                            >
+                            
                             
                             { bathroomMarkers }
                         </MapView>
-
-                        <ScrollView // scrollable tags
-                            style={{
-                                position: 'absolute', //use absolute position to show the ScrollView on top of the map
-                                top: 108, //for center align
-                                alignSelf: 'flex-start', //for align to left
-                                width: '100%',
-                            }}
-                            horizontal={true}
+                        
+                        <FlatList
+                            data={mTags}
+                            horizontal
                             showsHorizontalScrollIndicator={false}
-                        >
-
-                            { horizontalTags }
-                        </ScrollView>
+                            renderItem={({item, index}) => <TagItem tag={item} index={index}/>}
+                            keyExtractor={item => item.key}
+                            style={{width:'100%',height: 40, position: 'absolute', top: 108}}/>
 
                         <TouchableOpacity // Show list button
                             onPress={() => bottomSheetRef.current.snapToIndex(0)}
@@ -270,7 +329,7 @@ const Mapview = ({ navigation, route }) => {
                         </TouchableOpacity>
 
                         <TouchableOpacity // Animate to user button
-                            onPress={() => {_getLocation(); mapViewRef.current.animateToRegion(region, 1000)}}
+                            onPress={() => {goToUser()}}
                             style = {styles.userLocationButton}>
                             <Icon name='person-pin' type='material' size={40} color='lightblue' />
                         </TouchableOpacity>
@@ -288,10 +347,11 @@ const Mapview = ({ navigation, route }) => {
                 >
                     <View style={{flex:1, alignItems:'center', padding:0}}>
                         <FlatList
-                            data={searched}
+                            data={bathrooms}
+                            ItemSeparatorComponent={flatListSeparator}
                             renderItem={({item, index}) => <Item props={item.data()} index={index} id={item.id}/>}
                             keyExtractor={item => item.id}
-                            style={{width:'100%'}}/>
+                            style={{width:'100%', marginBottom:20}}/>
                     </View>
                 </BottomSheet>
     
@@ -343,8 +403,8 @@ const styles = StyleSheet.create({
         flexDirection:'row',
         alignItems:'center',
         justifyContent: 'center',
-        bottom: '12%',
-        right: '3%',
+        bottom: 115,
+        right: 15,
         height: 50,
         width: 130,
         opacity: .8,
@@ -357,7 +417,7 @@ const styles = StyleSheet.create({
         alignItems:'center',
         justifyContent: 'center',
         top: 156,
-        right: '3%',
+        right: 15,
         height: 50,
         width: 50,
         opacity: .8,

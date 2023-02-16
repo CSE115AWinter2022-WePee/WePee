@@ -16,6 +16,7 @@ export const tags = [
         iconColor: "blue",
         
     },
+
     {   key:2,
         db_name: "accessibility",
         name: "ADA Compliant",
