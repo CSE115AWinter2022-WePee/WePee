@@ -45,11 +45,6 @@ const Mapview = ({ navigation, route }) => {
     // bottom sheet snap points
     const snapPoints = useMemo(() => ['30%', '60%'], []);
 
-    // For storing search results
-    const [searchedTags, setSearchedTags] = useState([])
-
-    const [searched, setSearched] = useState([])
-
     // set default region
     const [region, setRegion] = useState({
         latitude: 37.78825,
@@ -111,7 +106,6 @@ const Mapview = ({ navigation, route }) => {
             if (!snap.empty) {
                 setBathrooms(snap.docs)
                 setAllBathrooms(snap.docs)
-                setSearched(snap.docs)
             }
         } catch (error) {
             console.log(error)
@@ -197,7 +191,7 @@ const Mapview = ({ navigation, route }) => {
     // Searches case-insensitively through bathroom names for search text `txt` appaearing anywhere
     function updateSearchFunc(txt) {
         setSearchTxt(txt)
-        setSearched(bathrooms.filter(e => txt.length > 0 ? RegExp(txt.toLowerCase()).test(e.data().name.toLowerCase()) : true))
+        setBathrooms(allBathrooms.filter(e => txt.length > 0 ? RegExp(txt.toLowerCase()).test(e.data().name.toLowerCase()) : true))
     }
 
     // runs when goToUser button is pressed
