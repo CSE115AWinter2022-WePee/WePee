@@ -24,6 +24,11 @@ const BathroomDetailsScreen = ({route}) => {
     const [bathroomData, setBathroomData] = useState()
     const [coordinate, setCoordinate] = useState({latitude: 37.78825, longitude: -122.4324})
     const [tagsSection, setTagsSection] = useState()
+
+    const [stars, setStars] = useState(3)
+    const snapPoints = useMemo(() => ['50%', '70%'], []);
+    const [dbDocument, setDbDocument] = useState()
+
     const snapPoints = useMemo(() => ['30%', '60%', '85%'], []);
 
     const [region, setRegion] = useState({
@@ -43,7 +48,15 @@ const BathroomDetailsScreen = ({route}) => {
             totalSum += (i + 1) * data["rating"][i];
             numRatings += data["rating"][i];
         }
-        return totalSum/numRatings;
+        return [totalSum/numRatings, numRatings];
+    }
+
+    const updateRating = async () => {
+        bathroomData["rating"][stars - 1]++
+        await dbDocument.update({
+            rating: bathroomData["rating"]
+        })
+        console.log("rating updated!")
     }
 
     useEffect(() => {
@@ -51,8 +64,10 @@ const BathroomDetailsScreen = ({route}) => {
     }, [])
 
     const fetchBathroomData = async (bathroomId) => {
-        try {
-            const snap = await firestore().collection('bathrooms').doc(bathroomId).get()
+        try {   
+            const doc = await firestore().collection('bathrooms').doc(bathroomId);
+            setDbDocument(doc);
+            const snap = await doc.get()
             if (snap.exists) {
                 setBathroomData(snap.data())
                 setRegion({
@@ -158,18 +173,40 @@ const BathroomDetailsScreen = ({route}) => {
                             <Text style={[styles.txt, {marginVertical:15}] }>
                                 {bathroomData?.description}
                             </Text>
-                            <AirbnbRating 
-                                isDisabled={true} 
-                                showRating={false}
-                                onFinishRating  = {() => {/* Set rating here */}}
-                                size={25}
-                                count={5}
-                                defaultRating={getRating(bathroomData)} 
-                                starContainerStyle={{alignSelf:'center'}}
-                                ratingContainerStyle={{ marginTop:0 }}/>
+                            <View style={{flexDirection:'row', alignItems:'center'}}>
+
+                                <AirbnbRating 
+                                        isDisabled={true} 
+                                        showRating={false}
+                                        size={25}
+                                        count={5}
+                                        defaultRating={getRating(bathroomData)[0]} 
+                                        ratingContainerStyle={{ marginTop:0 }}/>
+                                <Text style={[styles.txt, {marginVertical:15}] }>
+                                {getRating(bathroomData)[0]} ({getRating(bathroomData)[1]})
+                            </Text>
+                            </View>
+
+
                         </View>
 
                         <View style={{width: '100%'}}>
+                            <View style={{flexDirection:'row', alignItems:'center', justifyContent:'space-around'}}>
+
+                                <AirbnbRating
+                                    showRating={false}
+                                    size={35}
+                                    count={5}
+                                    defaultRating={stars}
+                                    starContainerStyle={{alignSelf:'center'}}
+                                    ratingContainerStyle={{ marginTop:20 }}
+                                    onFinishRating={val => setStars(val)}
+                                />
+                            <Text style={[styles.txt] } onPress={() => updateRating()}>
+                                Post
+                            </Text>
+                            </View>
+
                              <Text style={[styles.txt, {fontWeight:'bold', fontSize:18, marginTop:30, marginLeft:15}] }>
                                 Features
                             </Text>
