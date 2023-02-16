@@ -46,7 +46,9 @@ const Mapview = ({ navigation, route }) => {
     const snapPoints = useMemo(() => ['30%', '60%'], []);
 
     // For storing search results
-    const searchedTags = []; 
+    const [searchedTags, setSearchedTags] = useState([])
+
+    const [searched, setSearched] = useState([])
 
     // set default region
     const [region, setRegion] = useState({
@@ -108,6 +110,7 @@ const Mapview = ({ navigation, route }) => {
             const snap = await firestore().collection('bathrooms').get()
             if (!snap.empty) {
                 setBathrooms(snap.docs)
+                setAllBathrooms(snap.docs)
                 setSearched(snap.docs)
             }
         } catch (error) {
@@ -140,42 +143,40 @@ const Mapview = ({ navigation, route }) => {
 
     // runs when a tag is pressed
     const onTagPress = (tag, index) => {
+        console.log("called onTag pressed")
         const newState = !tag.state[0]
         // Change the tags state
-        tag.state[1](!tag.state[0]);
+        tag.state[1](newState);
+    
         
-        // The below sets the searchedTags array
-        if(newState){ // if tag does not exist in searched (its just been set to true)
-            searchedTags.push(tag)
-        }else{ // tag has been set to false, if it was in searchedTags remove it
-            const removeIndex = searchedTags.indexOf(tag)
-            if(removeIndex != -1){
-                searchedTags.splice(removeIndex, 1)
-            }
-        }
+        // // if no tags selected update bathrooms else run filter func with selected tags
+        const searchedTags = getSelectedTags(tag, newState)
+        searchedTags.length == 0 ? setBathrooms(allBathrooms) : filterBathrooms(searchedTags) 
+    }
 
-        console.log("onTagPress searchedTagslength: " + searchedTags.length + " and tags: ")
-        for(const i of searchedTags){
-            console.log("tagname: " + i.name)
-        }
-        
-        if(searchedTags.length == 0){ // no tags selected
-            setBathrooms(allBathrooms)
-        }else{ // tags selected
-            filterBathrooms()
-        }
-        
+
+    const getSelectedTags = (tag, add) => {
+        // get previously selected tags
+        const data =  mTags.filter(tag => {
+            if (tag.state[0])  return tag 
+        })
+
+        // check if current selected shoud be added to previously selected tags
+        add ? data.push(tag) : data.splice(data.indexOf(tag), 1)
+
+        console.log("selected tags ", JSON.stringify(data))
+        return data 
     }
 
     // changes the bathrooms state based on the tags in searchedTags
     // this could be modified to use text from the searchbar
-    const filterBathrooms = () => {
+    const filterBathrooms = (searchedTags) => {
+        // use the searchedTags arg to get the tags
+       
         const newBathrooms = []
 
         console.log("before filterBathrooms searchedTagslength: " + searchedTags.length + " and tags: ")
-        for(const i of searchedTags){
-            console.log("tagname: " + i.name)
-        }
+        searchedTags.forEach(tag =>  console.log("tagname: " + tag))
 
         // runs for every bath, checking their qualities against the tags
         for(const bath of allBathrooms){
@@ -220,36 +221,20 @@ const Mapview = ({ navigation, route }) => {
         // console.log('handleSheetChanges', index);
     }, []);
 
-    // a list of the tags to display on the top of mapview
-    const horizontalTags = mTags.map((tag, index) => 
-        <View key={tag.key}>
-            <TouchableOpacity
-                onPress={() => onTagPress(tag, index)}
-                style = {tag.state[0] ? styles.tagButtonPressed : styles.tagButtonNotPressed}>
-                <Icon 
-                    name={tag.icon} 
-                    type={ tag.iconType || "font-awesome-5" }
-                    color='white' 
-                    size={10} 
-                    containerStyle={{width:15, height:15, backgroundColor:tag.iconColor,
-                        borderRadius:3, padding:0, marginRight: 4, justifyContent:'center'}} />
-                <Text style={styles.tagButtonText}>{tag.name}</Text>
-            </TouchableOpacity>
-        </View>
-        )
+    
 
-        const bathroomMarkers = bathrooms
+    const bathroomMarkers = bathrooms
         .filter(snap => snap.data().latitude && snap.data().longitude)
         .map(snap => (
-          <Marker
+            <Marker
             key={snap.id}
             coordinate={{
-              latitude: snap.data().latitude,
-              longitude: snap.data().longitude,
+                latitude: snap.data().latitude,
+                longitude: snap.data().longitude,
             }}
             title={snap.data().name || ''}
             description={snap.data().description || ''}
-          />
+            />
         ));
 
     // 1º lat ~ 69 mi
@@ -271,6 +256,25 @@ const Mapview = ({ navigation, route }) => {
             </View>
         </TouchableOpacity>
     )
+
+    const TagItem = ({tag, index}) => (
+        <View key={tag.key}>
+            <TouchableOpacity
+                onPress={() => onTagPress(tag, index)}
+                style = {tag.state[0] ? styles.tagButtonPressed : styles.tagButtonNotPressed}>
+                <Icon 
+                    name={tag.icon} 
+                    type={ tag.iconType || "font-awesome-5" }
+                    color='white' 
+                    size={10} 
+                    containerStyle={{width:15, height:15, backgroundColor:tag.iconColor,
+                        borderRadius:3, padding:0, marginRight: 4, justifyContent:'center'}} />
+                <Text style={styles.tagButtonText}>{tag.name}</Text>
+            </TouchableOpacity>
+        </View>
+    )
+    
+                    
    
     if (!coordinate) return <></>
     return (
@@ -317,20 +321,14 @@ const Mapview = ({ navigation, route }) => {
                             
                             { bathroomMarkers }
                         </MapView>
-
-                        <ScrollView // scrollable tags
-                            style={{
-                                position: 'absolute', //use absolute position to show the ScrollView on top of the map
-                                top: 108, //for center align
-                                alignSelf: 'flex-start', //for align to left
-                                width: '100%',
-                            }}
-                            horizontal={true}
+                        
+                        <FlatList
+                            data={mTags}
+                            horizontal
                             showsHorizontalScrollIndicator={false}
-                        >
-
-                            { horizontalTags }
-                        </ScrollView>
+                            renderItem={({item, index}) => <TagItem tag={item} index={index}/>}
+                            keyExtractor={item => item.key}
+                            style={{width:'100%',height: 40, position: 'absolute', top: 108}}/>
 
                         <TouchableOpacity // Show list button
                             onPress={() => bottomSheetRef.current.snapToIndex(0)}
