@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo, useRef, useEffect} from 'react'
 import BottomSheet from '@gorhom/bottom-sheet';
 import MapView, { Marker } from 'react-native-maps'
 import firestore from '@react-native-firebase/firestore'
-import { Input, Icon, AirbnbRating } from '@rneui/themed'
+import { Input, Icon, AirbnbRating, Dialog } from '@rneui/themed'
 import { tags } from '../modules/tags';
 
 import { 
@@ -11,6 +11,7 @@ import {
     View, 
     SafeAreaView,
     TouchableOpacity,
+    Alert
 } from 'react-native'
 
 import { ScrollView } from 'react-native-gesture-handler'
@@ -25,6 +26,8 @@ const BathroomDetailsScreen = ({route}) => {
     const [coordinate, setCoordinate] = useState({latitude: 37.78825, longitude: -122.4324})
     const [tagsSection, setTagsSection] = useState()
 
+    const [showDialog , setShowDialog] = useState(false)
+
     const [stars, setStars] = useState(3)
     const [dbDocument, setDbDocument] = useState()
 
@@ -37,34 +40,17 @@ const BathroomDetailsScreen = ({route}) => {
         longitudeDelta: 0.0421,
     })
     
-    const getRating = function(data) {
-        if (!data) {
-            return 5;
-        }
-        totalSum = 0;
-        numRatings = 0;
-        for (let i = 0; i < data["rating"].length; i++) {
-            totalSum += (i + 1) * data["rating"][i];
-            numRatings += data["rating"][i];
-        }
-        return [totalSum/numRatings, numRatings];
-    }
-
-    const updateRating = async () => {
-        bathroomData["rating"][stars - 1]++
-        await dbDocument.update({
-            rating: bathroomData["rating"]
-        })
-        console.log("rating updated!")
-    }
-
+    
     useEffect(() => {
         fetchBathroomData(route.params?.bathroomId)
     }, [])
 
+
+   
+
     const fetchBathroomData = async (bathroomId) => {
         try {   
-            const doc = await firestore().collection('bathrooms').doc(bathroomId);
+            const doc = firestore().collection('bathrooms').doc(bathroomId);
             setDbDocument(doc);
             const snap = await doc.get()
             if (snap.exists) {
@@ -80,6 +66,42 @@ const BathroomDetailsScreen = ({route}) => {
             console.log(error)
         }
        
+    }
+
+    const getRating = function(data) {
+        if (!data) {
+            return 5;
+        }
+        totalSum = 0;
+        numRatings = 0;
+        for (let i = 0; i < data["rating"].length; i++) {
+            totalSum += (i + 1) * data["rating"][i];
+            numRatings += data["rating"][i];
+        }
+        return [Number((totalSum/numRatings).toFixed(2)), numRatings];
+    }
+
+    const updateRating = async () => {
+        bathroomData["rating"][stars - 1]++
+        await dbDocument.update({
+            rating: bathroomData["rating"]
+        })
+
+        // dismiss the review dialog
+        toggleDialog()
+
+        // show alert on succesfull review
+        Alert.alert(
+            "Thank you!",
+            "Your review has been saved",
+            [
+                {
+                    text: "OK",
+                    style: 'cancel'
+                }
+            ]
+        )
+        console.log("rating updated!")
     }
 
     function displayTags(bathroomData) {
@@ -111,10 +133,43 @@ const BathroomDetailsScreen = ({route}) => {
         setTagsSection(data)
     }
 
+    const toggleDialog = () => setShowDialog(!showDialog)
+
     // callbacks
     const handleSheetChanges = useCallback( index => {
         // console.log('handleSheetChanges', index);
     }, []);
+
+    const ShowDialog = () => (
+        <Dialog
+            isVisible={showDialog}
+            onBackdropPress={toggleDialog}>
+            
+
+            <View style={{alignItems:'center'}}>
+                <Dialog.Title title="YOUR REVIEW" />
+
+                <AirbnbRating
+                    showRating={true}
+                    size={35}
+                    count={5}
+                    defaultRating={stars}
+                    starContainerStyle={{alignSelf:'center'}}
+                    ratingContainerStyle={{ marginBottom:10 }}
+                    onFinishRating={val => setStars(val)}
+                />
+                
+            </View>
+
+            <Dialog.Actions>
+                <Dialog.Button
+                    title="CONFIRM"
+                    onPress={updateRating}
+                />
+                <Dialog.Button title="CANCEL" onPress={toggleDialog} />
+            </Dialog.Actions>
+        </Dialog>
+    )
 
   return (
     <View style={{backgroundColor:'white'}}>
@@ -181,31 +236,26 @@ const BathroomDetailsScreen = ({route}) => {
                                         count={5}
                                         defaultRating={getRating(bathroomData)[0]} 
                                         ratingContainerStyle={{ marginTop:0 }}/>
+
                                 <Text style={[styles.txt, {marginVertical:15}] }>
-                                {getRating(bathroomData)[0]} ({getRating(bathroomData)[1]})
-                            </Text>
+                                    {getRating(bathroomData)[0]} ({getRating(bathroomData)[1]})
+                                </Text>
+
                             </View>
 
+                            <TouchableOpacity style={{alignContent:'center', marginTop:10}} onPress={toggleDialog}>
+                                <Text style={[styles.txt, {fontWeight:'bold', textDecorationLine:'underline', fontSize:18}]}>
+                                    Leave a review
+                                </Text>
+                            </TouchableOpacity>
+
+                            <ShowDialog />
 
                         </View>
 
+                       
+
                         <View style={{width: '100%'}}>
-                            <View style={{flexDirection:'row', alignItems:'center', justifyContent:'space-around'}}>
-
-                                <AirbnbRating
-                                    showRating={false}
-                                    size={35}
-                                    count={5}
-                                    defaultRating={stars}
-                                    starContainerStyle={{alignSelf:'center'}}
-                                    ratingContainerStyle={{ marginTop:20 }}
-                                    onFinishRating={val => setStars(val)}
-                                />
-                            <Text style={[styles.txt] } onPress={() => updateRating()}>
-                                Post
-                            </Text>
-                            </View>
-
                              <Text style={[styles.txt, {fontWeight:'bold', fontSize:18, marginTop:30, marginLeft:15}] }>
                                 Features
                             </Text>
