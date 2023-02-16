@@ -26,7 +26,6 @@ const BathroomDetailsScreen = ({route}) => {
     const [tagsSection, setTagsSection] = useState()
 
     const [stars, setStars] = useState(3)
-    const snapPoints = useMemo(() => ['50%', '70%'], []);
     const [dbDocument, setDbDocument] = useState()
 
     const snapPoints = useMemo(() => ['30%', '60%', '85%'], []);
