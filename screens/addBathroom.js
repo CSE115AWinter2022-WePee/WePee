@@ -43,6 +43,7 @@ const AddBathroomScreen = ({ navigation }) => {
     const [pinnedCoordinate, setPinnedCoordinate] = useState({ latitude: null, longitude: null });
     const [coordinate, setCoordinate] = useState({ latitude: 37.78825, longitude: -122.4324 });
     const snapPoints = useMemo(() => ['30%', '60%', '85%'], []);
+    
     const [region, setRegion] = useState({
         latitude: 37.78825,
         longitude: -122.4324,
