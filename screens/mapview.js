@@ -171,18 +171,13 @@ const Mapview = ({ navigation, route }) => {
     // changes the bathrooms state based on the tags in searchedTags
     // this could be modified to use text from the searchbar
     const filterBathrooms = (searchedTags) => {
-        // use the searchedTags arg to get the tags
-       
         const newBathrooms = []
-
-        console.log("before filterBathrooms searchedTagslength: " + searchedTags.length + " and tags: ")
-        searchedTags.forEach(tag =>  console.log("tagname: " + tag))
 
         // runs for every bath, checking their qualities against the tags
         for(const bath of allBathrooms){
             let hasAllTags = true
-            for(const tag of searchedTags){
-                if(bath[tag.db_name] != true){
+            for(const tag of searchedTags){ // for each tag
+                if(bath.data()[tag.db_name] != true){
                     // don't add bathroom
                     hasAllTags = false
                     break
@@ -197,11 +192,6 @@ const Mapview = ({ navigation, route }) => {
 
         // set bathrooms state, triggers rerender of markers and flatlist
         setBathrooms(newBathrooms)
-
-        console.log("after filterBathrooms searchedTagslength: " + searchedTags.length + " and tags: ")
-        for(const i of searchedTags){
-            console.log("tagname: " + i.name)
-        }
     }
 
     // Searches case-insensitively through bathroom names for search text `txt` appaearing anywhere
