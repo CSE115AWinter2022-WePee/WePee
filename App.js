@@ -9,6 +9,7 @@ import { ThemeProvider, createTheme, lightColors} from '@rneui/themed'
 import IconFA from 'react-native-vector-icons/FontAwesome'
 import auth from '@react-native-firebase/auth';
 import LoginScreen, { SocialButton } from "react-native-login-screen";
+import { anonymousLogin } from './modules/login';
 
 
 import {
@@ -91,6 +92,10 @@ function App() {
         <SocialButton text="Continue with Apple" 
         imageSource={require("./assets/apple.png")}
         onPress={() => {}} />
+        {/* The javscript:void() just prevents it from rendering the facebook icon (default logo)*/}
+        <SocialButton text="Skip login"
+        //  imageSource="javascript:void()"
+         onPress={anonymousLogin}/>
       </LoginScreen>
     )
   };
