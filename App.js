@@ -8,6 +8,7 @@ import BathroomDetailsScreen from './screens/bathroomDetails';
 import { ThemeProvider, createTheme, lightColors} from '@rneui/themed'
 import IconFA from 'react-native-vector-icons/FontAwesome'
 import auth from '@react-native-firebase/auth';
+import LoginScreen, { SocialButton } from "react-native-login-screen";
 
 
 import {
@@ -55,26 +56,43 @@ function App() {
   }
 
   useEffect(() => {
-    auth()
-    .signInAnonymously()
-    .then(() => {
-      console.log('User signed in anonymously');
-    })
-    .catch(error => {
-      if (error.code === 'auth/operation-not-allowed') {
-        console.log('Enable anonymous in your firebase console.');
-      }
-
-      console.error(error);
-    });
-
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber; // unsubscribe on unmount
+    return subscriber; 
+    // auth()
+    // .signInAnonymously()
+    // .then(() => {
+    //   console.log('User signed in anonymously');
+    // })
+    // .catch(error => {
+    //   if (error.code === 'auth/operation-not-allowed') {
+    //     console.log('Enable anonymous in your firebase console.');
+    //   }
+
+    //   console.error(error);
+    // });
   }, []);
 
-  if (initializing) {
-    console.log("initalizing")  
-    return null
+  if (!user) {
+    return (
+
+      <LoginScreen
+        logoImageSource={require("./assets/wepee.png")}
+        onLoginPress={() => {}}
+        onSignupPress={() => {}}
+        onEmailChange={(email) => {}}
+        onPasswordChange={(password) => {}}
+        disablePasswordInput={true}
+        disableSignup={true}
+        disableDivider={false}
+      >
+        <SocialButton text="Continue with Google" 
+        imageSource={require("./assets/google.png")}
+        onPress={() => {}} />
+        <SocialButton text="Continue with Apple" 
+        imageSource={require("./assets/apple.png")}
+        onPress={() => {}} />
+      </LoginScreen>
+    )
   };
 
 
