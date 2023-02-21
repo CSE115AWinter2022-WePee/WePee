@@ -2,8 +2,10 @@ import React, { useState, useCallback, useMemo, useRef, useEffect} from 'react'
 import BottomSheet from '@gorhom/bottom-sheet';
 import MapView, { Marker } from 'react-native-maps'
 import firestore from '@react-native-firebase/firestore'
+import auth from '@react-native-firebase/auth'
 import { Input, Icon, AirbnbRating, Dialog } from '@rneui/themed'
 import { tags } from '../modules/tags';
+import DeviceInfo from "react-native-device-info"
 
 import { 
     StyleSheet, 
@@ -27,6 +29,8 @@ const BathroomDetailsScreen = ({route}) => {
     const [tagsSection, setTagsSection] = useState()
 
     const [showDialog , setShowDialog] = useState(false)
+    // will be object {id: RatingIdInReviewsCollection, stars: Number}
+    const [userRating, setUserRating] = useState() 
 
     const [stars, setStars] = useState(3)
     const [dbDocument, setDbDocument] = useState()
@@ -43,10 +47,20 @@ const BathroomDetailsScreen = ({route}) => {
     
     useEffect(() => {
         fetchBathroomData(route.params?.bathroomId)
+        getUserRatingIfAny(route.params?.bathroomId)
+        getUserId()
     }, [])
 
-
-   
+      // get uid
+    // if no user uid = deviceId
+    const getUserId = async () => {
+        return new Promise(async resolve => {
+            let uid = await DeviceInfo.getUniqueId()
+            if (auth().currentUser) uid = auth().currentUser.uid
+            resolve(uid)
+        })
+        
+    }
 
     const fetchBathroomData = async (bathroomId) => {
         try {   
@@ -54,7 +68,8 @@ const BathroomDetailsScreen = ({route}) => {
             setDbDocument(doc);
             const snap = await doc.get()
             if (snap.exists) {
-                setBathroomData(snap.data())
+                if (typeof snap.data().rating == 'number') setBathroomData({...snap.data(), rating: [0,0,0,0,0]})
+                else setBathroomData(snap.data())
                 setRegion({
                     ...region, 
                     latitude: snap.data().latitude, 
@@ -68,6 +83,23 @@ const BathroomDetailsScreen = ({route}) => {
        
     }
 
+
+    const getUserRatingIfAny = async (bathroomId) => {
+        try {
+            uid = await getUserId()
+            const snap = await firestore().collection('reviews')
+                                .where("uid", "==", uid)
+                                .where("bathroom_id", "==", bathroomId)
+                                .get()
+            if (!snap.empty && snap.docs.length > 0) {
+                setUserRating({id: snap.docs[0].id, stars: snap.docs[0].data().stars})
+                setStars(snap.docs[0].data().stars)
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     const getRating = function(data) {
         if (!data) {
             return 5;
@@ -78,7 +110,7 @@ const BathroomDetailsScreen = ({route}) => {
             totalSum += (i + 1) * data["rating"][i];
             numRatings += data["rating"][i];
         }
-        return [Number((totalSum/numRatings).toFixed(2)), numRatings];
+        return [(totalSum > 0 ? Number((totalSum/numRatings).toFixed(2)) : 0), numRatings];
     }
 
     const updateRating = async () => {
@@ -87,6 +119,24 @@ const BathroomDetailsScreen = ({route}) => {
             rating: bathroomData["rating"]
         })
 
+        // update user previous rating if any
+        // else save new rating into reviews collection
+        if (userRating && userRating.stars != stars) {
+            await firestore().collection('reviews').doc(userRating.id).update({stars: stars})
+        }
+        else {
+            let id = firestore().collection('reviews').doc().id
+            uid = await getUserId()
+            await firestore().collection('reviews').doc(id).set({
+                uid: uid,
+                bathroom_id: route.params?.bathroomId,
+                stars: stars,
+                id: id
+            })
+            setUserRating({id: id, stars: stars})  
+        }
+
+        
         // dismiss the review dialog
         toggleDialog()
 
@@ -147,7 +197,7 @@ const BathroomDetailsScreen = ({route}) => {
             
 
             <View style={{alignItems:'center'}}>
-                <Dialog.Title title="YOUR REVIEW" />
+                <Dialog.Title title= {userRating ? "YOUR PREVIOUS REVIEW" : "LEAVE REVIEW"} />
 
                 <AirbnbRating
                     showRating={true}
@@ -163,7 +213,7 @@ const BathroomDetailsScreen = ({route}) => {
 
             <Dialog.Actions>
                 <Dialog.Button
-                    title="CONFIRM"
+                    title= {userRating ? "UPDATE" : "CONFIRM"}
                     onPress={updateRating}
                 />
                 <Dialog.Button title="CANCEL" onPress={toggleDialog} />
@@ -245,7 +295,7 @@ const BathroomDetailsScreen = ({route}) => {
 
                             <TouchableOpacity style={{alignContent:'center', marginTop:10}} onPress={toggleDialog}>
                                 <Text style={[styles.txt, {fontWeight:'bold', textDecorationLine:'underline', fontSize:18}]}>
-                                    Leave a review
+                                    { userRating ? "View/Edit review" : "Leave a review"}
                                 </Text>
                             </TouchableOpacity>
 
