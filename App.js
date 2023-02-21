@@ -59,18 +59,6 @@ function App() {
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
     return subscriber; 
-    // auth()
-    // .signInAnonymously()
-    // .then(() => {
-    //   console.log('User signed in anonymously');
-    // })
-    // .catch(error => {
-    //   if (error.code === 'auth/operation-not-allowed') {
-    //     console.log('Enable anonymous in your firebase console.');
-    //   }
-
-    //   console.error(error);
-    // });
   }, []);
 
   if (!user) {
@@ -113,7 +101,7 @@ function App() {
               <Stack.Screen name="Mapview" 
                   component={Mapview}
                   options={{
-                    headerShown:false
+                    headerShown: false
                   }} />
               <Stack.Screen name="Add" 
                   component={AddBathroomScreen}

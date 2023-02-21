@@ -8,9 +8,8 @@ export const anonymousLogin = () => {
     })
     .catch(error => {
         if (error.code === 'auth/operation-not-allowed') {
-        console.log('Enable anonymous in your firebase console.');
+            console.log('Enable anonymous in your firebase console.');
         }
-
         console.error(error);
     });
 }
