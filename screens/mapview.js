@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { lightColors, SearchBar, Icon } from '@rneui/themed'
 import { getCurrentLocation } from '../modules/getLocation';
 import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 import { tags  } from '../modules/tags';
 
 import {
@@ -21,6 +22,7 @@ import {
     ScrollView,
     FlatList
   } from 'react-native-gesture-handler';
+import { Button } from '@rneui/base';
 
 
 const Mapview = ({ navigation, route }) => {
@@ -267,7 +269,15 @@ const Mapview = ({ navigation, route }) => {
                 <View style={{height:'100%'}}>
     
                     <View style={{alignItems:'center'}}>
-                        <Text style={{fontSize:30, fontWeight:'bold', color:'#3C99DC'}}>WePee</Text>
+                        <Text style={{fontSize:30, fontWeight:'bold', color:'#3C99DC'}}>
+                            WePee
+                            <Button style={styles.logoutButton}
+                            onPress = {() => auth()
+                                .signOut()
+                                .then(() => console.log('User signed out!'))}> 
+                                Logout 
+                            </Button>
+                        </Text>
                         
                         <View style={{height:60, flexDirection:'row', 
                                 justifyContent:'flex-start', alignItems:'center', marginLeft:6, marginRight:10}}>
@@ -419,4 +429,11 @@ const styles = StyleSheet.create({
         borderRadius: 100,
         backgroundColor: 'gray',
     },
+    logoutButton: {
+        display: 'none',
+        position: 'absolute',
+        justifyContent: 'center',
+        left: '200px',
+        backgroundColor: 'gray'
+    }
 })

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { SafeAreaProvider } from "react-native-safe-area-context"
 import { NavigationContainer} from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
@@ -7,6 +7,10 @@ import AddBathroomScreen from './screens/addBathroom';
 import BathroomDetailsScreen from './screens/bathroomDetails';
 import { ThemeProvider, createTheme, lightColors} from '@rneui/themed'
 import IconFA from 'react-native-vector-icons/FontAwesome'
+import auth from '@react-native-firebase/auth';
+import LoginScreen, { SocialButton } from "react-native-login-screen";
+import { anonymousLogin } from './modules/login';
+
 
 import {
   Platform,
@@ -40,6 +44,51 @@ const Stack = createNativeStackNavigator()
 
 
 function App() {
+  // This code was blatantly copied from the documentation for firebase auth
+  // Check it out here: https://rnfirebase.io/auth/usage
+  // If it works correctly, that means I (Yatrik) did something right
+  // if it works incorrectly, it is Rohan's fault
+  const [initializing, setInitializing] = useState(true);
+  const [user, setUser] = useState();
+  function onAuthStateChanged(user) {
+    setUser(user);
+    console.log(user);
+    if (initializing) setInitializing(false);
+  }
+
+  useEffect(() => {
+    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    return subscriber; 
+  }, []);
+
+  if (!user) {
+    return (
+
+      <LoginScreen
+        logoImageSource={require("./assets/wepee.png")}
+        onLoginPress={() => {}}
+        onSignupPress={() => {}}
+        onEmailChange={(email) => {}}
+        onPasswordChange={(password) => {}}
+        disablePasswordInput={true}
+        disableSignup={true}
+        disableDivider={false}
+      >
+        <SocialButton text="Continue with Google" 
+        imageSource={require("./assets/google.png")}
+        onPress={() => {}} />
+        <SocialButton text="Continue with Apple" 
+        imageSource={require("./assets/apple.png")}
+        onPress={() => {}} />
+        {/* The javscript:void() just prevents it from rendering the facebook icon (default logo)*/}
+        <SocialButton text="Skip login"
+        //  imageSource="javascript:void()"
+         onPress={anonymousLogin}/>
+      </LoginScreen>
+    )
+  };
+
+
   return (
     <GestureHandlerRootView style={{flex:1}}>
 
@@ -52,7 +101,7 @@ function App() {
               <Stack.Screen name="Mapview" 
                   component={Mapview}
                   options={{
-                    headerShown:false
+                    headerShown: false
                   }} />
               <Stack.Screen name="Add" 
                   component={AddBathroomScreen}
