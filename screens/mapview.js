@@ -8,6 +8,7 @@ import { getCurrentLocation } from '../modules/getLocation'
 import firestore from '@react-native-firebase/firestore'
 import auth from '@react-native-firebase/auth'
 import { tags } from '../modules/tags'
+import { Image } from 'react-native'
 
 import {
   SafeAreaView,
@@ -324,6 +325,14 @@ const Mapview = ({ navigation, route }) => {
               {/* <TouchableOpacity style={{width:40, height:40, borderRadius:20, justifyContent:'center'}} onPress={() => dougsTestFunc()}>
                                 <Icon name='sliders' type='font-awesome' size={25} color='darkgray' />
                             </TouchableOpacity> */}
+              <TouchableOpacity style={{ width: 40, height: 40, borderRadius: 20, justifyContent: 'center' }} onPress={() => console.log(route.params?.photoURL)}>
+                <Image 
+                style={{width: 50, height: 50}}
+                source={{
+                  uri: route.params?.photoURL
+                }}>
+                </Image>
+              </TouchableOpacity>
               <SearchBar
                 placeholder='Looking for a bathroom?'
                 onChangeText={updateSearchFunc}

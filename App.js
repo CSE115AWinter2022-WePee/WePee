@@ -93,7 +93,7 @@ function App () {
                 component={Mapview}
                 options={{
                   headerShown: false
-                }} initialParams={{ uid: user.uid }}
+                }} initialParams={{ uid: user.uid, photoURL: user.photoURL}}
               />
               <Stack.Screen
                 name='Add'
