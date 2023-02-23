@@ -111,6 +111,14 @@ function App () {
                   headerTitleStyle: { color: 'black' }
                 }}
               />
+              <Stack.Screen
+                name='Profile'
+                component={ProfileScreen}
+                options={{
+                  headerTitle: 'ProfileScreen',
+                  headerTitleStyle: { color: 'black' }
+                }}
+              />
             </Stack.Navigator>
           </NavigationContainer>
 
