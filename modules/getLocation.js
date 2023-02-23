@@ -5,8 +5,8 @@ import { requestLocation, requestLocationPermission } from '../modules/requestLo
 
 // function to check permissions and get location
 export const getCurrentLocation = () => {
-    return new Promise((resolve, reject) => {
-        const res = requestLocationPermission()
+    return new Promise(async (resolve, reject) => {
+        const res = await requestLocationPermission()
         if (res) {
             Geolocation.getCurrentPosition(
                 position => {

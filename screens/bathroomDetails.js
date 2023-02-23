@@ -28,26 +28,26 @@ const BathroomDetailsScreen = ({route}) => {
 
     const [showDialog , setShowDialog] = useState(false)
 
-    const [stars, setStars] = useState(3)
-    const [dbDocument, setDbDocument] = useState()
+    // State to store user's bathroom rating 
+    // This currently defaults to 3, although I would like it to start with the current user's rating from the database if it exists
+    // However, the data often isn't fetched quick enough from the database, and it defaults to 3 anyways
+    // So currently, the user cannot see their old rating if re-rating a bathroom
+    // However, limiting ratings to one per user still works
+    const [stars, setStars] = useState(3) 
+    // = useState(bathRoomData?.Users?.[route.params?.uid]?.rating ? bathroomData.Users[route.params?.uid].rating : 3) -> Does NOT work!! Gets set to 3 even if user rating exists!
+
+    const [dbDocument, setDbDocument] = useState() // State to store current bathroom document from firestore
 
     const snapPoints = useMemo(() => ['30%', '60%', '85%'], []);
 
-    const [region, setRegion] = useState({
-        latitude: 37.78825,
-        longitude: -122.4324,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-    })
+    const [region, setRegion] = useState(route.params?.region) // Store current map region
     
-    
+    // On initial render only, fetch all bathroom data
     useEffect(() => {
         fetchBathroomData(route.params?.bathroomId)
     }, [])
 
-
-   
-
+    // Fetch current bathroom data from firestore database
     const fetchBathroomData = async (bathroomId) => {
         try {   
             const doc = firestore().collection('bathrooms').doc(bathroomId);
@@ -65,9 +65,9 @@ const BathroomDetailsScreen = ({route}) => {
         } catch (error) {
             console.log(error)
         }
-       
     }
 
+    // Calculate current bathroom rating
     const getRating = function(data) {
         if (!data) {
             return 5;
@@ -81,16 +81,40 @@ const BathroomDetailsScreen = ({route}) => {
         return [Number((totalSum/numRatings).toFixed(2)), numRatings];
     }
 
+    // update rating once per user
     const updateRating = async () => {
-        bathroomData["rating"][stars - 1]++
+        // Update database depending on whether the rating is new or updating an old rating by the same user
+        console.log("stars", stars, bathroomData)
+        if (!bathroomData?.Users?.[route.params?.uid]?.rating) {
+            bathroomData["rating"][stars - 1]++
+        } else {
+            bathroomData["rating"][bathroomData["Users"][route.params?.uid]["rating"] - 1]--
+            bathroomData["rating"][stars - 1]++
+        }
+        // Update database entry with rating
         await dbDocument.update({
-            rating: bathroomData["rating"]
+            rating: bathroomData["rating"],
+            Users: {
+                [route.params?.uid] : {
+                    rating: stars
+                }
+            }
         })
-
+        console.log("updated")
+        // Update bathroomData state var with user bathroom rating
+        // so user rating available on next call of `updateRating`
+        setBathroomData({
+            ...bathroomData, 
+            Users: {
+                [route.params?.uid] : {
+                    rating: stars
+                }
+            }
+        })
         // dismiss the review dialog
         toggleDialog()
 
-        // show alert on succesfull review
+        // show alert on succesful review
         Alert.alert(
             "Thank you!",
             "Your review has been saved",
@@ -150,13 +174,14 @@ const BathroomDetailsScreen = ({route}) => {
                 <Dialog.Title title="YOUR REVIEW" />
 
                 <AirbnbRating
+                    isDisabled={false}
                     showRating={true}
                     size={35}
                     count={5}
                     defaultRating={stars}
                     starContainerStyle={{alignSelf:'center'}}
                     ratingContainerStyle={{ marginBottom:10 }}
-                    onFinishRating={val => setStars(val)}
+                    onFinishRating={val => {setStars(val)}}
                 />
                 
             </View>
@@ -252,8 +277,6 @@ const BathroomDetailsScreen = ({route}) => {
                             <ShowDialog />
 
                         </View>
-
-                       
 
                         <View style={{width: '100%'}}>
                              <Text style={[styles.txt, {fontWeight:'bold', fontSize:18, marginTop:30, marginLeft:15}] }>

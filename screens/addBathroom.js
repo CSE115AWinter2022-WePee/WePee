@@ -21,7 +21,7 @@ import {
 
 // Currently not implemented: Set rating, delete/report bathroom, edit tags for bathroom
 
-const AddBathroomScreen = ({ navigation }) => {
+const AddBathroomScreen = ({ navigation, route }) => {
 
     // tag states
     const [name, setName] = useState()
@@ -36,7 +36,7 @@ const AddBathroomScreen = ({ navigation }) => {
     const [urinal, setUrinal] = useState(false)
     const [stars, setStars] = useState(3)
 
-    //refs
+    // refs for components
     const bottomSheetRef = useRef(null);
     const mapViewRef = useRef(null);
 
@@ -44,12 +44,7 @@ const AddBathroomScreen = ({ navigation }) => {
     const [coordinate, setCoordinate] = useState({ latitude: 37.78825, longitude: -122.4324 });
     const snapPoints = useMemo(() => ['30%', '60%', '85%'], []);
     
-    const [region, setRegion] = useState({
-        latitude: 37.78825,
-        longitude: -122.4324,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-    })
+    const [region, setRegion] = useState(route.params?.region)
 
     //call getCurrentLocation, have it set location and region details
     useEffect(() => {
@@ -68,10 +63,11 @@ const AddBathroomScreen = ({ navigation }) => {
      })
  
      const _getLocation = async () => {
-        // fetch from cached data
+        // fetch from cached data - Do we really want this??
+        // Why not just pass location as a route parameter?...
          try {
              const coordinates = await AsyncStorage.getItem('coordinates')
-             const region  = await  AsyncStorage.getItem('region')
+             const region  = await AsyncStorage.getItem('region')
              setCoordinate(JSON.parse(coordinates))
              setPinnedCoordinate(JSON.parse(coordinates))
              setRegion(JSON.parse(region))
