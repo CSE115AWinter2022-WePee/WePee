@@ -103,7 +103,7 @@ function App() {
                   component={Mapview}
                   options={{
                     headerShown: false
-                  }} />
+                  }} initialParams = {{uid: user.uid}} />
               <Stack.Screen name="Add" 
                   component={AddBathroomScreen}
                   options={{

@@ -58,7 +58,7 @@ const Mapview = ({ navigation, route }) => {
     // states to hold when app data fully fetched on initial render
     const [located, setLocated] = useState(false);
     const [loaded, setLoaded] = useState(false);
-
+    
     // Copy tags and add states
     const mTags = [
         {   
@@ -244,7 +244,7 @@ const Mapview = ({ navigation, route }) => {
     const Item = ({ props, index, id }) => (
         <TouchableOpacity style={{width:'100%', backgroundColor: 'white', 
             justifyContent:'center', padding:10, marginVertical: 5}}
-            onPress={() => navigation.navigate('Details', {bathroomId: id, region: region})}>
+            onPress={() => navigation.navigate('Details', {bathroomId: id, region: region, uid: route.params?.uid})}>
             <View style={{flex:1, alignItems: 'center', flexDirection:'row', justifyContent:'space-between'}}>
                 <Text style={[styles.txt, {fontSize:16, fontWeight:'bold'}]}>{props.name}</Text> 
                 <Text style={[styles.txt]}>{getDistance(props.latitude, props.longitude)} mi.</Text>  
