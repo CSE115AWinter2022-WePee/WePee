@@ -1,5 +1,5 @@
 import Geolocation from 'react-native-geolocation-service'
-import {requestLocationPermission } from '../modules/requestLocation'
+import { requestLocationPermission } from '../modules/requestLocation'
 
 // function to check permissions and get location
 export const getCurrentLocation = () => {
@@ -26,7 +26,7 @@ export const getCurrentLocation = () => {
         { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
       )
     } else {
-      reject('No location permission')
+      reject(new Error('No location permission'))
     }
   })
 }
