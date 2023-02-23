@@ -13,6 +13,9 @@ import { anonymousLogin } from './modules/login';
 
 
 import {
+  View,
+  SafeAreaView,
+  Image,
   Platform,
   StyleSheet,
  
@@ -64,27 +67,29 @@ function App() {
   if (!user) {
     return (
 
-      <LoginScreen
-        logoImageSource={require("./assets/wepee.png")}
-        onLoginPress={() => {}}
-        onSignupPress={() => {}}
-        onEmailChange={(email) => {}}
-        onPasswordChange={(password) => {}}
-        disablePasswordInput={true}
-        disableSignup={true}
-        disableDivider={false}
-      >
-        <SocialButton text="Continue with Google" 
-        imageSource={require("./assets/google.png")}
-        onPress={() => {}} />
-        <SocialButton text="Continue with Apple" 
-        imageSource={require("./assets/apple.png")}
-        onPress={() => {}} />
-        {/* The javscript:void() just prevents it from rendering the facebook icon (default logo)*/}
-        <SocialButton text="Skip login"
-        //  imageSource="javascript:void()"
-         onPress={anonymousLogin}/>
-      </LoginScreen>
+      // <LoginScreen
+      //   logoImageSource={require("./assets/wepee.png")}
+      //   onLoginPress={() => {}}
+      //   onSignupPress={() => {}}
+      //   onEmailChange={(email) => {}}
+      //   onPasswordChange={(password) => {}}
+      //   disablePasswordInput={true}
+      //   disableSignup={true}
+      //   disableDivider={false}
+      // >
+    <View style={styles.buttonsStyle}>
+      <Image source={require("./assets/wepee.png")}/>
+      <SocialButton text="Continue with Google" 
+      imageSource={require("./assets/google.png")}
+      onPress={() => {}} />
+      <SocialButton text="Continue with Apple" 
+      imageSource={require("./assets/apple.png")}
+      onPress={() => {}} />
+      {/* The javscript:void() just prevents it from rendering the facebook icon (default logo)*/}
+      <SocialButton text="Skip login"
+      //  imageSource="javascript:void()"
+        onPress={anonymousLogin}/>
+    </View>
     )
   };
 
@@ -131,8 +136,15 @@ const styles = StyleSheet.create({
   txt: {
     fontSize: 24,
     fontWeight: '600'
+  },
+  // Default units in react native = dp (density-dependent pixels)
+  buttonsStyle: {
+    flex: 1,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 10
   }
-
 });
 
 export default App;

@@ -26,12 +26,17 @@ import { Button } from '@rneui/base';
 
 
 const Mapview = ({ navigation, route }) => {
-    // state to hold location, default is false. setLocation(something) sets location to something
+    // state to hold location, default is false. setCoordinate(a) sets `coordinate` to `a`
     const [coordinate, setCoordinate] = useState();
+    // state for search text in search box
     const [searchTxt, setSearchTxt] = useState('')
-    const [allBathrooms, setAllBathrooms] = useState([]) // only changes upon getting data
+    // state to hold all bathrooms loaded from database
+    const [allBathrooms, setAllBathrooms] = useState([])
+    // state to hold filtered bathrooms
     const [bathrooms, setBathrooms] = useState([])
-    const bottomSheetRef = useRef(null); //bottomSheetRef.current.snapToPosition('3%')
+    // Ref to hold reference to `bottomSheet` element that liosts all the bathrooms in the mapview
+    const bottomSheetRef = useRef(null);
+    // Ref to hold mapview element reference
     const mapViewRef = useRef(null);
 
     // States to determine if tag is active or not
@@ -47,13 +52,12 @@ const Mapview = ({ navigation, route }) => {
     // bottom sheet snap points
     const snapPoints = useMemo(() => ['30%', '60%'], []);
 
-    // set default region
-    const [region, setRegion] = useState({
-        latitude: 37.78825,
-        longitude: -122.4324,
-        latitudeDelta: 0.0222,
-        longitudeDelta: 0.0421,
-    });
+    // set map default region state variable
+    const [region, setRegion] = useState(null);
+
+    // states to hold when app data fully fetched on initial render
+    const [located, setLocated] = useState(false);
+    const [loaded, setLoaded] = useState(false);
 
     // Copy tags and add states
     const mTags = [
@@ -95,19 +99,22 @@ const Mapview = ({ navigation, route }) => {
     ]
 
     
-    //call getCurrentLocation, have it set location and region details
+    // Upon any changes to `route.params` (parameters passed in navigation route) and upon initial render,
+    // call _getLocation(), to have it set location and region state vars
+    // and fetch bathroom data from database
     useEffect(() => {
         _getLocation()
         fetchBathrooms()
      }, [route.params]);
  
-    // grab bathrooms from 
+    // Grab bathrooms from database
     const fetchBathrooms = async () => {
         try {
             const snap = await firestore().collection('bathrooms').get()
             if (!snap.empty) {
                 setBathrooms(snap.docs)
                 setAllBathrooms(snap.docs)
+                setLoaded(true)
             }
         } catch (error) {
             console.log(error)
@@ -123,7 +130,8 @@ const Mapview = ({ navigation, route }) => {
           marginRight: '5%'}}/>
     );
 
-    // 
+    // Msthod to fetch current user location
+    // and cache the current user location
     const _getLocation = () => {
         getCurrentLocation()
         .then(({coordinates, region}) => {
@@ -132,12 +140,13 @@ const Mapview = ({ navigation, route }) => {
             // cache location data
             AsyncStorage.setItem('coordinates', JSON.stringify(coordinates))
             AsyncStorage.setItem('region', JSON.stringify(region))
+            setLocated(true)
         })
         .catch(message => console.log(message))
     }
 
 
-    // runs when a tag is pressed
+    // Runs when a tag is pressed
     const onTagPress = (tag, index) => {
         console.log("called onTag pressed")
         const newState = !tag.state[0]
@@ -145,7 +154,7 @@ const Mapview = ({ navigation, route }) => {
         tag.state[1](newState);
     
         
-        // // if no tags selected update bathrooms else run filter func with selected tags
+        // If no tags selected update bathrooms else run filter func with selected tags
         const searchedTags = getSelectedTags(tag, newState)
         searchedTags.length == 0 ? setBathrooms(allBathrooms) : filterBathrooms(searchedTags) 
     }
@@ -164,13 +173,12 @@ const Mapview = ({ navigation, route }) => {
         return data 
     }
 
-    // changes the bathrooms state based on the tags in searchedTags
-    // this could be modified to use text from the searchbar
+    // Filters bathrooms/changes the `bathrooms` state variable based on the tags in searchedTags
     const filterBathrooms = (searchedTags) => {
         const newBathrooms = []
 
-        // runs for every bath, checking their qualities against the tags
-        for(const bath of allBathrooms){
+        // runs for every bathroom, checking their qualities against the tags
+        for (const bath of allBathrooms){
             let hasAllTags = true
             for(const tag of searchedTags){ // for each tag
                 if(bath.data()[tag.db_name] != true){
@@ -181,7 +189,7 @@ const Mapview = ({ navigation, route }) => {
             }
 
             // if the bath has all the tags, add it
-            if(hasAllTags){
+            if (hasAllTags){
                 newBathrooms.push(bath)
             }
         }
@@ -190,25 +198,24 @@ const Mapview = ({ navigation, route }) => {
         setBathrooms(newBathrooms)
     }
 
-    // Searches case-insensitively through bathroom names for search text `txt` appaearing anywhere
+    // Searches case-insensitively through bathroom names for search text `txt` appaearing anywhere in the bathroom name
     function updateSearchFunc(txt) {
         setSearchTxt(txt)
         setBathrooms(allBathrooms.filter(e => txt.length > 0 ? RegExp(txt.toLowerCase()).test(e.data().name.toLowerCase()) : true))
     }
 
-    // runs when goToUser button is pressed
-    const goToUser = () => {
-        //_getLocation() // update user location
+    // Runs when goToUser button is pressed
+    const goToUser = async () => {
+        await _getLocation() // update user location
         mapViewRef.current.animateToRegion(region, 1000)
     }
 
-    // callbacks
+    // Placehplder for handling stylesheet changes
     const handleSheetChanges = useCallback( index => {
         // console.log('handleSheetChanges', index);
     }, []);
 
-    
-
+    // Create map markers for bathrooms with valid longitude && latitude data
     const bathroomMarkers = bathrooms
         .filter(snap => snap.data().latitude && snap.data().longitude)
         .map(snap => (
@@ -227,15 +234,17 @@ const Mapview = ({ navigation, route }) => {
     // 1º long ~ 54.6 mi
     // at 38º N latitude (Stockton, CA)
     // https://www.usgs.gov/faqs/how-much-distance-does-degree-minute-and-second-cover-your-maps#:~:text=One%2Ddegree%20of%20longitude%20equals,one%20second%20equals%2080%20feet.
-    // Computes the stright line distance to bathroom, and rounds to 2 decimal places
+    // Computes the stright line distance to bathroom, and rounds to 2 decimal places using the method detailed above
     const getDistance = (latitude, longitude) => {
         return ((((coordinate.latitude - latitude) * 69) ** 2 + ((coordinate.longitude - longitude) * 54.6) ** 2) ** .5).toFixed(2)
     }
 
+    // Custom component for each bathroom list item
+    // in the bathroom list (bottomSheet)
     const Item = ({ props, index, id }) => (
         <TouchableOpacity style={{width:'100%', backgroundColor: 'white', 
             justifyContent:'center', padding:10, marginVertical: 5}}
-            onPress={() => navigation.navigate('Details', {bathroomId: id})}>
+            onPress={() => navigation.navigate('Details', {bathroomId: id, region: region})}>
             <View style={{flex:1, alignItems: 'center', flexDirection:'row', justifyContent:'space-between'}}>
                 <Text style={[styles.txt, {fontSize:16, fontWeight:'bold'}]}>{props.name}</Text> 
                 <Text style={[styles.txt]}>{getDistance(props.latitude, props.longitude)} mi.</Text>  
@@ -243,6 +252,7 @@ const Mapview = ({ navigation, route }) => {
         </TouchableOpacity>
     )
 
+    // Custom component for each tag filter
     const TagItem = ({tag, index}) => (
         <View key={tag.key}>
             <TouchableOpacity
@@ -259,25 +269,33 @@ const Mapview = ({ navigation, route }) => {
             </TouchableOpacity>
         </View>
     )
-    
                     
-   
-    if (!coordinate) return <></>
+    // Render loading text while no user location available,
+    // otherwise render the default mapview with the current user location and all UI componenents
+    if (!located || !loaded) return (
+        <Text>
+            Loading current user location...
+        </Text>
+    )
     return (
         <View style={{backgroundColor:'white'}}>
             <SafeAreaView>
                 <View style={{height:'100%'}}>
     
                     <View style={{alignItems:'center'}}>
-                        <Text style={{fontSize:30, fontWeight:'bold', color:'#3C99DC'}}>
-                            WePee
-                            <Button style={styles.logoutButton}
-                            onPress = {() => auth()
+
+                        <View style={{flexDirection: 'row',alignItems: 'center'}}>
+                            <Text style={{fontSize:30, fontWeight:'bold', color:'#3C99DC'}}>
+                                WePee
+                            </Text>
+                            <View style={styles.logoutButton}>
+                                <Button
+                                onPress = {() => auth()
                                 .signOut()
-                                .then(() => console.log('User signed out!'))}> 
-                                Logout 
-                            </Button>
-                        </Text>
+                                .then(() => console.log('User signed out!'))}
+                                title="Logout"/> 
+                            </View>
+                        </View>
                         
                         <View style={{height:60, flexDirection:'row', 
                                 justifyContent:'flex-start', alignItems:'center', marginLeft:6, marginRight:10}}>
@@ -293,7 +311,7 @@ const Mapview = ({ navigation, route }) => {
                                 containerStyle={{flex:1, backgroundColor:lightColors.white, borderTopColor:'white'}}
                                 value={searchTxt}/>
 
-                            <TouchableOpacity style={{width:40, height:40, borderRadius:20, justifyContent:'center'}} onPress={() => navigation.navigate('Add')}>
+                            <TouchableOpacity style={{width:40, height:40, borderRadius:20, justifyContent:'center'}} onPress={() => navigation.navigate('Add', {region: region})}>
                                 <Icon name='plus' type='font-awesome' size={20} color='#3C99DC' />
                             </TouchableOpacity>
                            
@@ -309,14 +327,13 @@ const Mapview = ({ navigation, route }) => {
                             region={region}
                             onPress={() => {bottomSheetRef.current.close()}}
                             onRegionChange={() => {}}
-                            //onUserLocationChange={(newCoords) => {updateLocation(newCoords.nativeEvent.coordinate)}}
+                            // onUserLocationChange={(newCoords) => {setCoordinate(newCoords.nativeEvent.coordinate)}}
                             >
-                            
-                            
                             { bathroomMarkers }
                         </MapView>
                         
                         <FlatList
+                            // Hprizontal tag filter list
                             data={mTags}
                             horizontal
                             showsHorizontalScrollIndicator={false}
@@ -332,7 +349,8 @@ const Mapview = ({ navigation, route }) => {
                             <Text style={{fontSize: 14, fontWeight: 'bold', color: 'white'}}>View List</Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity // Animate to user button
+                        <TouchableOpacity 
+                            // Animate to user button
                             onPress={() => {goToUser()}}
                             style = {styles.userLocationButton}>
                             <Icon name='person-pin' type='material' size={40} color='lightblue' />
@@ -343,6 +361,7 @@ const Mapview = ({ navigation, route }) => {
                 </View>
     
                 <BottomSheet
+                    // Bathrooms list
                     ref={bottomSheetRef}
                     index={0}
                     snapPoints={snapPoints}
@@ -364,12 +383,12 @@ const Mapview = ({ navigation, route }) => {
         </View>
         
     )
-
-  
 }
 
 export default Mapview
 
+// Define styles for rendered componenets
+// Styes reference: https://stackoverflow.com/a/34317028
 const styles = StyleSheet.create({
     txt: {
         fontSize:14,
@@ -387,15 +406,15 @@ const styles = StyleSheet.create({
         marginRight: 3,
     },
     tagButtonPressed: {
-    height: 36,
-    flexDirection:'row',
-    alignItems:'center',
-    justifyContent: 'center',
-    padding: 8,
-    borderRadius: 100,
-    backgroundColor: 'gray',
-    marginLeft: 3,
-    marginRight: 3,
+        height: 36,
+        flexDirection:'row',
+        alignItems:'center',
+        justifyContent: 'center',
+        padding: 8,
+        borderRadius: 100,
+        backgroundColor: 'gray',
+        marginLeft: 3,
+        marginRight: 3,
     },
     tagButtonText: {
         color:'black',
@@ -430,10 +449,9 @@ const styles = StyleSheet.create({
         backgroundColor: 'gray',
     },
     logoutButton: {
-        display: 'none',
-        position: 'absolute',
+        position: 'relative',
         justifyContent: 'center',
-        left: '200px',
-        backgroundColor: 'gray'
+        alignItems: 'center',
+        marginLeft: 50
     }
 })

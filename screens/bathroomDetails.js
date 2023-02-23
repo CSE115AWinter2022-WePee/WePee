@@ -33,20 +33,11 @@ const BathroomDetailsScreen = ({route}) => {
 
     const snapPoints = useMemo(() => ['30%', '60%', '85%'], []);
 
-    const [region, setRegion] = useState({
-        latitude: 37.78825,
-        longitude: -122.4324,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-    })
-    
+    const [region, setRegion] = useState(route.params?.region)
     
     useEffect(() => {
         fetchBathroomData(route.params?.bathroomId)
     }, [])
-
-
-   
 
     const fetchBathroomData = async (bathroomId) => {
         try {   
@@ -65,7 +56,6 @@ const BathroomDetailsScreen = ({route}) => {
         } catch (error) {
             console.log(error)
         }
-       
     }
 
     const getRating = function(data) {
