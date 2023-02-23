@@ -15,6 +15,7 @@
     "@react-native-firebase/app": "^12.7.3",
     "@react-native-firebase/auth": "^12.7.3",
     "@react-native-firebase/firestore": "^12.7.3",
+    "@react-native-google-signin/google-signin": "^9.0.2",
     "@react-navigation/native": "^6.1.2",
     "@react-navigation/native-stack": "^6.9.8",
     "@rneui/base": "^4.0.0-rc.7",
