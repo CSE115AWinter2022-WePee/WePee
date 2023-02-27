@@ -16,12 +16,19 @@ import {
 
 const ProfileScreen = ({ route }) => {
   const [userReviews, setUserReviews] = useState()
+  const [averageUserReview, setAverageUserReview] = useState(0)
+  const [daysPeeing, setDaysPeeing] = useState((route.params?.daysInApp || 0).toFixed(0))
   const uid = route.params?.uid // set userid, should not change
 
   // On initial render only, fetch all bathroom data
   useEffect(() => {
     fetchBathroomData()
   }, [])
+
+  // 
+  useEffect(() => {
+    calcAverageReview()
+  }, [userReviews])
 
   // Grabs a bathroom's name given a bathroom_id
   const getBathroomNameFromId = async (bathroom_id) => {
@@ -60,6 +67,17 @@ const ProfileScreen = ({ route }) => {
     }));
     setUserReviews(cleanedData);
     console.log(cleanedData)
+  }
+
+  const calcAverageReview = () => {
+    if(userReviews){
+      let totalStars = 0;
+      for(const review of userReviews){
+        totalStars += review.stars;
+      }
+
+      setAverageUserReview((totalStars/userReviews.length).toFixed(1))
+    }
   }
 
   // Fetch user's review data from firestore database
@@ -112,7 +130,7 @@ const ProfileScreen = ({ route }) => {
           backgroundColor: 'lightgray',
           flexDirection: 'row',
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "space-evenly",
         }}
       >
         <View style={{flexDirection: "column", justifyContent: "center", marginLeft: 10, marginRight: 10, alignItems: "center"}}>
@@ -121,6 +139,18 @@ const ProfileScreen = ({ route }) => {
         </View>
 
         <View style={{height: '80%', width: 1, backgroundColor: 'gray'}} />
+
+        <View style={{flexDirection: "column", justifyContent: "center", marginLeft: 10, marginRight: 10, alignItems: "center"}}>
+          <Text style={[styles.txt, {fontWeight: 'bold'}]}>Avg Review:</Text>
+          <Text style={[styles.txt, {fontWeight: 'bold'}]}>{averageUserReview}</Text>
+        </View>
+
+        <View style={{height: '80%', width: 1, backgroundColor: 'gray'}} />
+
+        <View style={{flexDirection: "column", justifyContent: "center", marginLeft: 10, marginRight: 10, alignItems: "center"}}>
+          <Text style={[styles.txt, {fontWeight: 'bold'}]}>Days Peeing:</Text>
+          <Text style={[styles.txt, {fontWeight: 'bold'}]}>{}</Text>
+        </View>
       </View>
     );
   }
