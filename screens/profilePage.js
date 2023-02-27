@@ -1,17 +1,12 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react'
-import BottomSheet from '@gorhom/bottom-sheet'
-import MapView, { Marker } from 'react-native-maps'
 import firestore from '@react-native-firebase/firestore'
-import { Icon, AirbnbRating, Dialog } from '@rneui/themed'
-import { tags } from '../modules/tags'
 
 import {
   StyleSheet,
   Text,
   View,
   SafeAreaView,
-  TouchableOpacity,
-  Alert
+  Image
 } from 'react-native'
 
 import { ScrollView } from 'react-native-gesture-handler'
@@ -20,110 +15,54 @@ const ProfileScreen = ({ route }) => {
   // refs
   const bottomSheetRef = useRef(null)
   const mapViewRef = useRef(null)
-
-  const [bathroomData, setBathroomData] = useState()
-  const [tagsSection, setTagsSection] = useState()
-
-  const [dbUserReviews, setDbUserReviews] = useState() // State to store current user reviews
+  const [userReviews, setUserReviews] = useState()
+  const uid = route.params?.uid // set userid, should not change
 
   const snapPoints = useMemo(() => ['30%', '60%', '85%'], [])
 
-  const [region, setRegion] = useState(route.params?.region) // Store current map region
-
   // On initial render only, fetch all bathroom data
   useEffect(() => {
-    fetchBathroomData(route.params?.bathroomId)
+    fetchBathroomData(uid)
   }, [])
 
-  // Fetch current bathroom data from firestore database
-  const fetchBathroomData = async (bathroomId) => {
+  // Fetch user's review data from firestore database
+  const fetchBathroomData = async (uid) => {
     try {
-      const doc = firestore().collection('bathrooms').doc(bathroomId)
-      setDbUserReviews(doc)
+      const doc = firestore().collection('reviews').where("uid", "==", uid) // get all of this user's reviews
       const snap = await doc.get()
       if (snap.exists) {
-        setBathroomData(snap.data())
-        setRegion({
-          ...region,
-          latitude: snap.data().latitude,
-          longitude: snap.data().longitude
-        })
-        setCoordinate({ latitude: snap.data().latitude, longitude: snap.data().longitude })
-        displayTags(snap.data())
+        setUserReviews(snap.data())
       }
     } catch (error) {
       console.log(error)
     }
   }
 
+  console.log(userReviews)
 
   return (
     <View style={{ backgroundColor: 'white' }}>
       <SafeAreaView>
-        <View style={{ height: '100%' }}>
+        <View style={{ alignItems: 'center' }}>
+          <View style={{ height: '100%' }}>
+            <Image // profile image
+              style={{width: 160, height: 160, borderRadius: 100, borderWidth: 2, top: 100}}
+              source={{ // source is user profile pic or the static google one
+              uri: route.params?.photoURL || "https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg"
+              }}>
+            </Image>
+          </View>
 
-          <TouchableOpacity // Animate to bathroom button
-            onPress={() => { mapViewRef.current.animateToRegion(region, 1000) }}
-            style={styles.bathroomLocationButton}
-          >
-            <Icon name='map-marker-alt' type='font-awesome-5' size={35} color='lightblue' />
-          </TouchableOpacity>
-
-          <TouchableOpacity // Show list button
-            onPress={() => bottomSheetRef.current.snapToIndex(0)}
-            style={styles.showListButton}
-          >
-            <Icon name='list' type='material' size={30} color='white' containerStyle={{ marginRight: 3 }} />
-            <Text style={{ fontSize: 14, fontWeight: 'bold', color: 'white' }}>View List</Text>
-          </TouchableOpacity>
-
+          {/* <FlatList
+                              // Hprizontal tag filter list
+                data={mTags}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                renderItem={({ item, index }) => <TagItem tag={item} index={index} />}
+                keyExtractor={item => item.key}
+                style={{ width: '100%', height: 40, position: 'absolute', top: 108 }}
+              /> */}
         </View>
-
-        <BottomSheet
-          ref={bottomSheetRef}
-          index={0}
-          snapPoints={snapPoints}
-          onChange={handleSheetChanges}
-          style={{ marginBottom: 0 }}
-          enablePanDownToClose
-        >
-          <ScrollView>
-            <View style={{ flex: 1, alignItems: 'center', backgroundColor: 'lightgrey' }}>
-              <View style={{ width: '100%', alignItems: 'center', backgroundColor: 'white', padding: 15 }}>
-                <Text style={[styles.txt, { fontWeight: 'bold', fontSize: 20 }]}>
-                  {bathroomData?.name}
-                </Text>
-                <Text style={[styles.txt, { marginVertical: 15 }]}>
-                  {bathroomData?.description}
-                </Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-
-                </View>
-
-                <TouchableOpacity style={{ alignContent: 'center', marginTop: 10 }} onPress={toggleDialog}>
-                  <Text style={[styles.txt, { fontWeight: 'bold', textDecorationLine: 'underline', fontSize: 18 }]}>
-                    Leave a review
-                  </Text>
-                </TouchableOpacity>
-
-                <ShowDialog />
-
-              </View>
-
-              <View style={{ width: '100%' }}>
-                <Text style={[styles.txt, { fontWeight: 'bold', fontSize: 18, marginTop: 30, marginLeft: 15 }]}>
-                  Features
-                </Text>
-                <View style={{ alignItems: 'center', backgroundColor: 'white', marginTop: 15, padding: 10 }}>
-                  {tagsSection}
-                </View>
-              </View>
-
-            </View>
-          </ScrollView>
-
-        </BottomSheet>
-
       </SafeAreaView>
     </View>
   )

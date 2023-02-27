@@ -8,14 +8,14 @@ import { getCurrentLocation } from '../modules/getLocation'
 import firestore from '@react-native-firebase/firestore'
 import auth from '@react-native-firebase/auth'
 import { tags } from '../modules/tags'
-import { Image } from 'react-native'
 
 import {
   SafeAreaView,
   StyleSheet,
   Text,
   View,
-  TouchableOpacity
+  TouchableOpacity,
+  Image
 } from 'react-native'
 
 import {
@@ -247,7 +247,7 @@ const Mapview = ({ navigation, route }) => {
         padding: 10,
         marginVertical: 5
       }}
-      onPress={() => navigation.navigate('Details', { bathroomId: id, region, uid: route.params?.uid })}
+      onPress={() => navigation.navigate('Details', { bathroomId: id, region: region, uid: route.params?.uid })}
     >
       <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
         <Text style={[styles.txt, { fontSize: 16, fontWeight: 'bold' }]}>{props.name}</Text>
@@ -325,7 +325,7 @@ const Mapview = ({ navigation, route }) => {
               {/* <TouchableOpacity style={{width:40, height:40, borderRadius:20, justifyContent:'center'}} onPress={() => dougsTestFunc()}>
                                 <Icon name='sliders' type='font-awesome' size={25} color='darkgray' />
                             </TouchableOpacity> */}
-              <TouchableOpacity style={{ justifyContent: 'center' }} onPress={() => navigation.navigate('Profile', { region })}>
+              <TouchableOpacity style={{ justifyContent: 'center' }} onPress={() => navigation.navigate('Profile', { uid: route.params?.uid, photoURL: route.params?.photoURL})}>
                 <Image // profile image
                     style={{width: 50, height: 50, borderRadius: 25, borderWidth: 2,}}
                     source={{ // source is user profile pic or the static google one
