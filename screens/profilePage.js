@@ -19,21 +19,63 @@ const ProfileScreen = ({ route }) => {
 
   // On initial render only, fetch all bathroom data
   useEffect(() => {
-    fetchBathroomData(uid)
+    fetchBathroomData()
   }, [])
 
-  // Fetch user's review data from firestore database
-  const fetchBathroomData = async (uid) => {
+  // Grabs a bathroom's name given a bathroom_id
+  const getBathroomNameFromId = async (bathroom_id) => {
     try {
-      const doc = firestore().collection('reviews').where("uid", "==", uid) // get all of this user's reviews
-      const snap = await doc.get()
-      if (snap.exists) {
-        setUserReviews(snap.data())
+      const snap = await firestore().collection('bathrooms')
+                          .where("id", "==", bathroom_id)
+                          .get()
+      if (!snap.empty) {
+          return(snap.docs[0].data().name);
       }
+    } catch (error) {
+        console.log(error)
+    }
+  }
+
+  // Updates name field in a review
+  const updateBathroomNameInReview = async (review_id, name) => {
+    try {
+      await firestore().collection('reviews').doc(review_id).update({bathroom_name: name}); // update with name if it wasnt there
+    } catch (error) {
+        console.log(error)
+    }
+  }
+
+  const cleanupAndSetFirebaseUserReviews = async (junkyArray) => {
+    const cleanedData = await Promise.all(junkyArray.map(async (review) => {
+      const { bathroom_name, bathroom_id, id, stars } = review._data;
+      let name = bathroom_name;
+      if (!name) { // if bathroom name is undefined
+        name = await getBathroomNameFromId(bathroom_id);
+        await updateBathroomNameInReview(id, name);  // updates the bathroom's name in a review, if it isnt there
+      }
+      return { name, id, bathroom_id, stars };
+    }));
+    setUserReviews(cleanedData);
+  }
+  // Fetch user's review data from firestore database
+  const fetchBathroomData = async () => {
+    try {
+      const snap = await firestore().collection('reviews').where("uid", "==", uid).get()
+      if (!snap.empty) {
+        //console.log("cleanedUp snap.docs: " + cleanupFirebaseUserReviews(snap.docs))
+        //console.log("cleanedUp snap.docs: " + JSON.stringify(cleanupFirebaseUserReviews(snap.docs)));
+        //setUserReviews(snap.docs)
+        cleanupAndSetFirebaseUserReviews(snap.docs)
+      }
+
     } catch (error) {
       console.log(error)
     }
   }
+
+  useEffect(() => {
+    console.log(userReviews)
+  }, [userReviews])
 
   const ProfilePic = ({}) => {
     return (
@@ -45,8 +87,6 @@ const ProfileScreen = ({ route }) => {
       />
     );
   };
-
-  console.log(userReviews)
 
   const wholePage = [
     {

@@ -130,6 +130,7 @@ const BathroomDetailsScreen = ({route}) => {
             await firestore().collection('reviews').doc(id).set({
                 uid: uid,
                 bathroom_id: route.params?.bathroomId,
+                bathroom_name: route.params?.bathroomName, // now saves bathroom name, more efficient for profile page
                 stars: stars,
                 id: id
             })

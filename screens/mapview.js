@@ -238,7 +238,7 @@ const Mapview = ({ navigation, route }) => {
 
   // Custom component for each bathroom list item
   // in the bathroom list (bottomSheet)
-  const Item = ({ props, index, id }) => (
+  const Item = ({ props, index, id}) => (
     <TouchableOpacity
       style={{
         width: '100%',
@@ -247,7 +247,7 @@ const Mapview = ({ navigation, route }) => {
         padding: 10,
         marginVertical: 5
       }}
-      onPress={() => navigation.navigate('Details', { bathroomId: id, region: region, uid: route.params?.uid })}
+      onPress={() => navigation.navigate('Details', { bathroomId: id, bathroomName: props.name, region: region, uid: route.params?.uid })}
     >
       <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
         <Text style={[styles.txt, { fontSize: 16, fontWeight: 'bold' }]}>{props.name}</Text>
