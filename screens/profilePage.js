@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import firestore from '@react-native-firebase/firestore'
+import { AirbnbRating } from '@rneui/themed'
 
 import {
   StyleSheet,
@@ -36,6 +37,7 @@ const ProfileScreen = ({ route }) => {
     }
   }
 
+
   // Updates name field in a review
   const updateBathroomNameInReview = async (review_id, name) => {
     try {
@@ -49,22 +51,22 @@ const ProfileScreen = ({ route }) => {
     const cleanedData = await Promise.all(junkyArray.map(async (review) => {
       const { bathroom_name, bathroom_id, id, stars } = review._data;
       let name = bathroom_name;
+      let key = id;
       if (!name) { // if bathroom name is undefined
         name = await getBathroomNameFromId(bathroom_id);
         await updateBathroomNameInReview(id, name);  // updates the bathroom's name in a review, if it isnt there
       }
-      return { name, id, bathroom_id, stars };
+      return { key, name, id, bathroom_id, stars };
     }));
     setUserReviews(cleanedData);
+    console.log(cleanedData)
   }
+
   // Fetch user's review data from firestore database
   const fetchBathroomData = async () => {
     try {
       const snap = await firestore().collection('reviews').where("uid", "==", uid).get()
       if (!snap.empty) {
-        //console.log("cleanedUp snap.docs: " + cleanupFirebaseUserReviews(snap.docs))
-        //console.log("cleanedUp snap.docs: " + JSON.stringify(cleanupFirebaseUserReviews(snap.docs)));
-        //setUserReviews(snap.docs)
         cleanupAndSetFirebaseUserReviews(snap.docs)
       }
 
@@ -73,20 +75,55 @@ const ProfileScreen = ({ route }) => {
     }
   }
 
-  useEffect(() => {
-    console.log(userReviews)
-  }, [userReviews])
 
   const ProfilePic = ({}) => {
     return (
       <Image
-        style={{ width: 160, height: 160, borderRadius: 100, borderWidth: 2, top: 40 }}
+        style={{ width: 160, height: 160, borderRadius: 100, borderWidth: 2, flexDirection:'row', marginTop: 50, marginLeft:'auto', marginRight: 'auto'}}
         source={{
           uri: route.params?.photoURL || "https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg",
         }}
       />
     );
   };
+
+  const Spacer = ({}) => {
+    return (
+      <View
+        style={{
+          height: 30,
+          top: 50,
+          backgroundColor: 'blue',
+        }}
+      />
+    );
+  }
+
+  const ReviewStats = ({}) => {
+    return (
+      <View
+        style={{
+          height: 60,
+          marginLeft: 20,
+          marginRight: 20,
+          borderRadius: 100,
+          marginBottom: 70,
+          top: 50,
+          backgroundColor: 'lightgray',
+          flexDirection: 'row',
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <View style={{flexDirection: "column", justifyContent: "center", marginLeft: 10, marginRight: 10, alignItems: "center"}}>
+          <Text style={[styles.txt, {fontWeight: 'bold'}]}>Reviews:</Text>
+          <Text style={[styles.txt, {fontWeight: 'bold'}]}>{userReviews.length}</Text>
+        </View>
+
+        <View style={{height: '80%', width: 1, backgroundColor: 'gray'}} />
+      </View>
+    );
+  }
 
   const wholePage = [
     {
@@ -95,64 +132,60 @@ const ProfileScreen = ({ route }) => {
     },
     {
       key: 1,
-      id: "profilePic"
+      id: "reviewStats"
     },
-    {
-      key: 2,
-      id: "profilePic"
-    },
-    {
-      key: 3,
-      id: "profilePic"
-    },
-    {
-      key: 4,
-      id: "profilePic"
-    },
-    {
-      key: 5,
-      id: "profilePic"
-    },
-    {
-      key: 6,
-      id: "profilePic"
-    },
-    //...userReviews
+    ...(userReviews || [])
             ]
+
 
   const Item =({item}) => {
     switch (item.id) {
       case "profilePic":
         return <ProfilePic />;
-      default:
+      case "spacer":
+        return <Spacer />;
+      case "reviewStats":
+        return <ReviewStats />;
+      default: // default is a user review
         return (
-          <View>
-            <Text>{item?.text || "not found"}</Text>
-            <Text>{`Rating: ${item?.rating || "none"}/5`}</Text>
+          <View style={{
+            width: '100%',
+            backgroundColor: 'white',
+            flexDirection: 'row',
+            padding: 10,
+            marginVertical: 5
+          }}>
+            <View>
+              <Text style={[styles.txt, { fontSize: 18, fontWeight: 'bold' }]}>{item.name}</Text>
+              <Text style={[styles.txt, {marginLeft: 15}]}>Your rating: </Text>
+            </View>
+            <AirbnbRating 
+              isDisabled={true} 
+              showRating={false}
+              size={25}
+              count={5}
+              defaultRating={item.stars} 
+              ratingContainerStyle={{ marginTop:0, marginLeft: 20}}/>
           </View>
         );
     }
   }
 
+
+  if(userReviews){
   return (
-    <View style={{ backgroundColor: 'white' }}>
-      <SafeAreaView>
-        <View style={{ alignItems: 'center' }}>
+      <SafeAreaView style={{flex: 1}}>
           <FlatList
-              data={wholePage}
-              renderItem={({ item }) => <Item item={item} />}
-              keyExtractor={item => item.key}
-              style={{height: '100%', position: 'absolute'}}
-              showsVerticalScrollIndicator={false}
-            />
-          <View style={{ height: '100%' }}>
-            
-          </View>
-        </View>
+            data={wholePage}
+            renderItem={({ item }) => <Item item={item} />}
+            keyExtractor={item => item.key}
+            horizontal = {false}
+            contentContainerStyle={{flex: 1, height: '100%', width: '100%'}}
+            showsVerticalScrollIndicator={false}
+          />
       </SafeAreaView>
-    </View>
   )
-}
+}}
 
 export default ProfileScreen
 
@@ -161,31 +194,12 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 15
   },
-  showListButton: {
+  spacer: {
     position: 'absolute',
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    bottom: 15,
-    right: 15,
     height: 50,
-    width: 130,
-    opacity: 0.8,
-    padding: 5,
-    borderRadius: 100,
+    width: 10,
     backgroundColor: '#3C99DC'
   },
-  bathroomLocationButton: {
-    position: 'absolute',
-    alignItems: 'center',
-    justifyContent: 'center',
-    top: 15,
-    right: 15,
-    height: 50,
-    width: 50,
-    opacity: 0.8,
-    padding: 5,
-    borderRadius: 100,
-    backgroundColor: 'gray'
-  }
 })
