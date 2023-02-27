@@ -9,16 +9,13 @@ import {
   Image
 } from 'react-native'
 
-import { ScrollView } from 'react-native-gesture-handler'
+import {
+  FlatList
+} from 'react-native-gesture-handler'
 
 const ProfileScreen = ({ route }) => {
-  // refs
-  const bottomSheetRef = useRef(null)
-  const mapViewRef = useRef(null)
   const [userReviews, setUserReviews] = useState()
   const uid = route.params?.uid // set userid, should not change
-
-  const snapPoints = useMemo(() => ['30%', '60%', '85%'], [])
 
   // On initial render only, fetch all bathroom data
   useEffect(() => {
@@ -38,30 +35,79 @@ const ProfileScreen = ({ route }) => {
     }
   }
 
+  const ProfilePic = ({}) => {
+    return (
+      <Image
+        style={{ width: 160, height: 160, borderRadius: 100, borderWidth: 2, top: 40 }}
+        source={{
+          uri: route.params?.photoURL || "https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg",
+        }}
+      />
+    );
+  };
+
   console.log(userReviews)
+
+  const wholePage = [
+    {
+      key: 0,
+      id: "profilePic"
+    },
+    {
+      key: 1,
+      id: "profilePic"
+    },
+    {
+      key: 2,
+      id: "profilePic"
+    },
+    {
+      key: 3,
+      id: "profilePic"
+    },
+    {
+      key: 4,
+      id: "profilePic"
+    },
+    {
+      key: 5,
+      id: "profilePic"
+    },
+    {
+      key: 6,
+      id: "profilePic"
+    },
+    //...userReviews
+            ]
+
+  const Item =({item}) => {
+    switch (item.id) {
+      case "profilePic":
+        return <ProfilePic />;
+      default:
+        return (
+          <View>
+            <Text>{item?.text || "not found"}</Text>
+            <Text>{`Rating: ${item?.rating || "none"}/5`}</Text>
+          </View>
+        );
+    }
+  }
 
   return (
     <View style={{ backgroundColor: 'white' }}>
       <SafeAreaView>
         <View style={{ alignItems: 'center' }}>
+          <FlatList
+              data={wholePage}
+              renderItem={({ item }) => <Item item={item} />}
+              keyExtractor={item => item.key}
+              style={{height: '100%', position: 'absolute'}}
+              showsVerticalScrollIndicator={false}
+            />
           <View style={{ height: '100%' }}>
-            <Image // profile image
-              style={{width: 160, height: 160, borderRadius: 100, borderWidth: 2, top: 100}}
-              source={{ // source is user profile pic or the static google one
-              uri: route.params?.photoURL || "https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg"
-              }}>
-            </Image>
+            
           </View>
-
-          {/* <FlatList
-                              // Hprizontal tag filter list
-                data={mTags}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                renderItem={({ item, index }) => <TagItem tag={item} index={index} />}
-                keyExtractor={item => item.key}
-                style={{ width: '100%', height: 40, position: 'absolute', top: 108 }}
-              /> */}
         </View>
       </SafeAreaView>
     </View>
