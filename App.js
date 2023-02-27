@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import Mapview from './screens/mapview'
 import AddBathroomScreen from './screens/addBathroom'
 import BathroomDetailsScreen from './screens/bathroomDetails'
+import ProfileScreen from './screens/profilePage'
 import { ThemeProvider, createTheme, lightColors } from '@rneui/themed'
 import auth from '@react-native-firebase/auth'
 import { SocialButton } from 'react-native-login-screen'
@@ -115,7 +116,7 @@ function App () {
                 name='Profile'
                 component={ProfileScreen}
                 options={{
-                  headerTitle: 'ProfileScreen',
+                  headerTitle: 'Profile Page',
                   headerTitleStyle: { color: 'black' }
                 }}
               />
