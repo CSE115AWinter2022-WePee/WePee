@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import firestore from '@react-native-firebase/firestore'
 import { AirbnbRating } from '@rneui/themed'
+import auth from '@react-native-firebase/auth'
+import { Button } from '@rneui/base'
 
 import {
   StyleSheet,
@@ -8,7 +10,8 @@ import {
   View,
   SafeAreaView,
   Image,
-  ImageBackground
+  ImageBackground,
+  TouchableOpacity
 } from 'react-native'
 
 import {
@@ -93,6 +96,16 @@ const ProfileScreen = ({ route }) => {
     }
   }
 
+  const LogoutButton = () => {
+    return (<TouchableOpacity
+                  onPress={() => auth()
+                    .signOut()
+                    .then(() => console.log('User signed out!'))}
+                  style= {[styles.logoutButton, {color: 'red'}]}
+                >
+                  <Text style={[styles.txt, {color: 'white'}, {fontWeight: 'bold'}]}>Log Out</Text>
+                </TouchableOpacity>)
+  }
 
   const ProfilePic = ({}) => {
     return (
@@ -158,10 +171,14 @@ const ProfileScreen = ({ route }) => {
   const wholePage = [
     {
       key: 0,
-      id: "profilePic"
+      id: "logoutButton"
     },
     {
       key: 1,
+      id: "profilePic"
+    },
+    {
+      key: 2,
       id: "reviewStats"
     },
     ...(userReviews ? userReviews : [])
@@ -172,6 +189,8 @@ const ProfileScreen = ({ route }) => {
     switch (item.id) {
       case "profilePic":
         return <ProfilePic />;
+      case "logoutButton":
+        return <LogoutButton />;
       case "spacer":
         return <Spacer />;
       case "reviewStats":
@@ -250,4 +269,13 @@ const styles = StyleSheet.create({
     width: 10,
     backgroundColor: '#3C99DC'
   },
+  logoutButton: {
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 'auto',
+    backgroundColor:'#3C99DC',
+    padding: 8,
+    borderBottomLeftRadius: 8
+  }
 })

@@ -6,7 +6,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { lightColors, SearchBar, Icon } from '@rneui/themed'
 import { getCurrentLocation } from '../modules/getLocation'
 import firestore from '@react-native-firebase/firestore'
-import auth from '@react-native-firebase/auth'
 import { tags } from '../modules/tags'
 
 import {
@@ -22,7 +21,6 @@ import {
 import {
   FlatList
 } from 'react-native-gesture-handler'
-import { Button } from '@rneui/base'
 
 const Mapview = ({ navigation, route }) => {
   // state to hold location, default is false. setCoordinate(a) sets `coordinate` to `a`
@@ -315,14 +313,6 @@ const Mapview = ({ navigation, route }) => {
               <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#3C99DC' }}>
                 WePee
               </Text>
-              <View style={styles.logoutButton}>
-                <Button
-                  onPress={() => auth()
-                    .signOut()
-                    .then(() => console.log('User signed out!'))}
-                  title='Logout'
-                />
-              </View>
             </View>
 
             <View style={{
@@ -502,11 +492,5 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     backgroundColor: 'gray',
     elevation: 2
-  },
-  logoutButton: {
-    position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 50
   }
 })
