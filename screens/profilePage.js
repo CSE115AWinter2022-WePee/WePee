@@ -213,8 +213,8 @@ const ProfileScreen = ({ route }) => {
               </Text>
             </View>
           </ImageBackground>
-          <Text>
-            Loading current user data...
+          <Text style={{color: 'black'}}>
+            Loading profile data...
           </Text>
         </View>
         

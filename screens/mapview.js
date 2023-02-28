@@ -15,7 +15,8 @@ import {
   Text,
   View,
   TouchableOpacity,
-  Image
+  Image,
+  ImageBackground
 } from 'react-native'
 
 import {
@@ -287,9 +288,20 @@ const Mapview = ({ navigation, route }) => {
   // otherwise render the default mapview with the current user location and all UI componenents
   if (!located || !loaded) {
     return (
-      <Text>
-        Loading current user location...
-      </Text>
+      <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+          <ImageBackground
+            source={require('../assets/wepee.png')}
+            style={{opacity: .7}}>
+            <View style={{justifyContent: 'center',alignItems:'center', height: 150, width: 150}}>
+              <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#3C99DC', opacity: 1}}>
+                  WePee
+              </Text>
+            </View>
+          </ImageBackground>
+          <Text style={{color: 'black'}}>
+            Loading user location...
+          </Text>
+        </View>
     )
   }
   return (
