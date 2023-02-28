@@ -438,7 +438,8 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     backgroundColor: 'white',
     marginLeft: 3,
-    marginRight: 3
+    marginRight: 3,
+    elevation: 2
   },
   tagButtonPressed: {
     height: 36,
@@ -449,7 +450,8 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     backgroundColor: 'gray',
     marginLeft: 3,
-    marginRight: 3
+    marginRight: 3,
+    elevation: 2
   },
   tagButtonText: {
     color: 'black'
@@ -468,7 +470,8 @@ const styles = StyleSheet.create({
     opacity: 0.8,
     padding: 5,
     borderRadius: 100,
-    backgroundColor: '#3C99DC'
+    backgroundColor: '#3C99DC',
+    elevation: 2
   },
   userLocationButton: {
     position: 'absolute',
@@ -481,7 +484,8 @@ const styles = StyleSheet.create({
     opacity: 0.8,
     padding: 5,
     borderRadius: 100,
-    backgroundColor: 'gray'
+    backgroundColor: 'gray',
+    elevation: 2
   },
   logoutButton: {
     position: 'relative',

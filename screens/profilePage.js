@@ -95,6 +95,7 @@ const ProfileScreen = ({ route }) => {
 
 
   const ProfilePic = ({}) => {
+    console.log("route.params?.photoURL" + route.params?.photoURL)
     return (
       <Image
         style={{ width: 160, height: 160, borderRadius: 100, borderWidth: 2, flexDirection:'row', marginTop: 50, marginLeft:'auto', marginRight: 'auto'}}
@@ -141,15 +142,15 @@ const ProfileScreen = ({ route }) => {
         <View style={{height: '80%', width: 1, backgroundColor: 'gray'}} />
 
         <View style={{flexDirection: "column", justifyContent: "center", marginLeft: 10, marginRight: 10, alignItems: "center"}}>
-          <Text style={[styles.txt, {fontWeight: 'bold'}]}>Avg Review:</Text>
-          <Text style={[styles.txt, {fontWeight: 'bold'}]}>{averageUserReview}</Text>
+          <Text style={[styles.txt, {fontWeight: 'bold'}]}>Avg. Review:</Text>
+          <Text style={[styles.txt, {fontWeight: 'bold'}]}>{averageUserReview}/5</Text>
         </View>
 
         <View style={{height: '80%', width: 1, backgroundColor: 'gray'}} />
 
         <View style={{flexDirection: "column", justifyContent: "center", marginLeft: 10, marginRight: 10, alignItems: "center"}}>
           <Text style={[styles.txt, {fontWeight: 'bold'}]}>Days Peeing:</Text>
-          <Text style={[styles.txt, {fontWeight: 'bold'}]}>{}</Text>
+          <Text style={[styles.txt, {fontWeight: 'bold'}]}>{route.params?.daysInApp.toFixed(0)}</Text>
         </View>
       </View>
     );
@@ -203,7 +204,7 @@ const ProfileScreen = ({ route }) => {
 
 
   if(userReviews){
-  return (
+    return (
       <SafeAreaView style={{flex: 1}}>
           <FlatList
             data={wholePage}
@@ -214,8 +215,10 @@ const ProfileScreen = ({ route }) => {
             showsVerticalScrollIndicator={false}
           />
       </SafeAreaView>
-  )
-}}
+    )
+}
+
+}
 
 export default ProfileScreen
 

@@ -80,6 +80,9 @@ function App () {
     )
   };
 
+  const d = new Date(user.metadata.creationTime);
+  const daysInApp = ((Date.now() - d.valueOf())/86400000)
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
 
@@ -94,7 +97,7 @@ function App () {
                 component={Mapview}
                 options={{
                   headerShown: false
-                }} initialParams={{ uid: user.uid, photoURL: user.photoURL, daysInApp: (Date.now() - user.creationTime)/84600}}
+                }} initialParams={{ uid: user.uid, photoURL: user.photoURL, daysInApp: daysInApp}}
               />
               <Stack.Screen
                 name='Add'
