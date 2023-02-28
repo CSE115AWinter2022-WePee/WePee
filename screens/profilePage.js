@@ -110,7 +110,7 @@ const ProfileScreen = ({ route }) => {
   const ProfilePic = ({}) => {
     return (
       <Image
-        style={{ width: 160, height: 160, borderRadius: 100, borderWidth: 2, flexDirection:'row', marginTop: 50, marginLeft:'auto', marginRight: 'auto'}}
+        style={{ width: 160, height: 160, borderRadius: 100, flexDirection:'row', marginTop: 40, marginLeft:'auto', marginRight: 'auto'}}
         source={{
           uri: route.params?.photoURL || "https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg",
         }}
@@ -214,7 +214,7 @@ const ProfileScreen = ({ route }) => {
               size={25}
               count={5}
               defaultRating={item.stars} 
-              ratingContainerStyle={{ marginTop:0, marginLeft: 20}}/>
+              ratingContainerStyle={{ marginTop:0, marginLeft: 'auto'}}/>
           </View>
         );
     }
