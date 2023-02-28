@@ -16,8 +16,7 @@ import {
 
 const ProfileScreen = ({ route }) => {
   const [userReviews, setUserReviews] = useState()
-  const [averageUserReview, setAverageUserReview] = useState(0)
-  const [daysPeeing, setDaysPeeing] = useState((route.params?.daysInApp || 0).toFixed(0))
+  const [averageUserReview, setAverageUserReview] = useState()
   const uid = route.params?.uid // set userid, should not change
 
   // On initial render only, fetch all bathroom data
@@ -95,7 +94,6 @@ const ProfileScreen = ({ route }) => {
 
 
   const ProfilePic = ({}) => {
-    console.log("route.params?.photoURL" + route.params?.photoURL)
     return (
       <Image
         style={{ width: 160, height: 160, borderRadius: 100, borderWidth: 2, flexDirection:'row', marginTop: 50, marginLeft:'auto', marginRight: 'auto'}}
@@ -118,7 +116,7 @@ const ProfileScreen = ({ route }) => {
     );
   }
 
-  const ReviewStats = ({}) => {
+  const ReviewStats = () => {
     return (
       <View
         style={{
@@ -136,21 +134,21 @@ const ProfileScreen = ({ route }) => {
       >
         <View style={{flexDirection: "column", justifyContent: "center", marginLeft: 10, marginRight: 10, alignItems: "center"}}>
           <Text style={[styles.txt, {fontWeight: 'bold'}]}>Reviews:</Text>
-          <Text style={[styles.txt, {fontWeight: 'bold'}]}>{userReviews.length}</Text>
+          <Text style={[styles.txt, {fontWeight: 'bold'}]}>{userReviews?.length || "None!"}</Text>
         </View>
 
         <View style={{height: '80%', width: 1, backgroundColor: 'gray'}} />
 
         <View style={{flexDirection: "column", justifyContent: "center", marginLeft: 10, marginRight: 10, alignItems: "center"}}>
           <Text style={[styles.txt, {fontWeight: 'bold'}]}>Avg. Review:</Text>
-          <Text style={[styles.txt, {fontWeight: 'bold'}]}>{averageUserReview}/5</Text>
+          <Text style={[styles.txt, {fontWeight: 'bold'}]}>{averageUserReview? averageUserReview + "/5": "None!" }</Text>
         </View>
 
         <View style={{height: '80%', width: 1, backgroundColor: 'gray'}} />
 
         <View style={{flexDirection: "column", justifyContent: "center", marginLeft: 10, marginRight: 10, alignItems: "center"}}>
           <Text style={[styles.txt, {fontWeight: 'bold'}]}>Days Peeing:</Text>
-          <Text style={[styles.txt, {fontWeight: 'bold'}]}>{route.params?.daysInApp.toFixed(0)}</Text>
+          <Text style={[styles.txt, {fontWeight: 'bold'}]}>{route.params?.daysInApp.toFixed(0) || "None!"}</Text>
         </View>
       </View>
     );
@@ -165,11 +163,11 @@ const ProfileScreen = ({ route }) => {
       key: 1,
       id: "reviewStats"
     },
-    ...(userReviews || [])
+    ...(userReviews ? userReviews : [])
             ]
 
 
-  const Item =({item}) => {
+  const Item = ({item}) => {
     switch (item.id) {
       case "profilePic":
         return <ProfilePic />;
@@ -202,21 +200,25 @@ const ProfileScreen = ({ route }) => {
     }
   }
 
-
-  if(userReviews){
-    return (
-      <SafeAreaView style={{flex: 1}}>
-          <FlatList
-            data={wholePage}
-            renderItem={({ item }) => <Item item={item} />}
-            keyExtractor={item => item.key}
-            horizontal = {false}
-            contentContainerStyle={{flex: 1, height: '100%', width: '100%'}}
-            showsVerticalScrollIndicator={false}
-          />
-      </SafeAreaView>
-    )
-}
+  if(!userReviews && !route.params?.isAnonymous){
+      return (
+        <Text>
+          Loading current user data...
+        </Text>
+      )
+  }
+  return (
+    <SafeAreaView style={{flex: 1}}>
+        <FlatList
+          data={wholePage}
+          renderItem={({ item }) => <Item item={item} />}
+          keyExtractor={item => item.key}
+          horizontal = {false}
+          contentContainerStyle={{flex: 1, height: '100%', width: '100%'}}
+          showsVerticalScrollIndicator={false}
+        />
+    </SafeAreaView>
+  )
 
 }
 

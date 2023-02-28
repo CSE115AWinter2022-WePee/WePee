@@ -97,7 +97,7 @@ function App () {
                 component={Mapview}
                 options={{
                   headerShown: false
-                }} initialParams={{ uid: user.uid, photoURL: user.photoURL, daysInApp: daysInApp}}
+                }} initialParams={{ uid: user.uid, photoURL: user.photoURL, isAnonymous: user.isAnonymous, daysInApp: daysInApp}}
               />
               <Stack.Screen
                 name='Add'

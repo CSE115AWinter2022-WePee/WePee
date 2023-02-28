@@ -325,7 +325,11 @@ const Mapview = ({ navigation, route }) => {
               {/* <TouchableOpacity style={{width:40, height:40, borderRadius:20, justifyContent:'center'}} onPress={() => dougsTestFunc()}>
                                 <Icon name='sliders' type='font-awesome' size={25} color='darkgray' />
                             </TouchableOpacity> */}
-              <TouchableOpacity style={{ justifyContent: 'center' }} onPress={() => navigation.navigate('Profile', { uid: route.params?.uid, photoURL: route.params?.photoURL, daysInApp: route.params?.daysInApp})}>
+              <TouchableOpacity style={{ justifyContent: 'center' }} onPress={() => navigation.navigate('Profile', { 
+                              uid: route.params?.uid, 
+                              photoURL: route.params?.photoURL, 
+                              isAnonymous: route.params?.isAnonymous, 
+                              daysInApp: route.params?.daysInApp})}>
                 <Image // profile image
                     style={{width: 50, height: 50, borderRadius: 25, borderWidth: 2,}}
                     source={{ // source is user profile pic or the static google one
