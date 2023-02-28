@@ -7,7 +7,8 @@ import {
   Text,
   View,
   SafeAreaView,
-  Image
+  Image,
+  ImageBackground
 } from 'react-native'
 
 import {
@@ -202,9 +203,21 @@ const ProfileScreen = ({ route }) => {
 
   if(!userReviews && !route.params?.isAnonymous){
       return (
-        <Text>
-          Loading current user data...
-        </Text>
+        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+          <ImageBackground
+            source={require('../assets/wepee.png')}
+            style={{opacity: .7}}>
+            <View style={{justifyContent: 'center',alignItems:'center', height: 150, width: 150}}>
+              <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#3C99DC', opacity: 1}}>
+                  WePee
+              </Text>
+            </View>
+          </ImageBackground>
+          <Text>
+            Loading current user data...
+          </Text>
+        </View>
+        
       )
   }
   return (
