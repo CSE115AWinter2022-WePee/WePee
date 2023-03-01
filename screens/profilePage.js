@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import firestore from '@react-native-firebase/firestore'
 import { AirbnbRating } from '@rneui/themed'
 import auth from '@react-native-firebase/auth'
-import { Button } from '@rneui/base'
+import { genericFlatListSeparator } from '../modules/flatListSeparator'
 
 import {
   StyleSheet,
@@ -223,6 +223,7 @@ const ProfileScreen = ({ route }) => {
     }
   }
 
+  // Loading screen
   if(!averageUserReview && !route.params?.isAnonymous && !noReviews){
       return (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
@@ -244,14 +245,16 @@ const ProfileScreen = ({ route }) => {
   }
   return (
     <SafeAreaView style={{flex: 1}}>
+      <View style={{ flex: 1, alignItems: 'center', padding: 0 }}>
         <FlatList
           data={wholePage}
           renderItem={({ item }) => <Item item={item} />}
           keyExtractor={item => item.key}
           horizontal = {false}
-          contentContainerStyle={{flex: 1, height: '100%', width: '100%'}}
+          style={{width: '100%', marginBottom: 20}}
           showsVerticalScrollIndicator={false}
         />
+      </View>
     </SafeAreaView>
   )
 

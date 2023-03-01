@@ -5,6 +5,7 @@ import BottomSheet from '@gorhom/bottom-sheet'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { lightColors, SearchBar, Icon } from '@rneui/themed'
 import { getCurrentLocation } from '../modules/getLocation'
+import { genericFlatListSeparator } from '../modules/flatListSeparator'
 import firestore from '@react-native-firebase/firestore'
 import { tags } from '../modules/tags'
 
@@ -116,17 +117,6 @@ const Mapview = ({ navigation, route }) => {
       console.log(error)
     }
   }
-
-  // Separates the flatList, is a single pixel line
-  const flatListSeparator = () => (<View
-    style={{
-      height: 1,
-      backgroundColor: '#CED0CE',
-      marginLeft: '5%',
-      marginRight: '5%'
-    }}
-                                   />
-  )
 
   // Msthod to fetch current user location
   // and cache the current user location
@@ -411,7 +401,7 @@ const Mapview = ({ navigation, route }) => {
           <View style={{ flex: 1, alignItems: 'center', padding: 0 }}>
             <FlatList
               data={bathrooms}
-              ItemSeparatorComponent={flatListSeparator}
+              ItemSeparatorComponent={genericFlatListSeparator}
               renderItem={({ item, index }) => <Item props={item.data()} index={index} id={item.id} />}
               keyExtractor={item => item.id}
               style={{ width: '100%', marginBottom: 20 }}
