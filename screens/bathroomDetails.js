@@ -37,7 +37,8 @@ const BathroomDetailsScreen = ({route}) => {
 
     const snapPoints = useMemo(() => ['30%', '60%', '85%'], []);
 
-    const [region, setRegion] = useState({
+    const [region, setRegion] = useState(route.params?.region || 
+    {
         latitude: 37.78825,
         longitude: -122.4324,
         latitudeDelta: 0.0922,

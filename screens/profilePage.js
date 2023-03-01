@@ -21,6 +21,7 @@ import {
 const ProfileScreen = ({ route }) => {
   const [userReviews, setUserReviews] = useState()
   const [averageUserReview, setAverageUserReview] = useState()
+  const [noReviews, setNoReviews] = useState()
   const uid = route.params?.uid // set userid, should not change
 
   // On initial render only, fetch all bathroom data
@@ -28,7 +29,7 @@ const ProfileScreen = ({ route }) => {
     fetchBathroomData()
   }, [])
 
-  // 
+  // Update user's avergae reviews whenever userReviews changes
   useEffect(() => {
     calcAverageReview()
   }, [userReviews])
@@ -89,6 +90,8 @@ const ProfileScreen = ({ route }) => {
       const snap = await firestore().collection('reviews').where("uid", "==", uid).get()
       if (!snap.empty) {
         cleanupAndSetFirebaseUserReviews(snap.docs)
+      } else {
+        setNoReviews(true)
       }
 
     } catch (error) {
@@ -220,7 +223,7 @@ const ProfileScreen = ({ route }) => {
     }
   }
 
-  if(!userReviews && !route.params?.isAnonymous){
+  if(!averageUserReview && !route.params?.isAnonymous && !noReviews){
       return (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
           <ImageBackground
