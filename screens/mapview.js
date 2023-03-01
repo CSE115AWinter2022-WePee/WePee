@@ -319,6 +319,7 @@ const Mapview = ({ navigation, route }) => {
                             </TouchableOpacity> */}
               <TouchableOpacity style={{ justifyContent: 'center' }} onPress={() => navigation.navigate('Profile', { 
                               uid: route.params?.uid, 
+                              displayName: route.params?.displayName,
                               photoURL: route.params?.photoURL, 
                               isAnonymous: route.params?.isAnonymous, 
                               daysInApp: route.params?.daysInApp})}>

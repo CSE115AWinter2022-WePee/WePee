@@ -23,6 +23,8 @@ const ProfileScreen = ({ route }) => {
   const [averageUserReview, setAverageUserReview] = useState()
   const [noReviews, setNoReviews] = useState()
   const uid = route.params?.uid // set userid, should not change
+  const genericNumberIdentifier = route.params?.uid.replace(/\D/g, ''); // extracts numbers from iD as string
+
 
   // On initial render only, fetch all bathroom data
   useEffect(() => {
@@ -62,12 +64,11 @@ const ProfileScreen = ({ route }) => {
     const cleanedData = await Promise.all(junkyArray.map(async (review) => {
       const { bathroom_name, bathroom_id, id, stars } = review._data;
       let name = bathroom_name;
-      let key = id;
       if (!name) { // if bathroom name is undefined
         name = await getBathroomNameFromId(bathroom_id);
         await updateBathroomNameInReview(id, name);  // updates the bathroom's name in a review, if it isnt there
       }
-      return { key, name, id, bathroom_id, stars };
+      return { name, id, bathroom_id, stars };
     }));
     setUserReviews(cleanedData);
     console.log(cleanedData)
@@ -106,18 +107,30 @@ const ProfileScreen = ({ route }) => {
                     .then(() => console.log('User signed out!'))}
                   style= {[styles.logoutButton, {color: 'red'}]}
                 >
-                  <Text style={[styles.txt, {color: 'white'}, {fontWeight: 'bold'}]}>Log Out</Text>
+                  <Text style={[styles.txt, {color: 'white'}, {fontWeight: 'bold'}]}>
+                    {!route.params?.isAnonymous? "Log Out" : "Log In"}
+                  </Text>
                 </TouchableOpacity>)
   }
 
   const ProfilePic = ({}) => {
     return (
       <Image
-        style={{ width: 160, height: 160, borderRadius: 100, flexDirection:'row', marginTop: 40, marginLeft:'auto', marginRight: 'auto'}}
+        style={[styles.profilePic]}
         source={{
           uri: route.params?.photoURL || "https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg",
         }}
       />
+    );
+  };
+
+  const DisplayName = ({}) => {
+    return (
+      <View style={[styles.displayName]}>
+        <View>
+          <Text style={[styles.txt, { fontSize: 18, fontWeight: 'bold' }]}>{ route.params?.displayName || 'WePee User ' + genericNumberIdentifier}</Text>
+        </View>
+      </View>
     );
   };
 
@@ -136,36 +149,25 @@ const ProfileScreen = ({ route }) => {
   const ReviewStats = () => {
     return (
       <View
-        style={{
-          height: 60,
-          marginLeft: 20,
-          marginRight: 20,
-          borderRadius: 100,
-          marginBottom: 70,
-          top: 50,
-          backgroundColor: 'lightgray',
-          flexDirection: 'row',
-          alignItems: "center",
-          justifyContent: "space-evenly",
-        }}
+        style={[styles.reviewStats]}
       >
         <View style={{flexDirection: "column", justifyContent: "center", marginLeft: 10, marginRight: 10, alignItems: "center"}}>
-          <Text style={[styles.txt, {fontWeight: 'bold'}]}>Reviews:</Text>
-          <Text style={[styles.txt, {fontWeight: 'bold'}]}>{userReviews?.length || "None!"}</Text>
+          <Text style={[styles.txt, ]}>Reviews:</Text>
+          <Text style={[styles.txt, ]}>{userReviews?.length || "None!"}</Text>
         </View>
 
         <View style={{height: '80%', width: 1, backgroundColor: 'gray'}} />
 
         <View style={{flexDirection: "column", justifyContent: "center", marginLeft: 10, marginRight: 10, alignItems: "center"}}>
-          <Text style={[styles.txt, {fontWeight: 'bold'}]}>Avg. Review:</Text>
-          <Text style={[styles.txt, {fontWeight: 'bold'}]}>{averageUserReview? averageUserReview + "/5": "None!" }</Text>
+          <Text style={[styles.txt, ]}>Avg. Review:</Text>
+          <Text style={[styles.txt, ]}>{averageUserReview? averageUserReview + "/5": "None!" }</Text>
         </View>
 
         <View style={{height: '80%', width: 1, backgroundColor: 'gray'}} />
 
         <View style={{flexDirection: "column", justifyContent: "center", marginLeft: 10, marginRight: 10, alignItems: "center"}}>
-          <Text style={[styles.txt, {fontWeight: 'bold'}]}>Days Peeing:</Text>
-          <Text style={[styles.txt, {fontWeight: 'bold'}]}>{route.params?.daysInApp.toFixed(0) || "None!"}</Text>
+          <Text style={[styles.txt, ]}>Days Peeing:</Text>
+          <Text style={[styles.txt, ]}>{route.params?.daysInApp.toFixed(0) || "None!"}</Text>
         </View>
       </View>
     );
@@ -173,15 +175,15 @@ const ProfileScreen = ({ route }) => {
 
   const wholePage = [
     {
-      key: 0,
       id: "logoutButton"
     },
     {
-      key: 1,
       id: "profilePic"
     },
     {
-      key: 2,
+      id: "displayName"
+    },
+    {
       id: "reviewStats"
     },
     ...(userReviews ? userReviews : [])
@@ -192,6 +194,8 @@ const ProfileScreen = ({ route }) => {
     switch (item.id) {
       case "profilePic":
         return <ProfilePic />;
+      case "displayName":
+        return <DisplayName />;
       case "logoutButton":
         return <LogoutButton />;
       case "spacer":
@@ -200,13 +204,7 @@ const ProfileScreen = ({ route }) => {
         return <ReviewStats />;
       default: // default is a user review
         return (
-          <View style={{
-            width: '100%',
-            backgroundColor: 'white',
-            flexDirection: 'row',
-            padding: 10,
-            marginVertical: 5
-          }}>
+          <View style={[styles.userReview]}>
             <View>
               <Text style={[styles.txt, { fontSize: 18, fontWeight: 'bold' }]}>{item.name}</Text>
               <Text style={[styles.txt, {marginLeft: 15}]}>Your rating: </Text>
@@ -243,13 +241,14 @@ const ProfileScreen = ({ route }) => {
         
       )
   }
+
   return (
     <SafeAreaView style={{flex: 1}}>
       <View style={{ flex: 1, alignItems: 'center', padding: 0 }}>
         <FlatList
           data={wholePage}
           renderItem={({ item }) => <Item item={item} />}
-          keyExtractor={item => item.key}
+          keyExtractor={item => item.id}
           horizontal = {false}
           style={{width: '100%', marginBottom: 20}}
           showsVerticalScrollIndicator={false}
@@ -267,6 +266,25 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 15
   },
+  displayName: {
+    width: '100%',
+    marginTop: 15,
+    //marginBottom: 5,
+    alignItems: 'center'
+  },
+  reviewStats: {
+    height: 60,
+    marginLeft: 20,
+    marginRight: 20,
+    borderRadius: 100,
+    marginBottom: 50,
+    top: 20,
+    backgroundColor: 'lightgray',
+    flexDirection: 'row',
+    alignItems: "center",
+    justifyContent: "space-evenly",
+    elevation: 2,
+  },
   spacer: {
     position: 'absolute',
     alignItems: 'center',
@@ -274,6 +292,17 @@ const styles = StyleSheet.create({
     height: 50,
     width: 10,
     backgroundColor: '#3C99DC'
+  },
+  userReview: {
+    width: '95%',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    borderRadius: 5,
+    backgroundColor: 'white',
+    flexDirection: 'row',
+    padding: 10,
+    marginVertical: 3,
+    elevation: 1,
   },
   logoutButton: {
     position: 'relative',
@@ -283,5 +312,16 @@ const styles = StyleSheet.create({
     backgroundColor:'#3C99DC',
     padding: 8,
     borderBottomLeftRadius: 8
+  },
+  profilePic: {
+    width: 160,
+    height: 160, 
+    borderRadius: 100, 
+    borderColor: 'white',
+    borderWidth: 1,
+    flexDirection:'row', 
+    marginTop: 20, 
+    marginLeft:'auto', 
+    marginRight: 'auto'
   }
 })
