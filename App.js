@@ -123,7 +123,7 @@ function App () {
                 name='Profile'
                 component={ProfileScreen}
                 options={{
-                  headerTitle: 'Profile Page',
+                  headerTitle: 'Profile',
                   headerTitleStyle: { color: 'black' }
                 }}
               />
