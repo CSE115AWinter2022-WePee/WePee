@@ -45,6 +45,7 @@ const Mapview = ({ navigation, route }) => {
   const [periodProducts, setPeriodProducts] = useState(false)
   const [unisex, setUnisex] = useState(false)
   const [urinal, setUrinal] = useState(false)
+  const [rating, setRating] = useState(0)
 
   // bottom sheet snap points
   const snapPoints = useMemo(() => ['30%', '60%'], [])
@@ -381,6 +382,15 @@ const Mapview = ({ navigation, route }) => {
               <Icon name='person-pin' type='material' size={40} color='lightblue' />
             </TouchableOpacity>
 
+            <TouchableOpacity // Rating Filter Button
+              onPress={() => {
+                console.log('My button number before ' + (Number({rating}.rating) + 1))
+                setRating((({rating}.rating + 1) % 5))
+              }}
+              style = {styles.ratingFilterButton}>
+              <Text style={styles.ratingTxt}>{(Number({rating}.rating) + 1) + "+"}</Text>
+            </TouchableOpacity>
+
           </View>
 
         </View>
@@ -479,5 +489,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 50
+  },
+  ratingFilterButton: {
+    position: 'absolute',
+    alignItems:'center',
+    justifyContent: 'center',
+    top: 156,
+    left: '3%',
+    height: 50,
+    width: 50,
+    opacity: .8,
+    padding: 5,
+    borderRadius: 100,
+    backgroundColor: 'gray',
+  },
+  ratingTxt: {
+    fontSize:24,
+    color:'lightblue'
   }
 })
