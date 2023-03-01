@@ -18,7 +18,6 @@ import {
 
 import { ScrollView } from 'react-native-gesture-handler'
 
-
 const BathroomDetailsScreen = ({route}) => {
     // refs
     const bottomSheetRef = useRef(null);
@@ -45,15 +44,14 @@ const BathroomDetailsScreen = ({route}) => {
         longitudeDelta: 0.0421,
     })
     
-    
     useEffect(() => {
         fetchBathroomData(route.params?.bathroomId)
         getUserRatingIfAny(route.params?.bathroomId)
         getUserId()
     }, [])
 
-      // get uid
-    // if no user uid = deviceId
+    // get uid
+    // if no user uid, then use uid = deviceId
     const getUserId = async () => {
         return new Promise(async resolve => {
             let uid = await DeviceInfo.getUniqueId()
@@ -83,7 +81,6 @@ const BathroomDetailsScreen = ({route}) => {
         }
        
     }
-
 
     const getUserRatingIfAny = async (bathroomId) => {
         try {
@@ -115,14 +112,11 @@ const BathroomDetailsScreen = ({route}) => {
     }
 
     const updateRating = async () => {
-        bathroomData["rating"][stars - 1]++
-        await dbDocument.update({
-            rating: bathroomData["rating"]
-        })
 
         // update user previous rating if any
         // else save new rating into reviews collection
         if (userRating && userRating.stars != stars) {
+            bathroomData["rating"][userRating.stars - 1]--
             await firestore().collection('reviews').doc(userRating.id).update({stars: stars})
         }
         else {
@@ -138,6 +132,10 @@ const BathroomDetailsScreen = ({route}) => {
             setUserRating({id: id, stars: stars})  
         }
 
+        bathroomData["rating"][stars - 1]++
+        await dbDocument.update({
+            rating: bathroomData["rating"]
+        })
         
         // dismiss the review dialog
         toggleDialog()
