@@ -18,7 +18,7 @@ import {
   FlatList
 } from 'react-native-gesture-handler'
 
-const ProfileScreen = ({ route }) => {
+const ProfileScreen = ({ route, navigation }) => {
   const [userReviews, setUserReviews] = useState()
   const [averageUserReview, setAverageUserReview] = useState()
   const [noReviews, setNoReviews] = useState()
@@ -71,7 +71,7 @@ const ProfileScreen = ({ route }) => {
       return { name, id, bathroom_id, stars };
     }));
     setUserReviews(cleanedData);
-    console.log(cleanedData)
+    //console.log(cleanedData)
   }
 
   const calcAverageReview = () => {
@@ -100,18 +100,26 @@ const ProfileScreen = ({ route }) => {
     }
   }
 
-  const LogoutButton = () => {
-    return (<TouchableOpacity
-                  onPress={() => auth()
-                    .signOut()
-                    .then(() => console.log('User signed out!'))}
-                  style= {[styles.logoutButton, {color: 'red'}]}
-                >
-                  <Text style={[styles.txt, {color: 'white'}, {fontWeight: 'bold'}]}>
-                    {!route.params?.isAnonymous? "Log Out" : "Log In"}
-                  </Text>
-                </TouchableOpacity>)
+  const signInOutFunc = async () => {
+    try {
+      await auth().signOut()
+      console.log('User signed out!')
+    } catch (error) {
+      
+    }
   }
+
+  const LogoutButton = () => (
+    <TouchableOpacity
+        onPress={ signInOutFunc }
+        style= {[styles.logoutButton, {color: 'red'}]}
+      >
+        <Text style={[styles.txt, {color: 'white'}, {fontWeight: 'bold', fontSize:18}]}>
+          {!route.params?.isAnonymous? "Log Out" : "Log In"}
+        </Text>
+      </TouchableOpacity>
+  )
+  
 
   const ProfilePic = ({}) => {
     return (
@@ -149,77 +157,59 @@ const ProfileScreen = ({ route }) => {
   const ReviewStats = () => {
     return (
       <View
-        style={[styles.reviewStats]}
-      >
-        <View style={{flexDirection: "column", justifyContent: "center", marginLeft: 10, marginRight: 10, alignItems: "center"}}>
-          <Text style={[styles.txt, ]}>Reviews:</Text>
-          <Text style={[styles.txt, ]}>{userReviews?.length || "None!"}</Text>
+        style={[styles.reviewStats]} >
+
+        <View style={styles.stats}>
+          <Text style={[styles.txt, {fontWeight:'bold', marginBottom:5} ]}>Reviews</Text>
+          <Text style={[styles.txt, {fontWeight:'bold', color:'gray', fontSize:16}]}>{userReviews?.length || "None!"}</Text>
         </View>
 
         <View style={{height: '80%', width: 1, backgroundColor: 'gray'}} />
 
-        <View style={{flexDirection: "column", justifyContent: "center", marginLeft: 10, marginRight: 10, alignItems: "center"}}>
-          <Text style={[styles.txt, ]}>Avg. Review:</Text>
-          <Text style={[styles.txt, ]}>{averageUserReview? averageUserReview + "/5": "None!" }</Text>
+        <View style={styles.stats}>
+          <Text style={[styles.txt, {fontWeight:'bold', marginBottom:5}]}>Avg. Review</Text>
+          <Text style={[styles.txt, {fontWeight:'bold', color:'gray', fontSize:16}]}>{averageUserReview? averageUserReview + " / 5": "None!" }</Text>
         </View>
 
         <View style={{height: '80%', width: 1, backgroundColor: 'gray'}} />
 
-        <View style={{flexDirection: "column", justifyContent: "center", marginLeft: 10, marginRight: 10, alignItems: "center"}}>
-          <Text style={[styles.txt, ]}>Days Peeing:</Text>
-          <Text style={[styles.txt, ]}>{route.params?.daysInApp.toFixed(0) || "None!"}</Text>
+        <View style={styles.stats}>
+          <Text style={[styles.txt, {fontWeight:'bold', marginBottom:5}]}>Days Peeing</Text>
+          <Text style={[styles.txt, {fontWeight:'bold', color:'gray', fontSize:16}]}>{route.params?.daysInApp.toFixed(0) || "None!"}</Text>
         </View>
+
       </View>
     );
   }
 
-  const wholePage = [
-    {
-      id: "logoutButton"
-    },
-    {
-      id: "profilePic"
-    },
-    {
-      id: "displayName"
-    },
-    {
-      id: "reviewStats"
-    },
-    ...(userReviews ? userReviews : [])
-            ]
 
-
-  const Item = ({item}) => {
-    switch (item.id) {
-      case "profilePic":
-        return <ProfilePic />;
-      case "displayName":
-        return <DisplayName />;
-      case "logoutButton":
-        return <LogoutButton />;
-      case "spacer":
-        return <Spacer />;
-      case "reviewStats":
-        return <ReviewStats />;
-      default: // default is a user review
-        return (
-          <View style={[styles.userReview]}>
-            <View>
-              <Text style={[styles.txt, { fontSize: 18, fontWeight: 'bold' }]}>{item.name}</Text>
-              <Text style={[styles.txt, {marginLeft: 15}]}>Your rating: </Text>
-            </View>
-            <AirbnbRating 
-              isDisabled={true} 
-              showRating={false}
-              size={25}
-              count={5}
-              defaultRating={item.stars} 
-              ratingContainerStyle={{ marginTop:0, marginLeft: 'auto'}}/>
-          </View>
-        );
-    }
+  const HeadView = () => {
+    return (
+      <>
+        <ProfilePic />
+        <DisplayName />
+        <ReviewStats />
+      </>
+     
+    )
   }
+
+
+  const Item = ({item, index}) => (
+    <View style={[styles.userReview, {backgroundColor: index % 2 === 0 ? 'white' : null}]}>
+      <View>
+        <Text style={[styles.txt, { fontSize: 18, fontWeight: 'bold' }]}>{item.name}</Text>
+        <Text style={[styles.txt, {marginLeft: 15}]}>Your rating: </Text>
+      </View>
+      <AirbnbRating 
+        isDisabled={true} 
+        showRating={false}
+        size={25}
+        count={5}
+        defaultRating={item.stars} 
+        ratingContainerStyle={{ marginTop:0, marginLeft: 'auto'}}/>
+    </View>
+  )
 
   // Loading screen
   if(!averageUserReview && !route.params?.isAnonymous && !noReviews){
@@ -246,13 +236,17 @@ const ProfileScreen = ({ route }) => {
     <SafeAreaView style={{flex: 1}}>
       <View style={{ flex: 1, alignItems: 'center', padding: 0 }}>
         <FlatList
-          data={wholePage}
-          renderItem={({ item }) => <Item item={item} />}
+          data={userReviews || []}
+          renderItem={({ item, index }) => <Item item={item} index={index}/>}
+          ListHeaderComponent={HeadView}
           keyExtractor={item => item.id}
           horizontal = {false}
-          style={{width: '100%', marginBottom: 20}}
+          style={{width: '100%', marginBottom: 60}}
           showsVerticalScrollIndicator={false}
         />
+
+        <LogoutButton/>
+
       </View>
     </SafeAreaView>
   )
@@ -274,16 +268,22 @@ const styles = StyleSheet.create({
   },
   reviewStats: {
     height: 60,
-    marginLeft: 20,
-    marginRight: 20,
-    borderRadius: 100,
+    marginLeft: 10,
+    marginRight: 10,
+    borderRadius: 5,
     marginBottom: 50,
     top: 20,
-    backgroundColor: 'lightgray',
+    backgroundColor: 'white',
     flexDirection: 'row',
     alignItems: "center",
     justifyContent: "space-evenly",
     elevation: 2,
+  },
+  stats: {
+    justifyContent: "center", 
+    marginLeft: 10, 
+    marginRight: 10, 
+    alignItems: "center"
   },
   spacer: {
     position: 'absolute',
@@ -294,33 +294,32 @@ const styles = StyleSheet.create({
     backgroundColor: '#3C99DC'
   },
   userReview: {
-    width: '95%',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    borderRadius: 5,
-    backgroundColor: 'white',
+    width: '100%',
     flexDirection: 'row',
     padding: 10,
     marginVertical: 3,
     elevation: 1,
   },
   logoutButton: {
-    position: 'relative',
+    position: 'absolute',
+    width:'90%',
+    height:50,
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 'auto',
     backgroundColor:'#3C99DC',
     padding: 8,
-    borderBottomLeftRadius: 8
+    borderRadius: 10,
+    bottom: 5
   },
   profilePic: {
-    width: 160,
-    height: 160, 
+    width: 120,
+    height: 120, 
     borderRadius: 100, 
     borderColor: 'white',
     borderWidth: 1,
     flexDirection:'row', 
-    marginTop: 20, 
+    marginTop: 15, 
     marginLeft:'auto', 
     marginRight: 'auto'
   }
