@@ -46,6 +46,7 @@ const Mapview = ({ navigation, route }) => {
   const [periodProducts, setPeriodProducts] = useState(false)
   const [unisex, setUnisex] = useState(false)
   const [urinal, setUrinal] = useState(false)
+  const [rating, setRating] = useState(0)
 
   // bottom sheet snap points
   const snapPoints = useMemo(() => ['30%', '60%'], [])
@@ -104,6 +105,14 @@ const Mapview = ({ navigation, route }) => {
     fetchBathrooms()
   }, [route.params])
 
+  useEffect(() => {
+    const data = mTags.filter(tag => {
+      if (tag.state[0]) return tag
+      else return false
+    })
+    filterBathrooms(data)
+}, [rating]);
+
   // Grab bathrooms from database
   const fetchBathrooms = async () => {
     try {
@@ -145,6 +154,12 @@ const Mapview = ({ navigation, route }) => {
     searchedTags.length === 0 ? setBathrooms(allBathrooms) : filterBathrooms(searchedTags)
   }
 
+  // Runs when rating filter button is pressed
+  const onRatingFilterPress = () => {
+    if ((({rating}.rating + 1) % 5) == 0) setRating(0)
+    else setRating({rating}.rating + 1)
+  }
+
   const getSelectedTags = (tag, add) => {
     // get previously selected tags
     const data = mTags.filter(tag => {
@@ -166,11 +181,19 @@ const Mapview = ({ navigation, route }) => {
     // runs for every bathroom, checking their qualities against the tags
     for (const bath of allBathrooms) {
       let hasAllTags = true
-      for (const tag of searchedTags) { // for each tag
-        if (bath.data()[tag.db_name] !== true) {
-          // don't add bathroom
-          hasAllTags = false
-          break
+      
+      // Calc rating using V and if rating is >= thres
+      let rat = calcRating(bath.data()['rating'])
+      if (rat < ({rating}.rating + 1)) { // Verify if bath has good rating
+        hasAllTags = false
+      } 
+      else { // Verify if bath has all tags
+        for (const tag of searchedTags) { // for each tag
+          if (bath.data()[tag.db_name] !== true) {
+            // don't add bathroom
+            hasAllTags = false
+            break
+          }
         }
       }
 
@@ -182,6 +205,19 @@ const Mapview = ({ navigation, route }) => {
 
     // set bathrooms state, triggers rerender of markers and flatlist
     setBathrooms(newBathrooms)
+  }
+
+  function calcRating (list) {
+    if (list.length != 5) return 0
+    let number = 0
+    let sum = 0
+
+    for (let i = 0; i < 5; i++) {
+      number += list[i]
+      sum += (list[i] * i)
+    }
+ 
+    return sum / number
   }
 
   // Searches case-insensitively through bathroom names for search text `txt` appaearing anywhere in the bathroom name
@@ -387,6 +423,12 @@ const Mapview = ({ navigation, route }) => {
               <Icon name='person-pin' type='material' size={40} color='lightblue' />
             </TouchableOpacity>
 
+            <TouchableOpacity // Rating Filter Button
+              onPress={() => { onRatingFilterPress() }}
+              style = {styles.ratingFilterButton}>
+              <Text style={styles.ratingTxt}>{(Number({rating}.rating) + 1) + '+'}</Text>
+            </TouchableOpacity>
+
           </View>
 
         </View>
@@ -483,5 +525,22 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     backgroundColor: 'gray',
     elevation: 2
+  },
+  ratingFilterButton: {
+    position: 'absolute',
+    alignItems:'center',
+    justifyContent: 'center',
+    top: 156,
+    left: '3%',
+    height: 50,
+    width: 50,
+    opacity: .8,
+    padding: 5,
+    borderRadius: 100,
+    backgroundColor: 'gray',
+  },
+  ratingTxt: {
+    fontSize:24,
+    color:'lightblue'
   }
 })
