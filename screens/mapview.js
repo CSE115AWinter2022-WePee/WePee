@@ -208,10 +208,16 @@ const Mapview = ({ navigation, route }) => {
   }
 
   function calcRating (list) {
-    let len = list.length ? list.length : 1
+    if (list.length != 5) return 0
+    let number = 0
     let sum = 0
-    if (list.length > 0) sum = list.reduce((a, b) => a + b, 0)
-    return sum / len
+
+    for (let i = 0; i < 5; i++) {
+      number += list[i]
+      sum += (list[i] * i)
+    }
+ 
+    return sum / number
   }
 
   // Searches case-insensitively through bathroom names for search text `txt` appaearing anywhere in the bathroom name
