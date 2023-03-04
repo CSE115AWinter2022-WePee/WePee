@@ -5,17 +5,19 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import Mapview from './screens/mapview'
 import AddBathroomScreen from './screens/addBathroom'
 import BathroomDetailsScreen from './screens/bathroomDetails'
+import ProfileScreen from './screens/profilePage'
 import { ThemeProvider, createTheme, lightColors } from '@rneui/themed'
 import auth from '@react-native-firebase/auth'
 import { SocialButton } from 'react-native-login-screen'
 import { anonymousLogin, onGoogleButtonPress } from './modules/login'
+import MapView from 'react-native-maps'
 
 import {
   View,
   Image,
   Platform,
-  StyleSheet
-
+  StyleSheet,
+  Text
 } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
@@ -63,6 +65,9 @@ function App () {
   if (!user) {
     return (
       <View style={styles.buttonsStyle}>
+        <Text style={{ fontSize: 50, fontWeight: 'bold', color: '#3C99DC', opacity: 1}}>
+          WePee
+        </Text>
         <Image source={require('./assets/wepee.png')} />
         <SocialButton
           text='Continue with Google'
@@ -72,12 +77,15 @@ function App () {
         {/* The javscript:void() just prevents it from rendering the facebook icon (default logo) */}
         <SocialButton
           text='Skip login'
-      //  imageSource="javascript:void()"
+          //imageSource={""}
           onPress={anonymousLogin}
         />
       </View>
     )
   };
+
+  const d = new Date(user.metadata.creationTime);
+  const daysInApp = ((Date.now() - d.valueOf())/86400000)
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -93,7 +101,7 @@ function App () {
                 component={Mapview}
                 options={{
                   headerShown: false
-                }} initialParams={{ uid: user.uid }}
+                }} initialParams={{ displayName: user.displayName, uid: user.uid, photoURL: user.photoURL, isAnonymous: user.isAnonymous, daysInApp: daysInApp}}
               />
               <Stack.Screen
                 name='Add'
@@ -108,6 +116,14 @@ function App () {
                 component={BathroomDetailsScreen}
                 options={{
                   headerTitle: 'Bathroom Details',
+                  headerTitleStyle: { color: 'black' }
+                }}
+              />
+              <Stack.Screen
+                name='Profile'
+                component={ProfileScreen}
+                options={{
+                  headerTitle: 'Profile',
                   headerTitleStyle: { color: 'black' }
                 }}
               />
@@ -134,7 +150,8 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 10
+    gap: 10,
+    backgroundColor: 'white'
   }
 })
 

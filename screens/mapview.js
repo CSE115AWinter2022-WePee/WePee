@@ -5,8 +5,8 @@ import BottomSheet from '@gorhom/bottom-sheet'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { lightColors, SearchBar, Icon } from '@rneui/themed'
 import { getCurrentLocation } from '../modules/getLocation'
+import { genericFlatListSeparator } from '../modules/flatListSeparator'
 import firestore from '@react-native-firebase/firestore'
-import auth from '@react-native-firebase/auth'
 import { tags } from '../modules/tags'
 
 import {
@@ -14,13 +14,14 @@ import {
   StyleSheet,
   Text,
   View,
-  TouchableOpacity
+  TouchableOpacity,
+  Image,
+  ImageBackground
 } from 'react-native'
 
 import {
   FlatList
 } from 'react-native-gesture-handler'
-import { Button } from '@rneui/base'
 
 const Mapview = ({ navigation, route }) => {
   // state to hold location, default is false. setCoordinate(a) sets `coordinate` to `a`
@@ -125,17 +126,6 @@ const Mapview = ({ navigation, route }) => {
       console.log(error)
     }
   }
-
-  // Separates the flatList, is a single pixel line
-  const flatListSeparator = () => (<View
-    style={{
-      height: 1,
-      backgroundColor: '#CED0CE',
-      marginLeft: '5%',
-      marginRight: '5%'
-    }}
-                                   />
-  )
 
   // Msthod to fetch current user location
   // and cache the current user location
@@ -267,7 +257,7 @@ const Mapview = ({ navigation, route }) => {
 
   // Custom component for each bathroom list item
   // in the bathroom list (bottomSheet)
-  const Item = ({ props, index, id }) => (
+  const Item = ({ props, index, id}) => (
     <TouchableOpacity
       style={{
         width: '100%',
@@ -276,7 +266,7 @@ const Mapview = ({ navigation, route }) => {
         padding: 10,
         marginVertical: 5
       }}
-      onPress={() => navigation.navigate('Details', { bathroomId: id, region, uid: route.params?.uid })}
+      onPress={() => navigation.navigate('Details', { bathroomId: id, bathroomName: props.name, region: region, uid: route.params?.uid })}
     >
       <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
         <Text style={[styles.txt, { fontSize: 16, fontWeight: 'bold' }]}>{props.name}</Text>
@@ -316,9 +306,20 @@ const Mapview = ({ navigation, route }) => {
   // otherwise render the default mapview with the current user location and all UI componenents
   if (!located || !loaded) {
     return (
-      <Text>
-        Loading current user location...
-      </Text>
+      <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+          <ImageBackground
+            source={require('../assets/wepee.png')}
+            style={{opacity: .7}}>
+            <View style={{justifyContent: 'center',alignItems:'center', height: 150, width: 150}}>
+              <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#3C99DC', opacity: 1}}>
+                  WePee
+              </Text>
+            </View>
+          </ImageBackground>
+          <Text style={{color: 'black'}}>
+            Loading user location...
+          </Text>
+        </View>
     )
   }
   return (
@@ -332,14 +333,6 @@ const Mapview = ({ navigation, route }) => {
               <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#3C99DC' }}>
                 WePee
               </Text>
-              <View style={styles.logoutButton}>
-                <Button
-                  onPress={() => auth()
-                    .signOut()
-                    .then(() => console.log('User signed out!'))}
-                  title='Logout'
-                />
-              </View>
             </View>
 
             <View style={{
@@ -354,6 +347,19 @@ const Mapview = ({ navigation, route }) => {
               {/* <TouchableOpacity style={{width:40, height:40, borderRadius:20, justifyContent:'center'}} onPress={() => dougsTestFunc()}>
                                 <Icon name='sliders' type='font-awesome' size={25} color='darkgray' />
                             </TouchableOpacity> */}
+              <TouchableOpacity style={{ justifyContent: 'center' }} onPress={() => navigation.navigate('Profile', { 
+                              uid: route.params?.uid, 
+                              displayName: route.params?.displayName,
+                              photoURL: route.params?.photoURL, 
+                              isAnonymous: route.params?.isAnonymous, 
+                              daysInApp: route.params?.daysInApp})}>
+                <Image // profile image
+                    style={{width: 50, height: 50, borderRadius: 25, borderWidth: 2,}}
+                    source={{ // source is user profile pic or the static google one
+                    uri: route.params?.photoURL || "https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg"
+                    }}>
+                </Image>
+              </TouchableOpacity>
               <SearchBar
                 placeholder='Looking for a bathroom?'
                 onChangeText={updateSearchFunc}
@@ -432,7 +438,7 @@ const Mapview = ({ navigation, route }) => {
           <View style={{ flex: 1, alignItems: 'center', padding: 0 }}>
             <FlatList
               data={bathrooms}
-              ItemSeparatorComponent={flatListSeparator}
+              ItemSeparatorComponent={genericFlatListSeparator}
               renderItem={({ item, index }) => <Item props={item.data()} index={index} id={item.id} />}
               keyExtractor={item => item.id}
               style={{ width: '100%', marginBottom: 20 }}
@@ -465,7 +471,8 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     backgroundColor: 'white',
     marginLeft: 3,
-    marginRight: 3
+    marginRight: 3,
+    elevation: 2
   },
   tagButtonPressed: {
     height: 36,
@@ -476,7 +483,8 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     backgroundColor: 'gray',
     marginLeft: 3,
-    marginRight: 3
+    marginRight: 3,
+    elevation: 2
   },
   tagButtonText: {
     color: 'black'
@@ -495,7 +503,8 @@ const styles = StyleSheet.create({
     opacity: 0.8,
     padding: 5,
     borderRadius: 100,
-    backgroundColor: '#3C99DC'
+    backgroundColor: '#3C99DC',
+    elevation: 2
   },
   userLocationButton: {
     position: 'absolute',
@@ -508,13 +517,8 @@ const styles = StyleSheet.create({
     opacity: 0.8,
     padding: 5,
     borderRadius: 100,
-    backgroundColor: 'gray'
-  },
-  logoutButton: {
-    position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 50
+    backgroundColor: 'gray',
+    elevation: 2
   },
   ratingFilterButton: {
     position: 'absolute',

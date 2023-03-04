@@ -18,7 +18,6 @@ import {
 
 import { ScrollView } from 'react-native-gesture-handler'
 
-
 const BathroomDetailsScreen = ({route}) => {
     // refs
     const bottomSheetRef = useRef(null);
@@ -37,13 +36,13 @@ const BathroomDetailsScreen = ({route}) => {
 
     const snapPoints = useMemo(() => ['30%', '60%', '85%'], []);
 
-    const [region, setRegion] = useState({
+    const [region, setRegion] = useState(route.params?.region || 
+    {
         latitude: 37.78825,
         longitude: -122.4324,
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
     })
-    
     
     useEffect(() => {
         fetchBathroomData(route.params?.bathroomId)
@@ -51,8 +50,8 @@ const BathroomDetailsScreen = ({route}) => {
         getUserId()
     }, [])
 
-      // get uid
-    // if no user uid = deviceId
+    // get uid
+    // if no user uid, then use uid = deviceId
     const getUserId = async () => {
         return new Promise(async resolve => {
             let uid = await DeviceInfo.getUniqueId()
@@ -82,7 +81,6 @@ const BathroomDetailsScreen = ({route}) => {
         }
        
     }
-
 
     const getUserRatingIfAny = async (bathroomId) => {
         try {
@@ -114,14 +112,11 @@ const BathroomDetailsScreen = ({route}) => {
     }
 
     const updateRating = async () => {
-        bathroomData["rating"][stars - 1]++
-        await dbDocument.update({
-            rating: bathroomData["rating"]
-        })
 
         // update user previous rating if any
         // else save new rating into reviews collection
         if (userRating && userRating.stars != stars) {
+            bathroomData["rating"][userRating.stars - 1]--
             await firestore().collection('reviews').doc(userRating.id).update({stars: stars})
         }
         else {
@@ -130,12 +125,17 @@ const BathroomDetailsScreen = ({route}) => {
             await firestore().collection('reviews').doc(id).set({
                 uid: uid,
                 bathroom_id: route.params?.bathroomId,
+                bathroom_name: route.params?.bathroomName, // now saves bathroom name, more efficient for profile page
                 stars: stars,
                 id: id
             })
             setUserRating({id: id, stars: stars})  
         }
 
+        bathroomData["rating"][stars - 1]++
+        await dbDocument.update({
+            rating: bathroomData["rating"]
+        })
         
         // dismiss the review dialog
         toggleDialog()
