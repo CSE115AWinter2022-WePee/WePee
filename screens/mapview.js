@@ -214,7 +214,7 @@ const Mapview = ({ navigation, route }) => {
 
     for (let i = 0; i < 5; i++) {
       number += list[i]
-      sum += (list[i] * i)
+      sum += (list[i] * (i + 1))
     }
  
     return sum / number
