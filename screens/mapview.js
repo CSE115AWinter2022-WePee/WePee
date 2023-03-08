@@ -179,7 +179,7 @@ const Mapview = ({ navigation, route }) => {
               defaultIndex={1}
               onChange={item => {
                 console.log("button chosen, value: " + item.value)
-                // setRating(item.value);
+                setRating(item.value);
                 // setBathrooms(bathrooms => {
                 //   const filteredBathrooms = bathrooms.filter(bath => calcRating(bath.data()['rating']) >= item.value);
                 //   return filteredBathrooms;
