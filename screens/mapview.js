@@ -8,6 +8,7 @@ import { getCurrentLocation } from '../modules/getLocation'
 import { genericFlatListSeparator } from '../modules/flatListSeparator'
 import firestore from '@react-native-firebase/firestore'
 import { tags } from '../modules/tags'
+import { Dropdown } from 'react-native-element-dropdown';
 
 import {
   SafeAreaView,
@@ -46,7 +47,17 @@ const Mapview = ({ navigation, route }) => {
   const [periodProducts, setPeriodProducts] = useState(false)
   const [unisex, setUnisex] = useState(false)
   const [urinal, setUrinal] = useState(false)
-  const [rating, setRating] = useState(0)
+  const [rating, setRating] = useState(1)
+
+  // State for and data for selectedStarCount
+  const [selectedStarCount, setSelectedStarCount] = useState("");
+  const starCountData = [
+    {label:'1+', value:1},
+    {label:'2+', value:2},
+    {label:'3+', value:3},
+    {label:'4+', value:4},
+  ] 
+  
 
   // bottom sheet snap points
   const snapPoints = useMemo(() => ['30%', '60%'], [])
@@ -154,10 +165,36 @@ const Mapview = ({ navigation, route }) => {
     searchedTags.length === 0 ? setBathrooms(allBathrooms) : filterBathrooms(searchedTags)
   }
 
-  // Runs when rating filter button is pressed
-  const onRatingFilterPress = () => {
-    if ((({rating}.rating + 1) % 5) == 0) setRating(0)
-    else setRating({rating}.rating + 1)
+  // Code for dropdown star-filter tag
+  const starFilterTag = () => {
+    return (
+      <View>
+      <Dropdown
+              //setSelected={(val) => setSelectedStarCount(val)} 
+              style={[styles.tagButtonNotPressed, {width: 60}]}
+              containerStyle={{ width: 60 , borderRadius: 18, backgroundColor: 'white'}}
+              data={starCountData} 
+              labelField="label"
+              valueField="value"
+              defaultIndex={1}
+              onChange={item => {
+                console.log("button chosen, value: " + item.value)
+                // setRating(item.value);
+                // setBathrooms(bathrooms => {
+                //   const filteredBathrooms = bathrooms.filter(bath => calcRating(bath.data()['rating']) >= item.value);
+                //   return filteredBathrooms;
+                // });
+              }}
+              renderRightIcon={() => <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center',}}>
+                                        <Icon name='star' type='font-awesome' size={20} color='gold' />
+                                        <Icon name='caret-down' type='font-awesome' style={{marginLeft: 5}} size={15} color='gray' />
+                                      </View>}
+              search={false}
+              placeholder={''}
+          />
+ 
+      </View>
+    );
   }
 
   const getSelectedTags = (tag, add) => {
@@ -398,6 +435,7 @@ const Mapview = ({ navigation, route }) => {
 
             <FlatList
                             // Hprizontal tag filter list
+              ListHeaderComponent={starFilterTag}
               data={mTags}
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -421,12 +459,6 @@ const Mapview = ({ navigation, route }) => {
               style={styles.userLocationButton}
             >
               <Icon name='person-pin' type='material' size={40} color='lightblue' />
-            </TouchableOpacity>
-
-            <TouchableOpacity // Rating Filter Button
-              onPress={() => { onRatingFilterPress() }}
-              style = {styles.ratingFilterButton}>
-              <Text style={styles.ratingTxt}>{(Number({rating}.rating) + 1) + '+'}</Text>
             </TouchableOpacity>
 
           </View>
