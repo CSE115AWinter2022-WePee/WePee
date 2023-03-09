@@ -73,7 +73,7 @@ const AddBathroomScreen = ({ navigation, route }) => {
       const region = await AsyncStorage.getItem('region')
       setCoordinate(JSON.parse(coordinates))
       setPinnedCoordinate(JSON.parse(coordinates))
-      // setRegion(JSON.parse(region))
+      setRegion(JSON.parse(region))
     } catch (error) {
       console.log(error)
     }

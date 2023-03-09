@@ -2,8 +2,8 @@ import Geolocation from 'react-native-geolocation-service'
 import { requestLocationPermission } from '../modules/requestLocation'
 
 // function to check permissions and get location
+// Takes the `latitudeDelta` and `longitudeDelta` for the region view as arguments
 export const getCurrentLocation = (latitudeDelta, longitudeDelta) => {
-  console.log("getLocation:", latitudeDelta, longitudeDelta)
   return new Promise(async (resolve, reject) => {
     const res = await requestLocationPermission()
     if (res) {

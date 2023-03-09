@@ -284,10 +284,10 @@ const Mapview = ({ navigation, route }) => {
 
   // Runs when goToUser button is pressed
   const goToUser = async () => {
-    console.log("start")
+    console.log("goToUser start")
     await _getLocation() // update user location
     mapViewRef.current.animateToRegion(region, 1000)
-    console.log("done!")
+    console.log("goToUser done")
   }
 
   // Placehplder for handling stylesheet changes
@@ -447,16 +447,12 @@ const Mapview = ({ navigation, route }) => {
               region={region}
               onPress={() => { bottomSheetRef.current.close() }}
               zoomControlEnabled={false}
-              onRegionChangeComplete={newRegion => {
-                setLatitudeDelta(newRegion.latitudeDelta)
-                setLongitudeDelta(newRegion.longitudeDelta)
-                setRegion({
-                  ...region, 
-                  latitudeDelta: latitudeDelta,
-                  longitudeDelta: longitudeDelta
-                })
-                console.log("region:", region.latitudeDelta)
-              }}
+              // The following was to ensure that the zoom level p[ersists when navigating to other screens
+              // However, it introduces a lot of lag, so it's been omitted at the moment
+              // onRegionChangeComplete={newRegion => {
+              //   setLatitudeDelta(newRegion.latitudeDelta)
+              //   setLongitudeDelta(newRegion.longitudeDelta)
+              // }}
             >
               {bathroomMarkers}
             </MapView>
@@ -504,7 +500,11 @@ const Mapview = ({ navigation, route }) => {
         >
           <View style={{ flex: 1, alignItems: 'center', padding: 0 }}>
             <FlatList
-              data={bathrooms}
+              data={bathrooms.sort((a, b) => {
+                const nameA = a.data().name
+                const nameB = b.data().name
+                return nameA === nameB ? 0 : nameA < nameB ? -1 : 1
+              })}
               ItemSeparatorComponent={genericFlatListSeparator}
               renderItem={({ item, index }) => <Item props={item.data()} index={index} id={item.id} />}
               keyExtractor={item => item.id}
