@@ -37,6 +37,13 @@ const Mapview = ({ navigation, route }) => {
   const bottomSheetRef = useRef(null)
   // Ref to hold mapview element reference
   const mapViewRef = useRef(null)
+  // State to hold type of map selected
+  const [mapType, setMapType] = useState("standard")
+  const mapTypeData = [
+    {value: "standard"},
+    {value: "satellite"},
+    {value: "hybrid"}
+  ]
 
   // States to determine if tag is active or not
   const [cleanliness, setCleanliness] = useState(false)
@@ -140,7 +147,7 @@ const Mapview = ({ navigation, route }) => {
 
   // Msthod to fetch current user location
   // and cache the current user location
-  const _getLocation = () => {
+  const _getLocation = async () => {
     getCurrentLocation()
       .then(({ coordinates, region }) => {
         setCoordinate(coordinates)
@@ -197,11 +204,11 @@ const Mapview = ({ navigation, route }) => {
                 setRating(item.value);
               }}
               renderRightIcon={() => <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center',}}>
-                                        <Text style={[styles.tagButtonText]}>{starLabel}</Text>
-                                        <Icon name='star' type='font-awesome' style={{marginLeft: 5}} 
-                                        size={20} color='gold' />
-                                        <Icon name='caret-down' type='font-awesome' style={{marginLeft: 5}} size={15} color='gray' />
-                                      </View>}
+                <Text style={[styles.tagButtonText]}>{starLabel}</Text>
+                <Icon name='star' type='font-awesome' style={{marginLeft: 5}} 
+                size={20} color='gold' />
+                <Icon name='caret-down' type='font-awesome' style={{marginLeft: 5}} size={15} color='gray' />
+              </View>}
               search={false}
               placeholder={''}
               renderItem={renderItem}
@@ -360,7 +367,7 @@ const Mapview = ({ navigation, route }) => {
   )
 
   // Render loading text while no user location available,
-  // otherwise render the default mapview with the current user location and all UI componenents
+  // otherwise render the default mapview with the current user location and all UI components
   if (!located || !loaded) {
     return (
       <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
@@ -436,7 +443,7 @@ const Mapview = ({ navigation, route }) => {
             <MapView
               style={{ width: '100%', height: '100%' }}
               ref={mapViewRef}
-              mapType='standard'
+              mapType={mapType}
               initialRegion={region}
               showsUserLocation
               showsMyLocationButton={false}
@@ -448,7 +455,7 @@ const Mapview = ({ navigation, route }) => {
             </MapView>
 
             <FlatList
-                            // Hprizontal tag filter list
+                            // Horizontal tag filter list
               ListHeaderComponent={starFilterTag}
               data={mTags}
               horizontal
@@ -456,6 +463,35 @@ const Mapview = ({ navigation, route }) => {
               renderItem={({ item, index }) => <TagItem tag={item} index={index} />}
               keyExtractor={item => item.key}
               style={{ width: '100%', height: 40, position: 'absolute', top: 108 }}
+            />
+
+            <Dropdown // Map type dropdown menu
+            style={styles.mapTypeDropdown}
+            containerStyle={
+              {
+                width: 100, 
+                borderRadius: 5, 
+                padding: 5,
+                right: 50
+              }
+            }
+            placeholderStyle={{fontSize: 16}}
+            placeholder={""}
+            value={mapType}
+            data={mapTypeData}
+            labelField="value"
+            valueField="value"
+            onChange={item => setMapType(item.value)}
+            renderItem={item => <Text>
+                {item.value}
+              </Text>
+              }
+            renderRightIcon={() => <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Text> {mapType} map </Text>
+                {/* Uncomment the following to add a carat icon for the dropdown*/}
+                {/* <Icon name="caret-down" type='font-awesome' style={{marginLeft: 5}} size={15} color='gray'/>  */}
+                </View>
+              }
             />
 
             <TouchableOpacity // Show list button
@@ -469,7 +505,7 @@ const Mapview = ({ navigation, route }) => {
 
             <TouchableOpacity
                             // Animate to user button
-              onPress={() => { goToUser() }}
+              onPress={goToUser}
               style={styles.userLocationButton}
             >
               <Icon name='person-pin' type='material' size={40} color='lightblue' />
@@ -479,8 +515,7 @@ const Mapview = ({ navigation, route }) => {
 
         </View>
 
-        <BottomSheet
-                    // Bathrooms list
+        <BottomSheet // Bathrooms list
           ref={bottomSheetRef}
           index={0}
           snapPoints={snapPoints}
@@ -540,8 +575,6 @@ const styles = StyleSheet.create({
   },
   tagButtonText: {
     color: 'black'
-    // fontWeight: 'bold',
-    // lineHeight: 15,
   },
   showListButton: {
     position: 'absolute',
@@ -549,7 +582,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     bottom: 115,
-    right: 15,
+    right: '1%',
     height: 50,
     width: 130,
     opacity: 0.8,
@@ -563,7 +596,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     top: 156,
-    right: 15,
+    right: '1%',
     height: 50,
     width: 50,
     opacity: 0.8,
@@ -571,6 +604,18 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     backgroundColor: 'gray',
     elevation: 2
+  },
+  mapTypeDropdown: {
+    position: 'absolute',
+    backgroundColor: 'white',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    top: '17%',
+    left: '1%',
+    fontSize: 16,
+    borderRadius: 100,
+    padding: 3
   },
   ratingFilterButton: {
     position: 'absolute',
