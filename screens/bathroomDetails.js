@@ -47,7 +47,8 @@ const BathroomDetailsScreen = ({route}) => {
     //     longitudeDelta: 0.0421,
     // })
 
-    const [mapType, setMapType] = useState(route.params?.mapType)
+    const [mapType, setMapType] = useState(route.params?.mapType || 'standard')
+    const [mapLabel, setMapLabel] = useState(route.params?.mapLabel || 'Standard')
     
     useEffect(() => {
         fetchBathroomData(route.params?.bathroomId)
@@ -286,7 +287,11 @@ const BathroomDetailsScreen = ({route}) => {
                         description= {bathroomData?.description}/>
                 </MapView>
 
-                <MapTypeDropdown style={styles.mapTypeDropdown} mapType={mapType} setMapType={setMapType}/>
+                {/* <MapTypeDropdown style={styles.mapTypeDropdown} mapType={mapType} setMapType={setMapType}/> */}
+                <MapTypeDropdown style={[styles.tagButtonNotPressed, {width: 110}]} 
+                         mapType={mapType} setMapType={setMapType} 
+                         mapLabel={mapLabel}
+                         setMapLabel={setMapLabel}/>
 
                 <TouchableOpacity // Animate to bathroom button
                     onPress={() => {mapViewRef.current.animateToRegion(region, 1000)}}
@@ -483,5 +488,20 @@ const styles = StyleSheet.create({
         fontSize: 16,
         borderRadius: 100,
         padding: 3
-    }
+    },
+    tagButtonNotPressed: {
+        height: 36,
+        position: 'absolute',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 8,
+        top: '1%',
+        left: '1%',
+        borderRadius: 100,
+        backgroundColor: 'white',
+        marginLeft: 3,
+        marginRight: 3,
+        elevation: 2
+    },
 })
