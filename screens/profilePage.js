@@ -62,13 +62,13 @@ const ProfileScreen = ({ route }) => {
 
   const cleanupAndSetFirebaseUserReviews = async (junkyArray) => {
     const cleanedData = await Promise.all(junkyArray.map(async (review) => {
-      const { bathroom_name, bathroom_id, id, stars } = review._data;
+      const { bathroom_name, bathroom_id, id, stars, description} = review._data;
       let name = bathroom_name;
       if (!name) { // if bathroom name is undefined
         name = await getBathroomNameFromId(bathroom_id);
         await updateBathroomNameInReview(id, name);  // updates the bathroom's name in a review, if it isnt there
       }
-      return { name, id, bathroom_id, stars };
+      return { name, id, bathroom_id, stars, description};
     }));
     setUserReviews(cleanedData);
     console.log(cleanedData)
@@ -205,17 +205,21 @@ const ProfileScreen = ({ route }) => {
       default: // default is a user review
         return (
           <View style={[styles.userReview]}>
-            <View>
-              <Text style={[styles.txt, { fontSize: 18, fontWeight: 'bold' }]}>{item.name}</Text>
-              <Text style={[styles.txt, {marginLeft: 15}]}>Your rating: </Text>
+            <View style={{flexDirection: 'row'}}>
+              <Text style={[styles.txt, { fontSize: 19, fontWeight: 'bold' }]}>{item.name}</Text>
+              <AirbnbRating 
+                isDisabled={true} 
+                showRating={false}
+                size={25}
+                count={5}
+                defaultRating={item.stars} 
+                ratingContainerStyle={{ marginTop:0, marginLeft: 'auto'}}/>
             </View>
-            <AirbnbRating 
-              isDisabled={true} 
-              showRating={false}
-              size={25}
-              count={5}
-              defaultRating={item.stars} 
-              ratingContainerStyle={{ marginTop:0, marginLeft: 'auto'}}/>
+            
+            <View>
+              <Text style={[styles.txt, {fontWeight: 'bold'}]}>Description: </Text>
+              <Text style={[styles.txt,]}>{item.description}</Text>
+            </View>
           </View>
         );
     }
@@ -299,7 +303,7 @@ const styles = StyleSheet.create({
     marginRight: 'auto',
     borderRadius: 5,
     backgroundColor: 'white',
-    flexDirection: 'row',
+    //flexDirection: 'row',
     padding: 10,
     marginVertical: 3,
     elevation: 1,
