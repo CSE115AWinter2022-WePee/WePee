@@ -6,6 +6,7 @@ import auth from '@react-native-firebase/auth'
 import { Input, Icon, AirbnbRating, Dialog } from '@rneui/themed'
 import { tags } from '../modules/tags';
 import DeviceInfo from "react-native-device-info"
+import { MapTypeDropdown } from '../modules/MapTypeDropdown';
 
 import { 
     StyleSheet, 
@@ -43,6 +44,8 @@ const BathroomDetailsScreen = ({route}) => {
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
     })
+
+    const [mapType, setMapType] = useState(route.params?.mapType)
     
     useEffect(() => {
         fetchBathroomData(route.params?.bathroomId)
@@ -228,21 +231,21 @@ const BathroomDetailsScreen = ({route}) => {
                 <MapView
                     ref={mapViewRef}
                     style={{width:'100%', height:'100%'}}
-                    mapType="standard"
+                    mapType={mapType}
                     initialRegion={region}
                     showsUserLocation={true}
                     showsMyLocationButton={false}
                     region={region}
                     onRegionChange={() => {}}
                     onPress={() => {bottomSheetRef.current.close()}}>
-                        
                     <Marker
                         key={1}
                         coordinate={coordinate}
                         title= {bathroomData?.name}
                         description= {bathroomData?.description}/>
-
                 </MapView>
+
+                <MapTypeDropdown style={styles.mapTypeDropdown} mapType={mapType} setMapType={setMapType}/>
 
                 <TouchableOpacity // Animate to bathroom button
                     onPress={() => {mapViewRef.current.animateToRegion(region, 1000)}}
@@ -256,8 +259,6 @@ const BathroomDetailsScreen = ({route}) => {
                     <Icon name='list' type='material' size={30}  color='white' containerStyle={{marginRight: 3}}/>
                     <Text style={{fontSize: 14, fontWeight: 'bold', color: 'white'}}>View List</Text>
                 </TouchableOpacity>
-
-                
             </View>
 
             <BottomSheet
@@ -303,8 +304,6 @@ const BathroomDetailsScreen = ({route}) => {
 
                         </View>
 
-                       
-
                         <View style={{width: '100%'}}>
                              <Text style={[styles.txt, {fontWeight:'bold', fontSize:18, marginTop:30, marginLeft:15}] }>
                                 Features
@@ -349,8 +348,8 @@ const styles = StyleSheet.create({
         position: 'absolute',
         alignItems:'center',
         justifyContent: 'center',
-        top: 15,
-        right: 15,
+        top: '1%',
+        right: '1%',
         height: 50,
         width: 50,
         opacity: .8,
@@ -358,4 +357,16 @@ const styles = StyleSheet.create({
         borderRadius: 100,
         backgroundColor: 'gray',
     },
+    mapTypeDropdown: {
+        position: 'absolute',
+        backgroundColor: 'white',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        top: '1%',
+        left: '1%',
+        fontSize: 16,
+        borderRadius: 100,
+        padding: 3
+    }
 })

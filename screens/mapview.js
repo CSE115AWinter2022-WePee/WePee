@@ -9,7 +9,7 @@ import { genericFlatListSeparator } from '../modules/flatListSeparator'
 import firestore from '@react-native-firebase/firestore'
 import { tags } from '../modules/tags'
 import { Dropdown } from 'react-native-element-dropdown';
-
+import { MapTypeDropdown } from '../modules/MapTypeDropdown'
 import {
   SafeAreaView,
   StyleSheet,
@@ -39,11 +39,6 @@ const Mapview = ({ navigation, route }) => {
   const mapViewRef = useRef(null)
   // State to hold type of map selected
   const [mapType, setMapType] = useState("standard")
-  const mapTypeData = [
-    {value: "standard"},
-    {value: "satellite"},
-    {value: "hybrid"}
-  ]
 
   // States to determine if tag is active or not
   const [cleanliness, setCleanliness] = useState(false)
@@ -286,8 +281,10 @@ const Mapview = ({ navigation, route }) => {
 
   // Runs when goToUser button is pressed
   const goToUser = async () => {
+    console.log("start")
     await _getLocation() // update user location
     mapViewRef.current.animateToRegion(region, 1000)
+    console.log("done!")
   }
 
   // Placehplder for handling stylesheet changes
@@ -330,7 +327,7 @@ const Mapview = ({ navigation, route }) => {
         padding: 10,
         marginVertical: 5
       }}
-      onPress={() => navigation.navigate('Details', { bathroomId: id, bathroomName: props.name, region: region, uid: route.params?.uid })}
+      onPress={() => navigation.navigate('Details', { bathroomId: id, bathroomName: props.name, region: region, uid: route.params?.uid, mapType })}
     >
       <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
         <Text style={[styles.txt, { fontSize: 16, fontWeight: 'bold' }]}>{props.name}</Text>
@@ -408,9 +405,6 @@ const Mapview = ({ navigation, route }) => {
               marginRight: 10
             }}
             >
-              {/* <TouchableOpacity style={{width:40, height:40, borderRadius:20, justifyContent:'center'}} onPress={() => dougsTestFunc()}>
-                                <Icon name='sliders' type='font-awesome' size={25} color='darkgray' />
-                            </TouchableOpacity> */}
               <TouchableOpacity style={{ justifyContent: 'center' }} onPress={() => navigation.navigate('Profile', { 
                               uid: route.params?.uid, 
                               displayName: route.params?.displayName,
@@ -434,7 +428,7 @@ const Mapview = ({ navigation, route }) => {
                 value={searchTxt}
               />
 
-              <TouchableOpacity style={{ width: 40, height: 40, borderRadius: 20, justifyContent: 'center' }} onPress={() => navigation.navigate('Add', { region })}>
+              <TouchableOpacity style={{ width: 40, height: 40, borderRadius: 20, justifyContent: 'center' }} onPress={() => navigation.navigate('Add', { region, mapType})}>
                 <Icon name='plus' type='font-awesome' size={20} color='#3C99DC' />
               </TouchableOpacity>
 
@@ -450,6 +444,7 @@ const Mapview = ({ navigation, route }) => {
               region={region}
               onPress={() => { bottomSheetRef.current.close() }}
               onRegionChange={() => {}}
+              zoomControlEnabled={false}
             >
               {bathroomMarkers}
             </MapView>
@@ -465,34 +460,7 @@ const Mapview = ({ navigation, route }) => {
               style={{ width: '100%', height: 40, position: 'absolute', top: 108 }}
             />
 
-            <Dropdown // Map type dropdown menu
-            style={styles.mapTypeDropdown}
-            containerStyle={
-              {
-                width: 100, 
-                borderRadius: 5, 
-                padding: 5,
-                right: 50
-              }
-            }
-            placeholderStyle={{fontSize: 16}}
-            placeholder={""}
-            value={mapType}
-            data={mapTypeData}
-            labelField="value"
-            valueField="value"
-            onChange={item => setMapType(item.value)}
-            renderItem={item => <Text>
-                {item.value}
-              </Text>
-              }
-            renderRightIcon={() => <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Text> {mapType} map </Text>
-                {/* Uncomment the following to add a carat icon for the dropdown*/}
-                {/* <Icon name="caret-down" type='font-awesome' style={{marginLeft: 5}} size={15} color='gray'/>  */}
-                </View>
-              }
-            />
+            <MapTypeDropdown style={styles.mapTypeDropdown} mapType={mapType} setMapType={setMapType}/>
 
             <TouchableOpacity // Show list button
               onPress={() => bottomSheetRef.current.snapToIndex(0)}
@@ -595,7 +563,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
-    top: 156,
+    top: '17%',
     right: '1%',
     height: 50,
     width: 50,

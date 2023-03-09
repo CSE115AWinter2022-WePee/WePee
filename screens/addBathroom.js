@@ -15,7 +15,8 @@ import {
   Alert,
   View
 } from 'react-native'
-
+import { Dropdown } from 'react-native-element-dropdown'
+import { MapTypeDropdown } from '../modules/MapTypeDropdown'
 import { ScrollView } from 'react-native-gesture-handler'
 
 // Currently not implemented: Set rating, delete/report bathroom, edit tags for bathroom
@@ -41,8 +42,10 @@ const AddBathroomScreen = ({ navigation, route }) => {
   const [pinnedCoordinate, setPinnedCoordinate] = useState({ latitude: null, longitude: null })
   const [coordinate, setCoordinate] = useState({ latitude: 37.78825, longitude: -122.4324 })
   const snapPoints = useMemo(() => ['30%', '60%', '85%'], [])
-
+  // State to store current map region
   const [region, setRegion] = useState(route.params?.region)
+  // State to store current map type
+  const [mapType, setMapType] = useState(route.params?.mapType)
 
   // call getCurrentLocation, have it set location and region details
   useEffect(() => {
@@ -229,7 +232,7 @@ const AddBathroomScreen = ({ navigation, route }) => {
           <MapView
             ref={mapViewRef}
             style={{ width: '100%', height: '100%' }}
-            mapType='standard'
+            mapType={mapType}
             showsUserLocation
             showsMyLocationButton={false}
             initialRegion={region}
@@ -237,15 +240,15 @@ const AddBathroomScreen = ({ navigation, route }) => {
             onPress={() => { bottomSheetRef.current.close() }}
             onRegionChange={() => {}}
           >
-
             <Marker
               draggable
               key={1}
               coordinate={coordinate}
               onDragEnd={e => setPinnedCoordinate(e.nativeEvent.coordinate)}
             />
-
           </MapView>
+
+          <MapTypeDropdown style={styles.mapTypeDropdown} mapType={mapType} setMapType={setMapType}/>
 
           <TouchableOpacity // Show list button
             onPress={() => bottomSheetRef.current.snapToIndex(0)}
@@ -264,7 +267,7 @@ const AddBathroomScreen = ({ navigation, route }) => {
           </TouchableOpacity>
 
         </View>
-        <BottomSheet
+        <BottomSheet // Place to add bathroom details
           ref={bottomSheetRef}
           index={0}
           snapPoints={snapPoints}
@@ -361,13 +364,25 @@ const styles = StyleSheet.create({
     position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
-    top: 15,
-    right: 15,
+    top: '1%',
+    right: '1%',
     height: 50,
     width: 50,
     opacity: 0.8,
     padding: 5,
     borderRadius: 100,
     backgroundColor: 'gray'
+  },
+  mapTypeDropdown: {
+    position: 'absolute',
+    backgroundColor: 'white',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    top: '1%',
+    left: '1%',
+    fontSize: 16,
+    borderRadius: 100,
+    padding: 3
   }
 })
