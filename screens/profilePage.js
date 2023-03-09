@@ -105,7 +105,7 @@ const ProfileScreen = ({ route, navigation }) => {
       await auth().signOut()
       console.log('User signed out!')
     } catch (error) {
-      
+      console.log(error)
     }
   }
 
@@ -244,8 +244,15 @@ const ProfileScreen = ({ route, navigation }) => {
           style={{width: '100%', marginBottom: 60}}
           showsVerticalScrollIndicator={false}
         />
-
-        <LogoutButton/>
+        
+       <TouchableOpacity
+          onPress={ signInOutFunc }
+          style= {[styles.logoutButton, {color: 'red'}]}
+        >
+          <Text style={[styles.txt, {color: 'white'}, {fontWeight: 'bold', fontSize:18}]}>
+            {!route.params?.isAnonymous? "Log Out" : "Log In"}
+          </Text>
+      </TouchableOpacity>
 
       </View>
     </SafeAreaView>
