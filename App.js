@@ -51,7 +51,9 @@ function App () {
   // if it works incorrectly, it is Rohan's fault
   const [initializing, setInitializing] = useState(true)
   const [user, setUser] = useState()
+  
   function onAuthStateChanged (user) {
+    console.log("auth state changed")
     setUser(user)
     console.log(user)
     if (initializing) setInitializing(false)
