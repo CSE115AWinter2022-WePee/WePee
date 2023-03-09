@@ -39,8 +39,8 @@ const BathroomDetailsScreen = ({route}) => {
     const snapPoints = useMemo(() => ['30%', '60%', '85%'], []);
 
     const [region, setRegion] = useState(route.params?.region)
-
-    const [mapType, setMapType] = useState(route.params?.mapType || 'Standard')
+    // State to store current mapType
+    const [mapType, setMapType] = useState(route.params?.mapType)
     
     useEffect(() => {
         fetchBathroomData(route.params?.bathroomId)
@@ -81,7 +81,6 @@ const BathroomDetailsScreen = ({route}) => {
         }
        
     }
-
 
     const getUserRatingIfAny = async (bathroomId) => {
         try {

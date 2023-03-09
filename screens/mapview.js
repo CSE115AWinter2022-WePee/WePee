@@ -335,7 +335,7 @@ const Mapview = ({ navigation, route }) => {
         padding: 10,
         marginVertical: 5
       }}
-      onPress={() => navigation.navigate('Details', { bathroomId: id, bathroomName: props.name, region: region, uid: route.params?.uid, mapType: mapType})}
+      onPress={() => navigation.navigate('Details', { bathroomId: id, bathroomName: props.name, region: region, uid: route.params?.uid, mapType})}
     >
       <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
         <Text style={[styles.txt, { fontSize: 16, fontWeight: 'bold' }]}>{props.name}</Text>

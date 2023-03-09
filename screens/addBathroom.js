@@ -44,7 +44,6 @@ const AddBathroomScreen = ({ navigation, route }) => {
   const snapPoints = useMemo(() => ['30%', '60%', '85%'], [])
   // State to store current map region
   const [region, setRegion] = useState(route.params?.region)
-  console.log(region.latitudeDelta)
   // State to store current map type
   const [mapType, setMapType] = useState(route.params?.mapType)
 
