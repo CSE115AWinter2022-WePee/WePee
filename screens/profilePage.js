@@ -207,7 +207,7 @@ const ProfileScreen = ({navigation, route }) => {
         return (
           <TouchableOpacity 
             style={[styles.userReview]}
-            onPress={() => navigation.navigate('Details', { bathroomId: item.bathroom_id, bathroomName: item.name, uid: route.params?.uid })}
+            onPress={() => navigation.navigate('Details', { bathroomId: item.bathroom_id, bathroomName: item.name, uid: route.params?.uid, region: route.params?.region })}
           >
             <View style={{flexDirection: 'row'}}>
               <Text style={[styles.txt, { fontSize: 19, fontWeight: 'bold' }]}>{item.name}</Text>
