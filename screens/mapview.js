@@ -50,13 +50,12 @@ const Mapview = ({ navigation, route }) => {
   const [rating, setRating] = useState(1)
 
   // State for and data for selectedStarCount
-  const [selectedStarCount, setSelectedStarCount] = useState("");
   const starCountData = [
     {label:'1+', value:1},
     {label:'2+', value:2},
     {label:'3+', value:3},
     {label:'4+', value:4},
-    {label:'5', value:5},
+    {label:'5+', value:5},
   ] 
   
 
@@ -171,27 +170,41 @@ const Mapview = ({ navigation, route }) => {
     }
   }
 
+  const [starLabel, setStarLabel] = useState("1+");
+
+  const renderItem = item => {
+    return (
+      <View style={{flexDirection: 'row', width: 70, marginTop: 5, marginBottom: 5, justifyContent: 'center', alignItems: 'center',}}>
+        <Text style={[styles.tagButtonText]}>{item.label}</Text>
+        <Icon name='star' type='font-awesome' size={20} style={{marginLeft: 5}} color='gold' />
+      </View>
+    );
+  };
+
   // Code for dropdown star-filter tag
   const starFilterTag = () => {
     return (
       <View>
       <Dropdown
               //setSelected={(val) => setSelectedStarCount(val)} 
-              style={[styles.tagButtonNotPressed, {width: 100}]}
-              containerStyle={{ width: 60 , borderRadius: 18, backgroundColor: 'white'}}
+              style={[styles.tagButtonNotPressed, {width: 70}]}
+              containerStyle={{ width: 70 , borderRadius: 18, backgroundColor: 'white'}}
               data={starCountData} 
               labelField="label"
               valueField="value"
-              value={selectedStarCount}
               onChange={item => {
+                setStarLabel(item.label);
                 setRating(item.value);
               }}
               renderRightIcon={() => <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center',}}>
-                                        <Icon name='star' type='font-awesome' size={20} color='gold' />
+                                        <Text style={[styles.tagButtonText]}>{starLabel}</Text>
+                                        <Icon name='star' type='font-awesome' style={{marginLeft: 5}} 
+                                        size={20} color='gold' />
                                         <Icon name='caret-down' type='font-awesome' style={{marginLeft: 5}} size={15} color='gray' />
                                       </View>}
               search={false}
               placeholder={''}
+              renderItem={renderItem}
           />
  
       </View>
