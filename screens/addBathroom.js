@@ -242,7 +242,7 @@ const AddBathroomScreen = ({ navigation, route }) => {
           <MapView
             ref={mapViewRef}
             style={{ width: '100%', height: '100%' }}
-            mapType={mapType}
+            mapType={mapType.toLowerCase()}
             showsUserLocation
             showsMyLocationButton={false}
             initialRegion={region}
