@@ -39,6 +39,7 @@ const Mapview = ({ navigation, route }) => {
   const mapViewRef = useRef(null)
   // State to hold type of map selected
   const [mapType, setMapType] = useState("standard")
+  const [mapLabel, setMapLabel] = useState("Standard")
 
   // States to determine if tag is active or not
   const [cleanliness, setCleanliness] = useState(false)
@@ -189,8 +190,8 @@ const Mapview = ({ navigation, route }) => {
   // Code for dropdown star-filter tag
   const starFilterTag = () => {
     return (
-      <View>
-      <Dropdown
+      <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "center"}}>
+        <Dropdown
               //setSelected={(val) => setSelectedStarCount(val)} 
               style={[styles.tagButtonNotPressed, {width: 70}]}
               containerStyle={{ width: 70 , borderRadius: 18, backgroundColor: 'white'}}
@@ -201,16 +202,23 @@ const Mapview = ({ navigation, route }) => {
                 setStarLabel(item.label);
                 setRating(item.value);
               }}
-              renderRightIcon={() => <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center',}}>
-                <Text style={[styles.tagButtonText]}>{starLabel}</Text>
-                <Icon name='star' type='font-awesome' style={{marginLeft: 5}} 
-                size={20} color='gold' />
-                <Icon name='caret-down' type='font-awesome' style={{marginLeft: 5}} size={15} color='gray' />
-              </View>}
+              renderRightIcon={() => 
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center',}}>
+                  <Text style={[styles.tagButtonText]}>{starLabel}</Text>
+                  <Icon name='star' type='font-awesome' style={{marginLeft: 5}} 
+                  size={20} color='gold' />
+                  <Icon name='caret-down' type='font-awesome' style={{marginLeft: 5}} size={15} color='gray' />
+                </View>
+              }
               search={false}
               placeholder={''}
               renderItem={renderItem}
           />
+      
+        <MapTypeDropdown style={[styles.tagButtonNotPressed, {width: 110}]} 
+                         mapType={mapType} setMapType={setMapType} 
+                         mapLabel={mapLabel} 
+                         setMapLabel={setMapLabel}/>
  
       </View>
     );
@@ -485,7 +493,6 @@ const Mapview = ({ navigation, route }) => {
               style={{ width: '100%', height: 40, position: 'absolute', top: 108}}
             />
 
-            <MapTypeDropdown style={styles.mapTypeDropdown} mapType={mapType} setMapType={setMapType}/>
 
             <TouchableOpacity // Show list button
               onPress={() => bottomSheetRef.current.snapToIndex(0)}
@@ -612,7 +619,8 @@ const styles = StyleSheet.create({
     left: '1%',
     fontSize: 16,
     borderRadius: 100,
-    padding: 3
+    padding: 3,
+    elevation: 2
   },
   ratingFilterButton: {
     position: 'absolute',
