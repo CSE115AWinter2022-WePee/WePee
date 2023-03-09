@@ -415,7 +415,8 @@ const Mapview = ({ navigation, route }) => {
                               photoURL: route.params?.photoURL, 
                               isAnonymous: route.params?.isAnonymous, 
                               daysInApp: route.params?.daysInApp,
-                              region})}>
+                              region,
+                              mapType})}>
                 <Image // profile image
                     style={{width: 50, height: 50, borderRadius: 25, borderWidth: 2,}}
                     source={{ // source is user profile pic or the static google one
