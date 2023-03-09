@@ -8,6 +8,16 @@ const mapTypeData = [
     {label: "Satellite", value: "satellite"},
     {label: "Hybrid", value: 'hybrid'}
   ]
+
+// small function to render each item in dropdown list
+const renderItem = item => {
+  return (
+    <View style={{ marginTop: 5, marginBottom: 5, justifyContent: 'center', alignItems: 'center'}}>
+      <Text style={{color: 'black'}}>{item.label}</Text>
+    </View>
+  );
+};
+
 // Maptypes dropdown component
 // Takes as props the `style` for the dropdown's View container, the `mapType` state var, and the `setMapType` setter method
 export const MapTypeDropdown = ( {style, mapType, setMapType, mapLabel, setMapLabel} ) => {
@@ -30,11 +40,7 @@ export const MapTypeDropdown = ( {style, mapType, setMapType, mapLabel, setMapLa
       // labelField="label"
       // valueField="value"
       onChange={item => {setMapType(item.value); setMapLabel(item.label)}}
-      renderItem={item => 
-        <View style={{ flexDirection: 'row', width: 70, marginTop: 5, marginBottom: 5, justifyContent: 'center', alignItems: 'center',}}>
-          <Text style={{color: 'black'}}>{item.label}</Text>
-        </View>
-        }
+      renderItem={renderItem}
       renderRightIcon={() => 
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
           <Text style={{color: "black"}}>{mapLabel} map</Text>
