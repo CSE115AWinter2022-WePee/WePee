@@ -67,8 +67,8 @@ const Mapview = ({ navigation, route }) => {
   // set map default region state variable
   const [region, setRegion] = useState(null)
   // States to hold latitude and longitude zoom levels
-  const [longitudeDelta, setLongitudeDelta] = useState(null)
-  const [latitudeDelta, setLatitudeDelta] = useState(null)
+  const [latitudeDelta, setLatitudeDelta] = useState(0.0922)
+  const [longitudeDelta, setLongitudeDelta] = useState(0.0421)
 
   // states to hold when app data fully fetched on initial render
   const [located, setLocated] = useState(false)
@@ -146,12 +146,10 @@ const Mapview = ({ navigation, route }) => {
   // Msthod to fetch current user location
   // and cache the current user location
   const _getLocation = async () => {
-    getCurrentLocation()
+    getCurrentLocation(latitudeDelta, longitudeDelta)
       .then(({ coordinates, region }) => {
         setCoordinate(coordinates)
         setRegion(region)
-        setLongitudeDelta(region.longitudeDelta)
-        setLatitudeDelta(region.latitudeDelta)
         // cache location data
         AsyncStorage.setItem('coordinates', JSON.stringify(coordinates))
         AsyncStorage.setItem('region', JSON.stringify(region))
@@ -448,8 +446,17 @@ const Mapview = ({ navigation, route }) => {
               showsMyLocationButton={false}
               region={region}
               onPress={() => { bottomSheetRef.current.close() }}
-              onRegionChange={() => {}}
               zoomControlEnabled={false}
+              onRegionChangeComplete={newRegion => {
+                setLatitudeDelta(newRegion.latitudeDelta)
+                setLongitudeDelta(newRegion.longitudeDelta)
+                setRegion({
+                  ...region, 
+                  latitudeDelta: latitudeDelta,
+                  longitudeDelta: longitudeDelta
+                })
+                console.log("region:", region.latitudeDelta)
+              }}
             >
               {bathroomMarkers}
             </MapView>
