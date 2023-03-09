@@ -334,7 +334,60 @@ const BathroomDetailsScreen = ({route}) => {
                                 </Text>
                             </TouchableOpacity>
 
-                            <ShowDialog />
+                            
+                            <Dialog
+                              isVisible={showDialog}
+                              onBackdropPress={toggleDialog}
+                              >
+                              
+
+                              <View style={{alignItems:'center'}}>
+                                  <Dialog.Title title= {userRating ? "YOUR PREVIOUS REVIEW" : "LEAVE REVIEW"} />
+                                  <Text style={[styles.txt, { fontSize:20}] }>
+                                      {userRating ? "Edit Review" : "Leave review"}
+                                  </Text>
+
+                                  <AirbnbRating
+                                      showRating={true}
+                                      size={35}
+                                      count={5}
+                                      defaultRating={stars}
+                                      starContainerStyle={{alignSelf:'center'}}
+                                      ratingContainerStyle={{ marginBottom:10 }}
+                                      onFinishRating={val => setStars(val)}
+                                  />
+
+                                  <Input
+                                      value={desc}
+                                      placeholder='Review (optional)'
+                                      onChangeText={val => setDesc(val)}
+                                      multiline
+                                      verticalAlign='top'
+                                      containerStyle={{ height: 120 }}
+                                      inputContainerStyle={{
+                                      backgroundColor: 'lightgrey',
+                                      height: '100%',
+                                      paddingHorizontal: 10,
+                                      paddingVertical: 5,
+                                      borderBottomColor: 'lightgrey',
+                                      borderRadius: 5
+                                      }}
+                                  />
+                                  
+                              </View>
+
+                              <Dialog.Actions>
+                                  <Dialog.Button
+                                      title= {userRating ? "UPDATE" : "CONFIRM"}
+                                      onPress={updateRating}
+                                  />
+                                  <Dialog.Button title="CANCEL" onPress={toggleDialog} />
+                              </Dialog.Actions>
+                          </Dialog>
+
+
+
+
 
                             <Input
                                 value={desc}
