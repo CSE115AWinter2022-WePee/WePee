@@ -6,6 +6,7 @@ import auth from '@react-native-firebase/auth'
 import { Input, Icon, AirbnbRating, Dialog } from '@rneui/themed'
 import { tags } from '../modules/tags';
 import DeviceInfo from "react-native-device-info"
+import { MapTypeDropdown } from '../modules/MapTypeDropdown';
 
 import { 
     StyleSheet, 
@@ -37,13 +38,9 @@ const BathroomDetailsScreen = ({route}) => {
 
     const snapPoints = useMemo(() => ['30%', '60%', '85%'], []);
 
-    const [region, setRegion] = useState(route.params?.region || 
-    {
-        latitude: 37.78825,
-        longitude: -122.4324,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-    })
+    const [region, setRegion] = useState(route.params?.region)
+    // State to store current mapType
+    const [mapType, setMapType] = useState(route.params?.mapType)
     
     useEffect(() => {
         fetchBathroomData(route.params?.bathroomId)
@@ -84,7 +81,6 @@ const BathroomDetailsScreen = ({route}) => {
         }
        
     }
-
 
     const getUserRatingIfAny = async (bathroomId) => {
         try {
@@ -268,21 +264,22 @@ const BathroomDetailsScreen = ({route}) => {
                 <MapView
                     ref={mapViewRef}
                     style={{width:'100%', height:'100%'}}
-                    mapType="standard"
+                    mapType={mapType.toLowerCase()}
                     initialRegion={region}
                     showsUserLocation={true}
                     showsMyLocationButton={false}
                     region={region}
                     onRegionChange={() => {}}
                     onPress={() => {bottomSheetRef.current.close()}}>
-                        
                     <Marker
                         key={1}
                         coordinate={coordinate}
                         title= {bathroomData?.name}
                         description= {bathroomData?.description}/>
-
                 </MapView>
+
+                <MapTypeDropdown style={[styles.mapTypeDropdown, {width: 110}]} 
+                         mapType={mapType} setMapType={setMapType}/>
 
                 <TouchableOpacity // Animate to bathroom button
                     onPress={() => {mapViewRef.current.animateToRegion(region, 1000)}}
@@ -296,8 +293,6 @@ const BathroomDetailsScreen = ({route}) => {
                     <Icon name='list' type='material' size={30}  color='white' containerStyle={{marginRight: 3}}/>
                     <Text style={{fontSize: 14, fontWeight: 'bold', color: 'white'}}>View List</Text>
                 </TouchableOpacity>
-
-                
             </View>
 
             <BottomSheet
@@ -404,8 +399,6 @@ const BathroomDetailsScreen = ({route}) => {
 
                         </View>
 
-                       
-
                         <View style={{width: '100%'}}>
                              <Text style={[styles.txt, {fontWeight:'bold', fontSize:18, marginLeft:15, marginTop: 5}] }>
                                 Features
@@ -463,13 +456,28 @@ const styles = StyleSheet.create({
         position: 'absolute',
         alignItems:'center',
         justifyContent: 'center',
-        top: 15,
-        right: 15,
+        top: '1%',
+        right: '1%',
         height: 50,
         width: 50,
         opacity: .8,
         padding: 5,
         borderRadius: 100,
         backgroundColor: 'gray',
+    },
+    mapTypeDropdown: {
+        height: 36,
+        position: 'absolute',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 8,
+        top: '1%',
+        left: '1%',
+        borderRadius: 100,
+        backgroundColor: 'white',
+        marginLeft: 3,
+        marginRight: 3,
+        elevation: 2
     },
 })

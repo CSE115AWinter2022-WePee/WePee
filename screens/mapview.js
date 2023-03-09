@@ -9,7 +9,7 @@ import { genericFlatListSeparator } from '../modules/flatListSeparator'
 import firestore from '@react-native-firebase/firestore'
 import { tags } from '../modules/tags'
 import { Dropdown } from 'react-native-element-dropdown';
-
+import { MapTypeDropdown } from '../modules/MapTypeDropdown'
 import {
   SafeAreaView,
   StyleSheet,
@@ -38,6 +38,8 @@ const Mapview = ({ navigation, route }) => {
   const bottomSheetRef = useRef(null)
   // Ref to hold mapview element reference
   const mapViewRef = useRef(null)
+  // State to hold type of map selected
+  const [mapType, setMapType] = useState("Standard")
 
   // States to determine if tag is active or not
   const [cleanliness, setCleanliness] = useState(false)
@@ -57,14 +59,16 @@ const Mapview = ({ navigation, route }) => {
     {label:'3+', value:3},
     {label:'4+', value:4},
     {label:'5+', value:5},
-  ] 
-  
+  ]
 
   // bottom sheet snap points
   const snapPoints = useMemo(() => ['30%', '60%'], [])
 
   // set map default region state variable
   const [region, setRegion] = useState(null)
+  // States to hold latitude and longitude zoom levels
+  const [latitudeDelta, setLatitudeDelta] = useState(0.0922)
+  const [longitudeDelta, setLongitudeDelta] = useState(0.0421)
 
   // states to hold when app data fully fetched on initial render
   const [located, setLocated] = useState(false)
@@ -141,8 +145,8 @@ const Mapview = ({ navigation, route }) => {
 
   // Msthod to fetch current user location
   // and cache the current user location
-  const _getLocation = () => {
-    getCurrentLocation()
+  const _getLocation = async () => {
+    getCurrentLocation(latitudeDelta, longitudeDelta)
       .then(({ coordinates, region }) => {
         setCoordinate(coordinates)
         setRegion(region)
@@ -187,8 +191,8 @@ const Mapview = ({ navigation, route }) => {
   // Code for dropdown star-filter tag
   const starFilterTag = () => {
     return (
-      <View>
-      <Dropdown
+      <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "center"}}>
+        <Dropdown
               //setSelected={(val) => setSelectedStarCount(val)} 
               style={[styles.tagButtonNotPressed, {width: 70}]}
               containerStyle={{ width: 70 , borderRadius: 18, backgroundColor: 'white'}}
@@ -199,16 +203,21 @@ const Mapview = ({ navigation, route }) => {
                 setStarLabel(item.label);
                 setRating(item.value);
               }}
-              renderRightIcon={() => <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center',}}>
-                                        <Text style={[styles.tagButtonText]}>{starLabel}</Text>
-                                        <Icon name='star' type='font-awesome' style={{marginLeft: 5}} 
-                                        size={20} color='gold' />
-                                        <Icon name='caret-down' type='font-awesome' style={{marginLeft: 5}} size={15} color='gray' />
-                                      </View>}
+              renderRightIcon={() => 
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center',}}>
+                  <Text style={[styles.tagButtonText]}>{starLabel}</Text>
+                  <Icon name='star' type='font-awesome' style={{marginLeft: 5}} 
+                  size={20} color='gold' />
+                  <Icon name='caret-down' type='font-awesome' style={{marginLeft: 5}} size={15} color='gray' />
+                </View>
+              }
               search={false}
               placeholder={''}
               renderItem={renderItem}
           />
+      
+        <MapTypeDropdown style={[styles.tagButtonNotPressed, {width: 110}]} 
+                         mapType={mapType} setMapType={setMapType}/>
  
       </View>
     );
@@ -283,8 +292,10 @@ const Mapview = ({ navigation, route }) => {
 
   // Runs when goToUser button is pressed
   const goToUser = async () => {
+    console.log("goToUser start")
     await _getLocation() // update user location
     mapViewRef.current.animateToRegion(region, 1000)
+    console.log("goToUser done")
   }
 
   // Placehplder for handling stylesheet changes
@@ -327,7 +338,7 @@ const Mapview = ({ navigation, route }) => {
         padding: 10,
         marginVertical: 5
       }}
-      onPress={() => navigation.navigate('Details', { bathroomId: id, bathroomName: props.name, region: region, uid: route.params?.uid })}
+      onPress={() => navigation.navigate('Details', { bathroomId: id, bathroomName: props.name, region: region, uid: route.params?.uid, mapType})}
     >
       <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
         <Text style={[styles.txt, { fontSize: 16, fontWeight: 'bold' }]}>{props.name}</Text>
@@ -364,7 +375,7 @@ const Mapview = ({ navigation, route }) => {
   )
 
   // Render loading text while no user location available,
-  // otherwise render the default mapview with the current user location and all UI componenents
+  // otherwise render the default mapview with the current user location and all UI components
   if (!located || !loaded) {
     return (
       <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
@@ -405,10 +416,6 @@ const Mapview = ({ navigation, route }) => {
               marginRight: 10
             }}
             >
-              {/* <TouchableOpacity style={{width:40, height:40, borderRadius:20, justifyContent:'center'}} onPress={() => dougsTestFunc()}>
-                                <Icon name='sliders' type='font-awesome' size={25} color='darkgray' />
-                            </TouchableOpacity> */}
-             
               <SearchBar
                 placeholder='Looking for a bathroom?'
                 onChangeText={updateSearchFunc}
@@ -419,7 +426,7 @@ const Mapview = ({ navigation, route }) => {
                 value={searchTxt}
               />
 
-              <TouchableOpacity style={{ width: 40, height: 40, borderRadius: 20, justifyContent: 'center' }} onPress={() => navigation.navigate('Add', { region })}>
+              <TouchableOpacity style={{ width: 40, height: 40, borderRadius: 20, justifyContent: 'center' }} onPress={() => navigation.navigate('Add', { region, mapType, uid: route.params?.uid})}>
                 <Icon name='plus' type='font-awesome' size={20} color='#3C99DC' />
               </TouchableOpacity>
 
@@ -428,7 +435,9 @@ const Mapview = ({ navigation, route }) => {
                               displayName: route.params?.displayName,
                               photoURL: route.params?.photoURL, 
                               isAnonymous: route.params?.isAnonymous, 
-                              daysInApp: route.params?.daysInApp})}>
+                              daysInApp: route.params?.daysInApp,
+                              region,
+                              mapType})}>
                 <Image // profile image
                     style={{width: 30, height: 30, borderRadius: 15, borderWidth:0,}}
                     source={{ // source is user profile pic or the static google one
@@ -442,19 +451,25 @@ const Mapview = ({ navigation, route }) => {
             <MapView
               style={{ width: '100%', height: '100%' }}
               ref={mapViewRef}
-              mapType='standard'
+              mapType={mapType.toLowerCase()}
               initialRegion={region}
               showsUserLocation
               showsMyLocationButton={false}
               region={region}
               onPress={() => { bottomSheetRef.current.close() }}
-              onRegionChange={() => {}}
+              zoomControlEnabled={false}
+              // The following was to ensure that the zoom level p[ersists when navigating to other screens
+              // However, it introduces a lot of lag, so it's been omitted at the moment
+              // onRegionChangeComplete={newRegion => {
+              //   setLatitudeDelta(newRegion.latitudeDelta)
+              //   setLongitudeDelta(newRegion.longitudeDelta)
+              // }}
             >
               {bathroomMarkers}
             </MapView>
 
             <FlatList
-                            // Hprizontal tag filter list
+                            // Horizontal tag filter list
               ListHeaderComponent={starFilterTag}
               data={mTags}
               horizontal
@@ -463,6 +478,7 @@ const Mapview = ({ navigation, route }) => {
               keyExtractor={item => item.key}
               style={{ width: '100%', height: 40, position: 'absolute', top: 108}}
             />
+
 
             <TouchableOpacity // Show list button
               onPress={() => bottomSheetRef.current.snapToIndex(0)}
@@ -475,18 +491,17 @@ const Mapview = ({ navigation, route }) => {
 
             <TouchableOpacity
                             // Animate to user button
-              onPress={() => { goToUser() }}
+              onPress={goToUser}
               style={styles.userLocationButton}
             >
-              <Icon name='person-pin' type='material' size={30} color='lightblue' />
+              <Icon name='person-pin' type='material' size={40} color='lightblue' />
             </TouchableOpacity>
 
           </View>
 
         </View>
 
-        <BottomSheet
-                    // Bathrooms list
+        <BottomSheet // Bathrooms list
           ref={bottomSheetRef}
           index={0}
           snapPoints={snapPoints}
@@ -495,7 +510,11 @@ const Mapview = ({ navigation, route }) => {
         >
           <View style={{ flex: 1, alignItems: 'center', padding: 0 }}>
             <FlatList
-              data={bathrooms}
+              data={bathrooms.sort((a, b) => {
+                const nameA = a.data().name
+                const nameB = b.data().name
+                return nameA === nameB ? 0 : nameA < nameB ? -1 : 1
+              })}
               ItemSeparatorComponent={genericFlatListSeparator}
               renderItem={({ item, index }) => <Item props={item.data()} index={index} id={item.id} />}
               keyExtractor={item => item.id}
@@ -546,8 +565,6 @@ const styles = StyleSheet.create({
   },
   tagButtonText: {
     color: 'black'
-    // fontWeight: 'bold',
-    // lineHeight: 15,
   },
   showListButton: {
     position: 'absolute',
@@ -555,7 +572,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     bottom: 115,
-    right: 15,
+    right: '1%',
     height: 50,
     width: 130,
     opacity: 0.8,
@@ -568,14 +585,28 @@ const styles = StyleSheet.create({
     position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
-    top: 160,
-    right: 15,
-    height: 40,
-    width: 40,
+    top: 150,
+    right: '1%',
+    height: 50,
+    width: 50,
     opacity: 0.8,
     padding: 5,
     borderRadius: 100,
     backgroundColor: 'grey',
+    elevation: 2
+  },
+  // the following was used before but is now redundant
+  mapTypeDropdown: {
+    position: 'absolute',
+    backgroundColor: 'white',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    top: 150,
+    left: '1%',
+    fontSize: 16,
+    borderRadius: 100,
+    padding: 3,
     elevation: 2
   },
   ratingFilterButton: {

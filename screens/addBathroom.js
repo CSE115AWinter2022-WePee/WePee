@@ -4,7 +4,7 @@ import BottomSheet from '@gorhom/bottom-sheet'
 import MapView, { Marker } from 'react-native-maps'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Input, Icon, Switch } from '@rneui/themed'
-import firestore from '@react-native-firebase/firestore'
+import firestore, { firebase } from '@react-native-firebase/firestore'
 import { tags } from '../modules/tags'
 import { AirbnbRating } from 'react-native-ratings'
 import {
@@ -15,7 +15,8 @@ import {
   Alert,
   View
 } from 'react-native'
-
+import { Dropdown } from 'react-native-element-dropdown'
+import { MapTypeDropdown } from '../modules/MapTypeDropdown'
 import { ScrollView } from 'react-native-gesture-handler'
 
 // Currently not implemented: Set rating, delete/report bathroom, edit tags for bathroom
@@ -41,10 +42,12 @@ const AddBathroomScreen = ({ navigation, route }) => {
   const [pinnedCoordinate, setPinnedCoordinate] = useState({ latitude: null, longitude: null })
   const [coordinate, setCoordinate] = useState({ latitude: 37.78825, longitude: -122.4324 })
   const snapPoints = useMemo(() => ['30%', '60%', '85%'], [])
-
+  // State to store current map region
   const [region, setRegion] = useState(route.params?.region)
+  // State to store current map type
+  const [mapType, setMapType] = useState(route.params?.mapType)
 
-  // call getCurrentLocation, have it set location and region details
+  // call _getLocation, have it set location and region details from cache
   useEffect(() => {
     _getLocation()
   }, [])
@@ -78,7 +81,7 @@ const AddBathroomScreen = ({ navigation, route }) => {
   const addBathroom = async () => {
     try {
       if (!name || name.length <= 2) {
-        showAlert('Bathroon name', 'Please add a name')
+        showAlert('Bathroom name', 'Please add a name')
         return
       }
       const exists = await doesBathroomExist()
@@ -105,7 +108,16 @@ const AddBathroomScreen = ({ navigation, route }) => {
         rating: [0, 0, 0, 0, 0]
       }
       data.rating[stars - 1]++
+      const review_id = firestore().collection('reviews').doc().id
+      const review_data = {
+        bathroom_id: id,
+        bathroom_name: name,
+        id: review_id,
+        stars,
+        uid: route.params?.uid
+      }
       await firestore().collection('bathrooms').doc(id).set(data)
+      await firestore().collection('reviews').doc(id).set(review_data)
 
       showAlert('Success',
         'Bathroom added succesfully',
@@ -229,7 +241,7 @@ const AddBathroomScreen = ({ navigation, route }) => {
           <MapView
             ref={mapViewRef}
             style={{ width: '100%', height: '100%' }}
-            mapType='standard'
+            mapType={mapType.toLowerCase()}
             showsUserLocation
             showsMyLocationButton={false}
             initialRegion={region}
@@ -237,15 +249,15 @@ const AddBathroomScreen = ({ navigation, route }) => {
             onPress={() => { bottomSheetRef.current.close() }}
             onRegionChange={() => {}}
           >
-
             <Marker
               draggable
               key={1}
               coordinate={coordinate}
               onDragEnd={e => setPinnedCoordinate(e.nativeEvent.coordinate)}
             />
-
           </MapView>
+
+          <MapTypeDropdown style={styles.mapTypeDropdown} mapType={mapType} setMapType={setMapType}/>
 
           <TouchableOpacity // Show list button
             onPress={() => bottomSheetRef.current.snapToIndex(0)}
@@ -264,7 +276,7 @@ const AddBathroomScreen = ({ navigation, route }) => {
           </TouchableOpacity>
 
         </View>
-        <BottomSheet
+        <BottomSheet // Place to add bathroom details
           ref={bottomSheetRef}
           index={0}
           snapPoints={snapPoints}
@@ -361,13 +373,25 @@ const styles = StyleSheet.create({
     position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
-    top: 15,
-    right: 15,
+    top: '1%',
+    right: '1%',
     height: 50,
     width: 50,
     opacity: 0.8,
     padding: 5,
     borderRadius: 100,
     backgroundColor: 'gray'
+  },
+  mapTypeDropdown: {
+    position: 'absolute',
+    backgroundColor: 'white',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    top: '1%',
+    left: '1%',
+    fontSize: 16,
+    borderRadius: 100,
+    padding: 3
   }
 })
