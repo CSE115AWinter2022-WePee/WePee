@@ -38,7 +38,7 @@ export const MapTypeDropdown = ( {style, mapType, setMapType, mapLabel, setMapLa
       renderRightIcon={() => 
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
           <Text style={{color: "black"}}>{mapLabel} map</Text>
-          <Icon name="caret-down" type='font-awesome' style={{marginLeft: 1}} size={15} color='gray'/>
+          <Icon name="caret-down" type='font-awesome' style={{marginLeft: 3}} size={15} color='gray'/>
         </View>
         }
       />);
