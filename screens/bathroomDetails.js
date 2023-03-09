@@ -91,8 +91,9 @@ const BathroomDetailsScreen = ({route}) => {
                                 .where("bathroom_id", "==", bathroomId)
                                 .get()
             if (!snap.empty && snap.docs.length > 0) {
-                setUserRating({id: snap.docs[0].id, stars: snap.docs[0].data().stars})
+                setUserRating({id: snap.docs[0].id, stars: snap.docs[0].data().stars, description: snap.docs[0].data.description})
                 setStars(snap.docs[0].data().stars)
+                setDesc(snap.docs[0].data().description)
             }
         } catch (error) {
             console.log(error)
@@ -116,9 +117,13 @@ const BathroomDetailsScreen = ({route}) => {
 
         // update user previous rating if any
         // else save new rating into reviews collection
-        if (userRating && userRating.stars != stars) {
+        if (userRating && userRating.stars != stars) { // if user rating exists and they've changed stars
             bathroomData["rating"][userRating.stars - 1]--
             await firestore().collection('reviews').doc(userRating.id).update({stars: stars})
+        }
+        else if (userRating && userRating.desc != desc) { // if user rating exists and they've changed description
+            
+            await firestore().collection('reviews').doc(userRating.id).update({description: desc})
         }
         else {
             let id = firestore().collection('reviews').doc().id
@@ -128,9 +133,10 @@ const BathroomDetailsScreen = ({route}) => {
                 bathroom_id: route.params?.bathroomId,
                 bathroom_name: route.params?.bathroomName, // now saves bathroom name, more efficient for profile page
                 stars: stars,
+                description: desc,
                 id: id
             })
-            setUserRating({id: id, stars: stars})  
+            setUserRating({id: id, stars: stars, description: desc})  
         }
 
         bathroomData["rating"][stars - 1]++
@@ -160,33 +166,26 @@ const BathroomDetailsScreen = ({route}) => {
             const dbName = tag.db_name
             if (!bathroomData[dbName]) return undefined
             return (
-                <View style={{width:'100%',justifyContent:'center'}} key={tag.key}>
-                    <View style={{width:'100%',flexDirection:'row', justifyContent:'space-between', 
-                            alignItems:'center', padding:10}}>
-                        <View style={{flexDirection:'row', alignItems:'center'}}>
-                            <Icon 
-                                name={tag.icon} 
-                                type={ tag.iconType || "font-awesome-5" }
-                                color='white' 
-                                size={25} 
-                                containerStyle={{width:40, height:40, backgroundColor:tag.iconColor,
-                                    borderRadius:5, padding:5, justifyContent:'center'}} />
-                            <Text style={{fontSize:15, marginHorizontal:10, color:'black', fontWeight:'bold'}}>{tag.name}</Text>
-                        </View>
-                       
-                    
+                <View key={tag.key} style={{borderRadius:20, elevation: 5, backgroundColor: 'white', flexDirection:'row', justifyContent:'space-between', 
+                        alignItems:'center', padding:8, marginLeft: 5, marginTop: 5}}>
+                    <View style={{flexDirection:'row', alignItems:'center'}}>
+                        <Icon 
+                            name={tag.icon} 
+                            type={ tag.iconType || "font-awesome-5" }
+                            color='white' 
+                            size={20} 
+                            containerStyle={{width:32, height:32, backgroundColor:tag.iconColor,
+                                borderRadius:5, padding:5, justifyContent:'center'}} />
+                        <Text style={{fontSize:15, marginHorizontal:10, color:'black', fontWeight:'bold'}}>{tag.name}</Text>
                     </View>
-                    { index == tags.length - 1 
-                        || <View style={{width:'100%', height:0.5, backgroundColor:'gray', marginLeft:10}}/>}
                     
-                </View> 
+                
+                </View>
         )})
         setTagsSection(data)
     }
 
     const toggleDialog = () => setShowDialog(!showDialog)
-
-    console.log(desc)
 
     // callbacks
     const handleSheetChanges = useCallback( index => {
@@ -289,12 +288,12 @@ const BathroomDetailsScreen = ({route}) => {
                 index={0}
                 snapPoints={snapPoints}
                 onChange={handleSheetChanges}
-                style={{marginBottom:0}}
+                style={{marginBottom:0, backgroundColor: '#FAFAFA', color: "#FAFAFA"}}
                 enablePanDownToClose={true}
             >   
                 <ScrollView>
-                    <View style={{flex:1, alignItems:'center', backgroundColor:'lightgrey'}}>
-                        <View style={{width:"100%", alignItems:'center', backgroundColor:'white', padding:15}}>
+                    <View style={{flex:1, alignItems:'center', backgroundColor: '#FAFAFA'}}>
+                        <View style={{width:"100%", alignItems:'center', padding:15}}>
                             <Text style={[styles.txt, {fontWeight:'bold', fontSize:23}] }>
                                 {bathroomData?.name}
                             </Text>
@@ -329,8 +328,8 @@ const BathroomDetailsScreen = ({route}) => {
                             
 
                             <TouchableOpacity style={[styles.leaveReview]} onPress={toggleDialog}>
-                                <Text style={[styles.txt, {fontWeight:'bold', fontSize:15}]}>
-                                    { userRating ? "View/Edit review" : "Leave a review"}
+                                <Text style={[styles.txt, {fontWeight:'bold', fontSize:15, color: "#3C99DC"}]}>
+                                    { userRating ? "View/Edit Review" : "Leave a Review"}
                                 </Text>
                             </TouchableOpacity>
 
@@ -359,8 +358,9 @@ const BathroomDetailsScreen = ({route}) => {
 
                                   <Input
                                       value={desc}
-                                      placeholder='Review (optional)'
+                                      placeholder='Your review...'
                                       onChangeText={val => setDesc(val)}
+                                      defaultValue={desc}
                                       multiline
                                       verticalAlign='top'
                                       containerStyle={{ height: 120 }}
@@ -385,36 +385,15 @@ const BathroomDetailsScreen = ({route}) => {
                               </Dialog.Actions>
                           </Dialog>
 
-
-
-
-
-                            <Input
-                                value={desc}
-                                placeholder='Review (optional)'
-                                onChangeText={val => setDesc(val)}
-                                multiline
-                                verticalAlign='top'
-                                containerStyle={{ height: 120 }}
-                                inputContainerStyle={{
-                                backgroundColor: 'lightgrey',
-                                height: '100%',
-                                paddingHorizontal: 10,
-                                paddingVertical: 5,
-                                borderBottomColor: 'lightgrey',
-                                borderRadius: 5
-                                }}
-                            />
-
                         </View>
 
                        
 
                         <View style={{width: '100%'}}>
-                             <Text style={[styles.txt, {fontWeight:'bold', fontSize:18, marginTop:30, marginLeft:15}] }>
+                             <Text style={[styles.txt, {fontWeight:'bold', fontSize:18, marginLeft:15, marginTop: 5}] }>
                                 Features
                             </Text>
-                            <View style={{ alignItems:'center', backgroundColor:'white', marginTop:15, padding:10}}>
+                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems:'center', marginTop:10, marginLeft: 15}}>
                                 { tagsSection }
                             </View>
                         </View>
@@ -455,14 +434,13 @@ const styles = StyleSheet.create({
         marginLeft: 20,
         marginRight: 20,
         borderRadius: 100,
-        marginBottom: 50,
         padding: 5,
         marginTop: 20,
-        backgroundColor: 'lightgray',
+        backgroundColor: 'white',
         flexDirection: 'row',
         alignItems: "center",
         justifyContent: "space-evenly",
-        elevation: 2,
+        elevation: 5,
     },
     bathroomLocationButton: {
         position: 'absolute',
