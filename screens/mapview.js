@@ -17,7 +17,8 @@ import {
   View,
   TouchableOpacity,
   Image,
-  ImageBackground
+  ImageBackground,
+  Alert
 } from 'react-native'
 
 import {
@@ -150,7 +151,9 @@ const Mapview = ({ navigation, route }) => {
         AsyncStorage.setItem('region', JSON.stringify(region))
         setLocated(true)
       })
-      .catch(message => console.log(message))
+      .catch(message => {
+        Alert.alert("Location Permission Denied", "WePee requires location permission to work. \nPlease enable it in the settings and refresh the app.")
+      })
   }
 
   // Runs when a tag is pressed
