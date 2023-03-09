@@ -18,7 +18,7 @@ import {
   FlatList
 } from 'react-native-gesture-handler'
 
-const ProfileScreen = ({ route, navigation }) => {
+const ProfileScreen = ({navigation, route }) => {
   const [userReviews, setUserReviews] = useState()
   const [averageUserReview, setAverageUserReview] = useState()
   const [noReviews, setNoReviews] = useState()
@@ -60,15 +60,16 @@ const ProfileScreen = ({ route, navigation }) => {
     }
   }
 
+  // cleans firebase reviews (metadata is removed)
   const cleanupAndSetFirebaseUserReviews = async (junkyArray) => {
     const cleanedData = await Promise.all(junkyArray.map(async (review) => {
-      const { bathroom_name, bathroom_id, id, stars } = review._data;
+      const { bathroom_name, bathroom_id, id, stars, description} = review._data;
       let name = bathroom_name;
       if (!name) { // if bathroom name is undefined
         name = await getBathroomNameFromId(bathroom_id);
         await updateBathroomNameInReview(id, name);  // updates the bathroom's name in a review, if it isnt there
       }
-      return { name, id, bathroom_id, stars };
+      return { name, id, bathroom_id, stars, description};
     }));
     setUserReviews(cleanedData);
     //console.log(cleanedData)
@@ -195,21 +196,43 @@ const ProfileScreen = ({ route, navigation }) => {
   }
 
 
-  const Item = ({item, index}) => (
-    <View style={[styles.userReview, {backgroundColor: index % 2 === 0 ? 'white' : null}]}>
-      <View>
-        <Text style={[styles.txt, { fontSize: 18, fontWeight: 'bold' }]}>{item.name}</Text>
-        <Text style={[styles.txt, {marginLeft: 15}]}>Your rating: </Text>
-      </View>
-      <AirbnbRating 
-        isDisabled={true} 
-        showRating={false}
-        size={25}
-        count={5}
-        defaultRating={item.stars} 
-        ratingContainerStyle={{ marginTop:0, marginLeft: 'auto'}}/>
-    </View>
-  )
+  const Item = ({item}) => {
+    switch (item.id) {
+      case "profilePic":
+        return <ProfilePic />;
+      case "displayName":
+        return <DisplayName />;
+      case "logoutButton":
+        return <LogoutButton />;
+      case "spacer":
+        return <Spacer />;
+      case "reviewStats":
+        return <ReviewStats />;
+      default: // default is a user review
+        return (
+          <TouchableOpacity 
+            style={[styles.userReview]}
+            onPress={() => navigation.navigate('Details', { bathroomId: item.bathroom_id, bathroomName: item.name, uid: route.params?.uid })}
+          >
+            <View style={{flexDirection: 'row'}}>
+              <Text style={[styles.txt, { fontSize: 19, fontWeight: 'bold' }]}>{item.name}</Text>
+              <AirbnbRating 
+                isDisabled={true} 
+                showRating={false}
+                size={25}
+                count={5}
+                defaultRating={item.stars} 
+                ratingContainerStyle={{ marginTop:0, marginLeft: 'auto'}}/>
+            </View>
+            
+            <View>
+              <Text style={[styles.txt, {fontWeight: 'bold'}]}>Description: </Text>
+              <Text style={[styles.txt,]}>{item.description}</Text>
+            </View>
+          </TouchableOpacity>
+        );
+    }
+  }
 
   // Loading screen
   if(!averageUserReview && !route.params?.isAnonymous && !noReviews){
@@ -301,8 +324,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#3C99DC'
   },
   userReview: {
-    width: '100%',
-    flexDirection: 'row',
+    width: '95%',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    borderRadius: 5,
+    backgroundColor: 'white',
+    //flexDirection: 'row',
     padding: 10,
     marginVertical: 3,
     elevation: 1,

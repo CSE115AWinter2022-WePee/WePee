@@ -22,6 +22,7 @@ const BathroomDetailsScreen = ({route}) => {
     // refs
     const bottomSheetRef = useRef(null);
     const mapViewRef = useRef(null);
+    const [desc, setDesc] = useState()
 
     const [bathroomData, setBathroomData] = useState()
     const [coordinate, setCoordinate] = useState({latitude: 37.78825, longitude: -122.4324})
@@ -93,8 +94,9 @@ const BathroomDetailsScreen = ({route}) => {
                                 .where("bathroom_id", "==", bathroomId)
                                 .get()
             if (!snap.empty && snap.docs.length > 0) {
-                setUserRating({id: snap.docs[0].id, stars: snap.docs[0].data().stars})
+                setUserRating({id: snap.docs[0].id, stars: snap.docs[0].data().stars, description: snap.docs[0].data.description})
                 setStars(snap.docs[0].data().stars)
+                setDesc(snap.docs[0].data().description)
             }
         } catch (error) {
             console.log(error)
@@ -111,16 +113,16 @@ const BathroomDetailsScreen = ({route}) => {
             totalSum += (i + 1) * data["rating"][i];
             numRatings += data["rating"][i];
         }
-        return [(totalSum > 0 ? Number((totalSum/numRatings).toFixed(2)) : 0), numRatings];
+        return [(totalSum > 0 ? Number((totalSum/numRatings).toFixed(1)) : 0), numRatings];
     }
 
     const updateRating = async () => {
 
         // update user previous rating if any
         // else save new rating into reviews collection
-        if (userRating && userRating.stars != stars) {
+        if (userRating && (userRating.stars != stars || userRating.desc != desc)) { // if user rating exists and they've changed stars/desc
             bathroomData["rating"][userRating.stars - 1]--
-            await firestore().collection('reviews').doc(userRating.id).update({stars: stars})
+            await firestore().collection('reviews').doc(userRating.id).update({stars: stars, description: desc})
         }
         else {
             let id = firestore().collection('reviews').doc().id
@@ -130,9 +132,10 @@ const BathroomDetailsScreen = ({route}) => {
                 bathroom_id: route.params?.bathroomId,
                 bathroom_name: route.params?.bathroomName, // now saves bathroom name, more efficient for profile page
                 stars: stars,
+                description: desc,
                 id: id
             })
-            setUserRating({id: id, stars: stars})  
+            setUserRating({id: id, stars: stars, description: desc})  
         }
 
         bathroomData["rating"][stars - 1]++
@@ -180,26 +183,21 @@ const BathroomDetailsScreen = ({route}) => {
             const dbName = tag.db_name
             if (!bathroomData[dbName]) return undefined
             return (
-                <View style={{width:'100%',justifyContent:'center'}} key={tag.key}>
-                    <View style={{width:'100%',flexDirection:'row', justifyContent:'space-between', 
-                            alignItems:'center', padding:10}}>
-                        <View style={{flexDirection:'row', alignItems:'center'}}>
-                            <Icon 
-                                name={tag.icon} 
-                                type={ tag.iconType || "font-awesome-5" }
-                                color='white' 
-                                size={25} 
-                                containerStyle={{width:40, height:40, backgroundColor:tag.iconColor,
-                                    borderRadius:5, padding:5, justifyContent:'center'}} />
-                            <Text style={{fontSize:15, marginHorizontal:10, color:'black', fontWeight:'bold'}}>{tag.name}</Text>
-                        </View>
-                       
-                    
+                <View key={tag.key} style={{borderRadius:20, elevation: 5, backgroundColor: 'white', flexDirection:'row', justifyContent:'space-between', 
+                        alignItems:'center', padding:8, marginLeft: 5, marginTop: 5}}>
+                    <View style={{flexDirection:'row', alignItems:'center'}}>
+                        <Icon 
+                            name={tag.icon} 
+                            type={ tag.iconType || "font-awesome-5" }
+                            color='white' 
+                            size={20} 
+                            containerStyle={{width:32, height:32, backgroundColor:tag.iconColor,
+                                borderRadius:5, padding:5, justifyContent:'center'}} />
+                        <Text style={{fontSize:15, marginHorizontal:10, color:'black', fontWeight:'bold'}}>{tag.name}</Text>
                     </View>
-                    { index == tags.length - 1 
-                        || <View style={{width:'100%', height:0.5, backgroundColor:'gray', marginLeft:10}}/>}
                     
-                </View> 
+                
+                </View>
         )})
         setTagsSection(data)
     }
@@ -214,11 +212,15 @@ const BathroomDetailsScreen = ({route}) => {
     const ShowDialog = () => (
         <Dialog
             isVisible={showDialog}
-            onBackdropPress={toggleDialog}>
+            onBackdropPress={toggleDialog}
+            >
             
 
             <View style={{alignItems:'center'}}>
                 <Dialog.Title title= {userRating ? "YOUR PREVIOUS REVIEW" : "LEAVE REVIEW"} />
+                <Text style={[styles.txt, { fontSize:20}] }>
+                    {userRating ? "Edit Review" : "Leave review"}
+                </Text>
 
                 <AirbnbRating
                     showRating={true}
@@ -228,6 +230,23 @@ const BathroomDetailsScreen = ({route}) => {
                     starContainerStyle={{alignSelf:'center'}}
                     ratingContainerStyle={{ marginBottom:10 }}
                     onFinishRating={val => setStars(val)}
+                />
+
+                <Input
+                    value={desc}
+                    placeholder={desc}
+                    onChangeText={val => setDesc(val)}
+                    multiline
+                    verticalAlign='top'
+                    containerStyle={{ height: 120 }}
+                    inputContainerStyle={{
+                    backgroundColor: 'lightgrey',
+                    height: '100%',
+                    paddingHorizontal: 10,
+                    paddingVertical: 5,
+                    borderBottomColor: 'lightgrey',
+                    borderRadius: 5
+                    }}
                 />
                 
             </View>
@@ -286,51 +305,112 @@ const BathroomDetailsScreen = ({route}) => {
                 index={0}
                 snapPoints={snapPoints}
                 onChange={handleSheetChanges}
-                style={{marginBottom:0}}
+                style={{marginBottom:0, backgroundColor: '#FAFAFA', color: "#FAFAFA"}}
                 enablePanDownToClose={true}
             >   
                 <ScrollView>
-                    <View style={{flex:1, alignItems:'center', backgroundColor:'lightgrey'}}>
-                        <View style={{width:"100%", alignItems:'center', backgroundColor:'white', padding:15}}>
-                            <Text style={[styles.txt, {fontWeight:'bold', fontSize:20}] }>
+                    <View style={{flex:1, alignItems:'center', backgroundColor: '#FAFAFA'}}>
+                        <View style={{width:"100%", alignItems:'center', padding:15}}>
+                            <Text style={[styles.txt, {fontWeight:'bold', fontSize:23}] }>
                                 {bathroomData?.name}
                             </Text>
-                            <Text style={[styles.txt, {marginVertical:15}] }>
-                                {bathroomData?.description}
-                            </Text>
-                            <View style={{flexDirection:'row', alignItems:'center'}}>
+                            
+                            <View style={{flexDirection:'row', alignItems:'center', marginTop: 5}}>
+                                <Text style={[styles.txt] }>
+                                    {getRating(bathroomData)[0]}
+                                </Text>
 
                                 <AirbnbRating 
                                         isDisabled={true} 
                                         showRating={false}
-                                        size={25}
+                                        size={20}
                                         count={5}
                                         defaultRating={getRating(bathroomData)[0]} 
                                         ratingContainerStyle={{ marginTop:0 }}/>
 
-                                <Text style={[styles.txt, {marginVertical:15}] }>
-                                    {getRating(bathroomData)[0]} ({getRating(bathroomData)[1]})
+                                <Text style={[styles.txt] }>
+                                    ({getRating(bathroomData)[1]} reviews)
                                 </Text>
-
                             </View>
 
-                            <TouchableOpacity style={{alignContent:'center', marginTop:10}} onPress={toggleDialog}>
-                                <Text style={[styles.txt, {fontWeight:'bold', textDecorationLine:'underline', fontSize:18}]}>
-                                    { userRating ? "View/Edit review" : "Leave a review"}
+                            <View style={{flexDirection: 'column', marginTop: 12, marginRight: 'auto', marginLeft: 'auto'}}>
+                                <Text style={{ fontSize: 10, color: 'black'}}>
+                                        Description:
+                                </Text>
+                                <Text style={[styles.txt] }>
+                                    {bathroomData?.description || "No description :("}
+                                </Text>
+                            </View>
+                            
+                            
+
+                            <TouchableOpacity style={[styles.leaveReview]} onPress={toggleDialog}>
+                                <Text style={[styles.txt, {fontWeight:'bold', fontSize:15, color: "#3C99DC"}]}>
+                                    { userRating ? "View/Edit Review" : "Leave a Review"}
                                 </Text>
                             </TouchableOpacity>
 
-                            <ShowDialog />
+                            
+                            <Dialog
+                              isVisible={showDialog}
+                              onBackdropPress={toggleDialog}
+                              >
+                              
+
+                              <View style={{alignItems:'center'}}>
+                                  <Dialog.Title title= {userRating ? "YOUR PREVIOUS REVIEW" : "LEAVE REVIEW"} />
+                                  <Text style={[styles.txt, { fontSize:20}] }>
+                                      {userRating ? "Edit Review" : "Leave review"}
+                                  </Text>
+
+                                  <AirbnbRating
+                                      showRating={true}
+                                      size={35}
+                                      count={5}
+                                      defaultRating={stars}
+                                      starContainerStyle={{alignSelf:'center'}}
+                                      ratingContainerStyle={{ marginBottom:10 }}
+                                      onFinishRating={val => setStars(val)}
+                                  />
+
+                                  <Input
+                                      value={desc}
+                                      placeholder='Your review...'
+                                      onChangeText={val => setDesc(val)}
+                                      defaultValue={desc}
+                                      multiline
+                                      verticalAlign='top'
+                                      containerStyle={{ height: 120 }}
+                                      inputContainerStyle={{
+                                      backgroundColor: 'lightgrey',
+                                      height: '100%',
+                                      paddingHorizontal: 10,
+                                      paddingVertical: 5,
+                                      borderBottomColor: 'lightgrey',
+                                      borderRadius: 5
+                                      }}
+                                  />
+                                  
+                              </View>
+
+                              <Dialog.Actions>
+                                  <Dialog.Button
+                                      title= {userRating ? "UPDATE" : "CONFIRM"}
+                                      onPress={updateRating}
+                                  />
+                                  <Dialog.Button title="CANCEL" onPress={toggleDialog} />
+                              </Dialog.Actions>
+                          </Dialog>
 
                         </View>
 
                        
 
                         <View style={{width: '100%'}}>
-                             <Text style={[styles.txt, {fontWeight:'bold', fontSize:18, marginTop:30, marginLeft:15}] }>
+                             <Text style={[styles.txt, {fontWeight:'bold', fontSize:18, marginLeft:15, marginTop: 5}] }>
                                 Features
                             </Text>
-                            <View style={{ alignItems:'center', backgroundColor:'white', marginTop:15, padding:10}}>
+                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems:'center', marginTop:10, marginLeft: 15}}>
                                 { tagsSection }
                             </View>
                         </View>
@@ -365,6 +445,19 @@ const styles = StyleSheet.create({
         padding: 5,
         borderRadius: 100,
         backgroundColor: '#3C99DC',
+    },
+    leaveReview: {
+        height: 35,
+        marginLeft: 20,
+        marginRight: 20,
+        borderRadius: 100,
+        padding: 5,
+        marginTop: 20,
+        backgroundColor: 'white',
+        flexDirection: 'row',
+        alignItems: "center",
+        justifyContent: "space-evenly",
+        elevation: 5,
     },
     bathroomLocationButton: {
         position: 'absolute',

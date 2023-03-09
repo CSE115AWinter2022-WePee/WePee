@@ -258,6 +258,7 @@ const Mapview = ({ navigation, route }) => {
     setBathrooms(newBathrooms)
   }
 
+  // Calculates rating given a 5 element list (this is how ratings are stored in database)
   function calcRating (list) {
     if (list.length != 5) return 0
     let number = 0
