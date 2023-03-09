@@ -36,9 +36,8 @@ export const MapTypeDropdown = ( {style, mapType, setMapType, mapLabel, setMapLa
       placeholderStyle={{color: 'black', fontSize: 16}}
       placeholder={""}
       data={mapTypeData}
-      // The following lines are commented out because they cause display issues in tags.
-      // labelField="label"
-      // valueField="value"
+      labelField="label"
+      valueField="value"
       onChange={item => {setMapType(item.value); setMapLabel(item.label)}}
       renderItem={renderItem}
       renderRightIcon={() => 
