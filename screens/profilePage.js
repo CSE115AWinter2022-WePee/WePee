@@ -18,7 +18,7 @@ import {
   FlatList
 } from 'react-native-gesture-handler'
 
-const ProfileScreen = ({ route }) => {
+const ProfileScreen = ({navigation, route }) => {
   const [userReviews, setUserReviews] = useState()
   const [averageUserReview, setAverageUserReview] = useState()
   const [noReviews, setNoReviews] = useState()
@@ -60,6 +60,7 @@ const ProfileScreen = ({ route }) => {
     }
   }
 
+  // cleans firebase reviews (metadata is removed)
   const cleanupAndSetFirebaseUserReviews = async (junkyArray) => {
     const cleanedData = await Promise.all(junkyArray.map(async (review) => {
       const { bathroom_name, bathroom_id, id, stars, description} = review._data;
@@ -204,7 +205,10 @@ const ProfileScreen = ({ route }) => {
         return <ReviewStats />;
       default: // default is a user review
         return (
-          <View style={[styles.userReview]}>
+          <TouchableOpacity 
+            style={[styles.userReview]}
+            onPress={() => navigation.navigate('Details', { bathroomId: item.bathroom_id, bathroomName: item.name, uid: route.params?.uid })}
+          >
             <View style={{flexDirection: 'row'}}>
               <Text style={[styles.txt, { fontSize: 19, fontWeight: 'bold' }]}>{item.name}</Text>
               <AirbnbRating 
@@ -220,7 +224,7 @@ const ProfileScreen = ({ route }) => {
               <Text style={[styles.txt, {fontWeight: 'bold'}]}>Description: </Text>
               <Text style={[styles.txt,]}>{item.description}</Text>
             </View>
-          </View>
+          </TouchableOpacity>
         );
     }
   }
