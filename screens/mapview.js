@@ -66,6 +66,9 @@ const Mapview = ({ navigation, route }) => {
 
   // set map default region state variable
   const [region, setRegion] = useState(null)
+  // States to hold latitude and longitude zoom levels
+  const [longitudeDelta, setLongitudeDelta] = useState(null)
+  const [latitudeDelta, setLatitudeDelta] = useState(null)
 
   // states to hold when app data fully fetched on initial render
   const [located, setLocated] = useState(false)
@@ -147,6 +150,8 @@ const Mapview = ({ navigation, route }) => {
       .then(({ coordinates, region }) => {
         setCoordinate(coordinates)
         setRegion(region)
+        setLongitudeDelta(region.longitudeDelta)
+        setLatitudeDelta(region.latitudeDelta)
         // cache location data
         AsyncStorage.setItem('coordinates', JSON.stringify(coordinates))
         AsyncStorage.setItem('region', JSON.stringify(region))
@@ -428,7 +433,7 @@ const Mapview = ({ navigation, route }) => {
                 value={searchTxt}
               />
 
-              <TouchableOpacity style={{ width: 40, height: 40, borderRadius: 20, justifyContent: 'center' }} onPress={() => navigation.navigate('Add', { region, mapType})}>
+              <TouchableOpacity style={{ width: 40, height: 40, borderRadius: 20, justifyContent: 'center' }} onPress={() => navigation.navigate('Add', { region, mapType, uid: route.params?.uid})}>
                 <Icon name='plus' type='font-awesome' size={20} color='#3C99DC' />
               </TouchableOpacity>
 

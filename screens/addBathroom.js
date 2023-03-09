@@ -4,7 +4,7 @@ import BottomSheet from '@gorhom/bottom-sheet'
 import MapView, { Marker } from 'react-native-maps'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Input, Icon, Switch } from '@rneui/themed'
-import firestore from '@react-native-firebase/firestore'
+import firestore, { firebase } from '@react-native-firebase/firestore'
 import { tags } from '../modules/tags'
 import { AirbnbRating } from 'react-native-ratings'
 import {
@@ -81,7 +81,7 @@ const AddBathroomScreen = ({ navigation, route }) => {
   const addBathroom = async () => {
     try {
       if (!name || name.length <= 2) {
-        showAlert('Bathroon name', 'Please add a name')
+        showAlert('Bathroom name', 'Please add a name')
         return
       }
       const exists = await doesBathroomExist()
@@ -108,7 +108,16 @@ const AddBathroomScreen = ({ navigation, route }) => {
         rating: [0, 0, 0, 0, 0]
       }
       data.rating[stars - 1]++
+      const review_id = firestore().collection('reviews').doc().id
+      const review_data = {
+        bathroom_id: id,
+        bathroom_name: name,
+        id: review_id,
+        stars,
+        uid: route.params?.uid
+      }
       await firestore().collection('bathrooms').doc(id).set(data)
+      await firestore().collection('reviews').doc(id).set(review_data)
 
       showAlert('Success',
         'Bathroom added succesfully',
