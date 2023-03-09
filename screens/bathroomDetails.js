@@ -22,6 +22,7 @@ const BathroomDetailsScreen = ({route}) => {
     // refs
     const bottomSheetRef = useRef(null);
     const mapViewRef = useRef(null);
+    const [desc, setDesc] = useState()
 
     const [bathroomData, setBathroomData] = useState()
     const [coordinate, setCoordinate] = useState({latitude: 37.78825, longitude: -122.4324})
@@ -108,7 +109,7 @@ const BathroomDetailsScreen = ({route}) => {
             totalSum += (i + 1) * data["rating"][i];
             numRatings += data["rating"][i];
         }
-        return [(totalSum > 0 ? Number((totalSum/numRatings).toFixed(2)) : 0), numRatings];
+        return [(totalSum > 0 ? Number((totalSum/numRatings).toFixed(1)) : 0), numRatings];
     }
 
     const updateRating = async () => {
@@ -185,6 +186,8 @@ const BathroomDetailsScreen = ({route}) => {
 
     const toggleDialog = () => setShowDialog(!showDialog)
 
+    console.log(desc)
+
     // callbacks
     const handleSheetChanges = useCallback( index => {
         // console.log('handleSheetChanges', index);
@@ -193,11 +196,15 @@ const BathroomDetailsScreen = ({route}) => {
     const ShowDialog = () => (
         <Dialog
             isVisible={showDialog}
-            onBackdropPress={toggleDialog}>
+            onBackdropPress={toggleDialog}
+            >
             
 
             <View style={{alignItems:'center'}}>
                 <Dialog.Title title= {userRating ? "YOUR PREVIOUS REVIEW" : "LEAVE REVIEW"} />
+                <Text style={[styles.txt, { fontSize:20}] }>
+                    {userRating ? "Edit Review" : "Leave review"}
+                </Text>
 
                 <AirbnbRating
                     showRating={true}
@@ -207,6 +214,23 @@ const BathroomDetailsScreen = ({route}) => {
                     starContainerStyle={{alignSelf:'center'}}
                     ratingContainerStyle={{ marginBottom:10 }}
                     onFinishRating={val => setStars(val)}
+                />
+
+                <Input
+                    value={desc}
+                    placeholder='Review (optional)'
+                    onChangeText={val => setDesc(val)}
+                    multiline
+                    verticalAlign='top'
+                    containerStyle={{ height: 120 }}
+                    inputContainerStyle={{
+                    backgroundColor: 'lightgrey',
+                    height: '100%',
+                    paddingHorizontal: 10,
+                    paddingVertical: 5,
+                    borderBottomColor: 'lightgrey',
+                    borderRadius: 5
+                    }}
                 />
                 
             </View>
@@ -271,35 +295,63 @@ const BathroomDetailsScreen = ({route}) => {
                 <ScrollView>
                     <View style={{flex:1, alignItems:'center', backgroundColor:'lightgrey'}}>
                         <View style={{width:"100%", alignItems:'center', backgroundColor:'white', padding:15}}>
-                            <Text style={[styles.txt, {fontWeight:'bold', fontSize:20}] }>
+                            <Text style={[styles.txt, {fontWeight:'bold', fontSize:23}] }>
                                 {bathroomData?.name}
                             </Text>
-                            <Text style={[styles.txt, {marginVertical:15}] }>
-                                {bathroomData?.description}
-                            </Text>
-                            <View style={{flexDirection:'row', alignItems:'center'}}>
+                            
+                            <View style={{flexDirection:'row', alignItems:'center', marginTop: 5}}>
+                                <Text style={[styles.txt] }>
+                                    {getRating(bathroomData)[0]}
+                                </Text>
 
                                 <AirbnbRating 
                                         isDisabled={true} 
                                         showRating={false}
-                                        size={25}
+                                        size={20}
                                         count={5}
                                         defaultRating={getRating(bathroomData)[0]} 
                                         ratingContainerStyle={{ marginTop:0 }}/>
 
-                                <Text style={[styles.txt, {marginVertical:15}] }>
-                                    {getRating(bathroomData)[0]} ({getRating(bathroomData)[1]})
+                                <Text style={[styles.txt] }>
+                                    ({getRating(bathroomData)[1]} reviews)
                                 </Text>
-
                             </View>
 
-                            <TouchableOpacity style={{alignContent:'center', marginTop:10}} onPress={toggleDialog}>
-                                <Text style={[styles.txt, {fontWeight:'bold', textDecorationLine:'underline', fontSize:18}]}>
+                            <View style={{flexDirection: 'column', marginTop: 12, marginRight: 'auto', marginLeft: 'auto'}}>
+                                <Text style={{ fontSize: 10, color: 'black'}}>
+                                        Description:
+                                </Text>
+                                <Text style={[styles.txt] }>
+                                    {bathroomData?.description || "No description :("}
+                                </Text>
+                            </View>
+                            
+                            
+
+                            <TouchableOpacity style={[styles.leaveReview]} onPress={toggleDialog}>
+                                <Text style={[styles.txt, {fontWeight:'bold', fontSize:15}]}>
                                     { userRating ? "View/Edit review" : "Leave a review"}
                                 </Text>
                             </TouchableOpacity>
 
                             <ShowDialog />
+
+                            <Input
+                                value={desc}
+                                placeholder='Review (optional)'
+                                onChangeText={val => setDesc(val)}
+                                multiline
+                                verticalAlign='top'
+                                containerStyle={{ height: 120 }}
+                                inputContainerStyle={{
+                                backgroundColor: 'lightgrey',
+                                height: '100%',
+                                paddingHorizontal: 10,
+                                paddingVertical: 5,
+                                borderBottomColor: 'lightgrey',
+                                borderRadius: 5
+                                }}
+                            />
 
                         </View>
 
@@ -344,6 +396,20 @@ const styles = StyleSheet.create({
         padding: 5,
         borderRadius: 100,
         backgroundColor: '#3C99DC',
+    },
+    leaveReview: {
+        height: 35,
+        marginLeft: 20,
+        marginRight: 20,
+        borderRadius: 100,
+        marginBottom: 50,
+        padding: 5,
+        marginTop: 20,
+        backgroundColor: 'lightgray',
+        flexDirection: 'row',
+        alignItems: "center",
+        justifyContent: "space-evenly",
+        elevation: 2,
     },
     bathroomLocationButton: {
         position: 'absolute',
