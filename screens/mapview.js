@@ -56,6 +56,7 @@ const Mapview = ({ navigation, route }) => {
     {label:'2+', value:2},
     {label:'3+', value:3},
     {label:'4+', value:4},
+    {label:'5', value:5},
   ] 
   
 
@@ -162,7 +163,12 @@ const Mapview = ({ navigation, route }) => {
 
     // If no tags selected update bathrooms else run filter func with selected tags
     const searchedTags = getSelectedTags(tag, newState)
-    searchedTags.length === 0 ? setBathrooms(allBathrooms) : filterBathrooms(searchedTags)
+    if(searchedTags.length == 0){
+      const filteredBathrooms = allBathrooms.filter(bathroom => calcRating(bathroom.data()['rating']) > rating);
+      setBathrooms(filteredBathrooms);
+    }else{
+      filterBathrooms(searchedTags)
+    }
   }
 
   // Code for dropdown star-filter tag
@@ -171,19 +177,14 @@ const Mapview = ({ navigation, route }) => {
       <View>
       <Dropdown
               //setSelected={(val) => setSelectedStarCount(val)} 
-              style={[styles.tagButtonNotPressed, {width: 60}]}
+              style={[styles.tagButtonNotPressed, {width: 100}]}
               containerStyle={{ width: 60 , borderRadius: 18, backgroundColor: 'white'}}
               data={starCountData} 
               labelField="label"
               valueField="value"
-              defaultIndex={1}
+              value={selectedStarCount}
               onChange={item => {
-                console.log("button chosen, value: " + item.value)
                 setRating(item.value);
-                // setBathrooms(bathrooms => {
-                //   const filteredBathrooms = bathrooms.filter(bath => calcRating(bath.data()['rating']) >= item.value);
-                //   return filteredBathrooms;
-                // });
               }}
               renderRightIcon={() => <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center',}}>
                                         <Icon name='star' type='font-awesome' size={20} color='gold' />
@@ -221,7 +222,7 @@ const Mapview = ({ navigation, route }) => {
       
       // Calc rating using V and if rating is >= thres
       let rat = calcRating(bath.data()['rating'])
-      if (rat < ({rating}.rating + 1)) { // Verify if bath has good rating
+      if (rat < (rating)) { // Verify if bath has good rating
         hasAllTags = false
       } 
       else { // Verify if bath has all tags
