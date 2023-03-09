@@ -409,21 +409,6 @@ const Mapview = ({ navigation, route }) => {
               marginRight: 10
             }}
             >
-              <TouchableOpacity style={{ justifyContent: 'center' }} onPress={() => navigation.navigate('Profile', { 
-                              uid: route.params?.uid, 
-                              displayName: route.params?.displayName,
-                              photoURL: route.params?.photoURL, 
-                              isAnonymous: route.params?.isAnonymous, 
-                              daysInApp: route.params?.daysInApp,
-                              region,
-                              mapType})}>
-                <Image // profile image
-                    style={{width: 50, height: 50, borderRadius: 25, borderWidth: 2,}}
-                    source={{ // source is user profile pic or the static google one
-                    uri: route.params?.photoURL || "https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg"
-                    }}>
-                </Image>
-              </TouchableOpacity>
               <SearchBar
                 placeholder='Looking for a bathroom?'
                 onChangeText={updateSearchFunc}
@@ -443,7 +428,9 @@ const Mapview = ({ navigation, route }) => {
                               displayName: route.params?.displayName,
                               photoURL: route.params?.photoURL, 
                               isAnonymous: route.params?.isAnonymous, 
-                              daysInApp: route.params?.daysInApp})}>
+                              daysInApp: route.params?.daysInApp,
+                              region,
+                              mapType})}>
                 <Image // profile image
                     style={{width: 30, height: 30, borderRadius: 15, borderWidth:0,}}
                     source={{ // source is user profile pic or the static google one
@@ -592,7 +579,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
-    top: '17%',
+    top: 150,
     right: '1%',
     height: 50,
     width: 50,
@@ -608,7 +595,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    top: '17%',
+    top: 150,
     left: '1%',
     fontSize: 16,
     borderRadius: 100,
