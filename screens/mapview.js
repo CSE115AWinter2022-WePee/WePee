@@ -58,8 +58,7 @@ const Mapview = ({ navigation, route }) => {
     {label:'3+', value:3},
     {label:'4+', value:4},
     {label:'5+', value:5},
-  ] 
-  
+  ]
 
   // bottom sheet snap points
   const snapPoints = useMemo(() => ['30%', '60%'], [])
@@ -593,6 +592,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'grey',
     elevation: 2
   },
+  // the following was used before but is now redundant
   mapTypeDropdown: {
     position: 'absolute',
     backgroundColor: 'white',

@@ -6,7 +6,7 @@ import { Icon } from '@rneui/themed'
 const mapTypeData = [
     {value: "Standard"},
     {value: "Satellite"},
-    {value: 'Hybrid'}
+    {value: "Hybrid"}
   ]
 
 // small function to render each item in dropdown list
@@ -38,7 +38,7 @@ export const MapTypeDropdown = ( {style, mapType, setMapType} ) => {
       data={mapTypeData}
       labelField="value"
       valueField="value"
-      onChange={item => {setMapType(item.value)}}
+      onChange={item => setMapType(item.value)}
       renderItem={renderItem}
       renderRightIcon={() => 
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
