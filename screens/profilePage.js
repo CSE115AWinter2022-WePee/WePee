@@ -222,7 +222,7 @@ const ProfileScreen = ({navigation, route }) => {
             
             <View>
               <Text style={[styles.txt, {fontWeight: 'bold'}]}>Description: </Text>
-              <Text style={[styles.txt,]}>{item.description}</Text>
+              <Text style={[styles.txt,]}>{item.description || "No Review..."}</Text>
             </View>
           </TouchableOpacity>
         );
