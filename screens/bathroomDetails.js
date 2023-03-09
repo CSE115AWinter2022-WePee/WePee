@@ -47,8 +47,7 @@ const BathroomDetailsScreen = ({route}) => {
     //     longitudeDelta: 0.0421,
     // })
 
-    const [mapType, setMapType] = useState(route.params?.mapType || 'standard')
-    const [mapLabel, setMapLabel] = useState(route.params?.mapLabel || 'Standard')
+    const [mapType, setMapType] = useState(route.params?.mapType || 'Standard')
     
     useEffect(() => {
         fetchBathroomData(route.params?.bathroomId)
@@ -273,7 +272,7 @@ const BathroomDetailsScreen = ({route}) => {
                 <MapView
                     ref={mapViewRef}
                     style={{width:'100%', height:'100%'}}
-                    mapType={mapType}
+                    mapType={mapType.toLowerCase()}
                     initialRegion={region}
                     showsUserLocation={true}
                     showsMyLocationButton={false}
@@ -287,11 +286,8 @@ const BathroomDetailsScreen = ({route}) => {
                         description= {bathroomData?.description}/>
                 </MapView>
 
-                {/* <MapTypeDropdown style={styles.mapTypeDropdown} mapType={mapType} setMapType={setMapType}/> */}
-                <MapTypeDropdown style={[styles.tagButtonNotPressed, {width: 110}]} 
-                         mapType={mapType} setMapType={setMapType} 
-                         mapLabel={mapLabel}
-                         setMapLabel={setMapLabel}/>
+                <MapTypeDropdown style={[styles.mapTypeDropdown, {width: 110}]} 
+                         mapType={mapType} setMapType={setMapType}/>
 
                 <TouchableOpacity // Animate to bathroom button
                     onPress={() => {mapViewRef.current.animateToRegion(region, 1000)}}
@@ -478,18 +474,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'gray',
     },
     mapTypeDropdown: {
-        position: 'absolute',
-        backgroundColor: 'white',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        top: '1%',
-        left: '1%',
-        fontSize: 16,
-        borderRadius: 100,
-        padding: 3
-    },
-    tagButtonNotPressed: {
         height: 36,
         position: 'absolute',
         flexDirection: 'row',

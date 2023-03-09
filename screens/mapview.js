@@ -38,8 +38,7 @@ const Mapview = ({ navigation, route }) => {
   // Ref to hold mapview element reference
   const mapViewRef = useRef(null)
   // State to hold type of map selected
-  const [mapType, setMapType] = useState("standard")
-  const [mapLabel, setMapLabel] = useState("Standard")
+  const [mapType, setMapType] = useState("Standard")
 
   // States to determine if tag is active or not
   const [cleanliness, setCleanliness] = useState(false)
@@ -216,9 +215,7 @@ const Mapview = ({ navigation, route }) => {
           />
       
         <MapTypeDropdown style={[styles.tagButtonNotPressed, {width: 110}]} 
-                         mapType={mapType} setMapType={setMapType} 
-                         mapLabel={mapLabel} 
-                         setMapLabel={setMapLabel}/>
+                         mapType={mapType} setMapType={setMapType}/>
  
       </View>
     );
@@ -339,7 +336,7 @@ const Mapview = ({ navigation, route }) => {
         padding: 10,
         marginVertical: 5
       }}
-      onPress={() => navigation.navigate('Details', { bathroomId: id, bathroomName: props.name, region: region, uid: route.params?.uid, mapType: mapType, mapLabel: mapLabel })}
+      onPress={() => navigation.navigate('Details', { bathroomId: id, bathroomName: props.name, region: region, uid: route.params?.uid, mapType: mapType})}
     >
       <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
         <Text style={[styles.txt, { fontSize: 16, fontWeight: 'bold' }]}>{props.name}</Text>
@@ -452,7 +449,7 @@ const Mapview = ({ navigation, route }) => {
             <MapView
               style={{ width: '100%', height: '100%' }}
               ref={mapViewRef}
-              mapType={mapType}
+              mapType={mapType.toLowerCase()}
               initialRegion={region}
               showsUserLocation
               showsMyLocationButton={false}
