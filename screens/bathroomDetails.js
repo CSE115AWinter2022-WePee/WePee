@@ -117,13 +117,9 @@ const BathroomDetailsScreen = ({route}) => {
 
         // update user previous rating if any
         // else save new rating into reviews collection
-        if (userRating && userRating.stars != stars) { // if user rating exists and they've changed stars
+        if (userRating && (userRating.stars != stars || userRating.desc != desc)) { // if user rating exists and they've changed stars/desc
             bathroomData["rating"][userRating.stars - 1]--
-            await firestore().collection('reviews').doc(userRating.id).update({stars: stars})
-        }
-        else if (userRating && userRating.desc != desc) { // if user rating exists and they've changed description
-            
-            await firestore().collection('reviews').doc(userRating.id).update({description: desc})
+            await firestore().collection('reviews').doc(userRating.id).update({stars: stars, description: desc})
         }
         else {
             let id = firestore().collection('reviews').doc().id
@@ -217,7 +213,7 @@ const BathroomDetailsScreen = ({route}) => {
 
                 <Input
                     value={desc}
-                    placeholder='Review (optional)'
+                    placeholder={desc}
                     onChangeText={val => setDesc(val)}
                     multiline
                     verticalAlign='top'
