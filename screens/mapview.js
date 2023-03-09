@@ -160,7 +160,7 @@ const Mapview = ({ navigation, route }) => {
 
   // Runs when a tag is pressed
   const onTagPress = (tag, index) => {
-    console.log('called onTag pressed')
+    // console.log('called onTag pressed')
     const newState = !tag.state[0]
     // Change the tags state
     tag.state[1](newState)
@@ -226,7 +226,7 @@ const Mapview = ({ navigation, route }) => {
     // check if current selected shoud be added to previously selected tags
     add ? data.push(tag) : data.splice(data.indexOf(tag), 1)
 
-    console.log('selected tags ', JSON.stringify(data))
+    // console.log('selected tags ', JSON.stringify(data))
     return data
   }
 
@@ -429,13 +429,27 @@ const Mapview = ({ navigation, route }) => {
                 onChangeText={updateSearchFunc}
                 showCancel
                 style={{ color: 'black', fontSize: 16, fontWeight: 'bold' }}
-                inputContainerStyle={{ borderRadius: 23 }}
+                inputContainerStyle={{ borderRadius: 10 }}
                 containerStyle={{ flex: 1, backgroundColor: lightColors.white, borderTopColor: 'white' }}
                 value={searchTxt}
               />
 
               <TouchableOpacity style={{ width: 40, height: 40, borderRadius: 20, justifyContent: 'center' }} onPress={() => navigation.navigate('Add', { region, mapType, uid: route.params?.uid})}>
                 <Icon name='plus' type='font-awesome' size={20} color='#3C99DC' />
+              </TouchableOpacity>
+
+              <TouchableOpacity style={{ justifyContent: 'center' }} onPress={() => navigation.navigate('Profile', { 
+                              uid: route.params?.uid, 
+                              displayName: route.params?.displayName,
+                              photoURL: route.params?.photoURL, 
+                              isAnonymous: route.params?.isAnonymous, 
+                              daysInApp: route.params?.daysInApp})}>
+                <Image // profile image
+                    style={{width: 30, height: 30, borderRadius: 15, borderWidth:0,}}
+                    source={{ // source is user profile pic or the static google one
+                    uri: route.params?.photoURL || "https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg"
+                }}/>
+            
               </TouchableOpacity>
 
             </View>
@@ -468,7 +482,7 @@ const Mapview = ({ navigation, route }) => {
               showsHorizontalScrollIndicator={false}
               renderItem={({ item, index }) => <TagItem tag={item} index={index} />}
               keyExtractor={item => item.key}
-              style={{ width: '100%', height: 40, position: 'absolute', top: 108 }}
+              style={{ width: '100%', height: 40, position: 'absolute', top: 108}}
             />
 
             <MapTypeDropdown style={styles.mapTypeDropdown} mapType={mapType} setMapType={setMapType}/>
@@ -585,7 +599,7 @@ const styles = StyleSheet.create({
     opacity: 0.8,
     padding: 5,
     borderRadius: 100,
-    backgroundColor: 'gray',
+    backgroundColor: 'grey',
     elevation: 2
   },
   mapTypeDropdown: {

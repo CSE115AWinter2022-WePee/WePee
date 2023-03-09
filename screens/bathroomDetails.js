@@ -55,6 +55,8 @@ const BathroomDetailsScreen = ({route}) => {
         getUserId()
     }, [])
 
+      // get uid
+    // if no user uid = deviceId
     // get uid
     // if no user uid, then use uid = deviceId
     const getUserId = async () => {
@@ -86,6 +88,7 @@ const BathroomDetailsScreen = ({route}) => {
         }
        
     }
+
 
     const getUserRatingIfAny = async (bathroomId) => {
         try {
@@ -143,6 +146,24 @@ const BathroomDetailsScreen = ({route}) => {
         await dbDocument.update({
             rating: bathroomData["rating"]
         })
+
+        // update user previous rating if any
+        // else save new rating into reviews collection
+        if (userRating && userRating.stars != stars) {
+            await firestore().collection('reviews').doc(userRating.id).update({stars: stars})
+        }
+        else {
+            let id = firestore().collection('reviews').doc().id
+            uid = await getUserId()
+            await firestore().collection('reviews').doc(id).set({
+                uid: uid,
+                bathroom_id: route.params?.bathroomId,
+                stars: stars,
+                id: id
+            })
+            setUserRating({id: id, stars: stars})  
+        }
+
         
         // dismiss the review dialog
         toggleDialog()
