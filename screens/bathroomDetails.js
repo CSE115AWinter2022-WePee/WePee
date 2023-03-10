@@ -213,7 +213,7 @@ const BathroomDetailsScreen = ({ route }) => {
 
   function displayUserReviews (reviewData) {
     const data = reviewData.map((review) => (
-      <View style={[styles.userReview]}>
+      <View key={review.id} style={[styles.userReview]}>
         <View style={{ flexDirection: 'row' }}>
           <Text style={[styles.txt, { fontSize: 19, fontWeight: 'bold' }]}>{review.user_name}</Text>
           <AirbnbRating
