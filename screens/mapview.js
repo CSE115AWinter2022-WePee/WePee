@@ -294,10 +294,10 @@ const Mapview = ({ navigation, route }) => {
 
   // Runs when goToUser button is pressed
   const goToUser = async () => {
-    console.log('goToUser start')
+    //console.log('goToUser start')
     await _getLocation() // update user location
     mapViewRef.current.animateToRegion(region, 1000)
-    console.log('goToUser done')
+    //console.log('goToUser done')
   }
 
   // Placehplder for handling stylesheet changes
@@ -523,7 +523,7 @@ const Mapview = ({ navigation, route }) => {
               data={bathrooms.sort((a, b) => {
                 let [latA, lonA] = [a.data()["latitude"], a.data()["longitude"]]
                 let [latB, lonB] = [b.data()["latitude"], b.data()["longitude"]]
-                console.log(latA, lonA)
+                //console.log(latA, lonA)
                 return getDistance(latA, lonA) - getDistance(latB, lonB)
               })}
               ItemSeparatorComponent={genericFlatListSeparator}

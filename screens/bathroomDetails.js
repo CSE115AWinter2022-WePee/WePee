@@ -7,12 +7,14 @@ import { Input, Icon, AirbnbRating, Dialog } from '@rneui/themed'
 import { tags } from '../modules/tags'
 import DeviceInfo from 'react-native-device-info'
 import { MapTypeDropdown } from '../modules/MapTypeDropdown'
+import { getBathroomNameFromId, updateBathroomNameInReview } from '../modules/getAndSetBathroomNameFromId'
 
 import {
   StyleSheet,
   Text,
   View,
   SafeAreaView,
+  ImageBackground,
   TouchableOpacity,
   Alert
 } from 'react-native'
@@ -24,6 +26,7 @@ const BathroomDetailsScreen = ({ route }) => {
   const bottomSheetRef = useRef(null)
   const mapViewRef = useRef(null)
   const [desc, setDesc] = useState('')
+  const [userReviews, setUserReviews] = useState()
 
   // sets display name, gets numbers from uid if anonymous
   const displayName = (route.params?.displayName || 'WePee User ' + route.params?.uid.replace(/\D/g, ''))
@@ -47,9 +50,45 @@ const BathroomDetailsScreen = ({ route }) => {
 
   useEffect(() => {
     fetchBathroomData(route.params?.bathroomId)
+    fetchBathroomReviewData(route.params?.bathroomId)
     getUserRatingIfAny(route.params?.bathroomId)
     getUserId()
   }, [])
+
+  // Fetch user's review data from firestore database
+  const fetchBathroomReviewData = async (bathroomId) => {
+    try {
+      const snap = await firestore().collection('reviews').where('bathroom_id', '==', bathroomId).get()
+      if (!snap.empty) {
+        cleanupAndSetFirebaseUserReviews(snap.docs)
+      } else {
+        setNoReviews(true)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  // cleans firebase reviews (metadata is removed)
+  const cleanupAndSetFirebaseUserReviews = async (junkyArray) => {
+    const cleanedData = await Promise.all(junkyArray.map(async (review) => {
+      const { user_name, bathroom_name, bathroom_id, id, stars, description } = review._data
+      let bath_name = bathroom_name
+      let username = user_name
+      if (!bath_name) { // if bathroom name is undefined
+        bath_name = await getBathroomNameFromId(bathroom_id)
+        await updateBathroomNameInReview(id, bath_name) // updates the bathroom's name in a review, if it isnt there
+      }
+      if(!username){
+        let randomNumber = Math.floor(Math.random() * 900) + 100;
+        username = 'WePee User ' + randomNumber;
+      }
+      return { user_name: username, bath_name, id, bathroom_id, stars, description }
+    }))
+    displayUserReviews(cleanedData)
+    //console.log("REVIEWS:_____________________")
+    //console.log(cleanedData)
+  }
 
   // get uid
   // if no user uid = deviceId
@@ -78,6 +117,7 @@ const BathroomDetailsScreen = ({ route }) => {
         })
         setCoordinate({ latitude: snap.data().latitude, longitude: snap.data().longitude })
         displayTags(snap.data())
+
       }
     } catch (error) {
       console.log(error)
@@ -158,46 +198,94 @@ const BathroomDetailsScreen = ({ route }) => {
     console.log('rating updated!')
   }
 
-  function displayTags (bathroomData) {
-    const data = tags.map((tag, index) => {
-      const dbName = tag.db_name
-      if (!bathroomData[dbName]) return undefined
-      return (
-        <View
-          key={tag.key} style={{
-            borderRadius: 20,
-            elevation: 5,
-            backgroundColor: 'white',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: 8,
-            marginLeft: 5,
-            marginTop: 5
-          }}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Icon
-              name={tag.icon}
-              type={tag.iconType || 'font-awesome-5'}
-              color='white'
-              size={20}
-              containerStyle={{
-                width: 32,
-                height: 32,
-                backgroundColor: tag.iconColor,
-                borderRadius: 5,
-                padding: 5,
-                justifyContent: 'center'
-              }}
-            />
-            <Text style={{ fontSize: 15, marginHorizontal: 10, color: 'black', fontWeight: 'bold' }}>{tag.name}</Text>
-          </View>
+  function displayUserReviews(reviewData) {
+    const data = reviewData.map((review) => (
+      <View style={[styles.userReview]}>
+        <View style={{ flexDirection: 'row' }}>
+          <Text style={[styles.txt, { fontSize: 19, fontWeight: 'bold' }]}>{review.user_name}</Text>
+          <AirbnbRating
+            isDisabled
+            showRating={false}
+            size={25}
+            count={5}
+            defaultRating={review.stars}
+            ratingContainerStyle={{ marginTop: 0, marginLeft: 'auto' }}
+          />
+        </View>
+        <View>
+          <Text style={[styles.txt, { fontWeight: 'bold' }]}>Description: </Text>
+          <Text style={[styles.txt]}>{review.description || 'No Review...'}</Text>
+        </View>
+      </View>
+    ));
 
+    // If a bathroom has no tags, just display "None!"
+    if(data.length == 0){
+      setUserReviews(
+        <View>
+          <Text style={{ fontSize: 15, color: 'black' }}>None!</Text>
         </View>
       )
-    })
-    setTagsSection(data)
+    }else{
+      setUserReviews(data)
+    }
+  }
+
+  function displayTags (bathroomData) {
+    const data = tags
+    .filter((tag) => bathroomData[tag.db_name])
+    .map((tag) => (
+      <View
+        key={tag.key}
+        style={{
+          borderRadius: 20,
+          elevation: 5,
+          backgroundColor: 'white',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: 8,
+          marginLeft: 5,
+          marginTop: 5,
+        }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Icon
+            name={tag.icon}
+            type={tag.iconType || 'font-awesome-5'}
+            color="white"
+            size={20}
+            containerStyle={{
+              width: 32,
+              height: 32,
+              backgroundColor: tag.iconColor,
+              borderRadius: 5,
+              padding: 5,
+              justifyContent: 'center',
+            }}
+          />
+          <Text
+            style={{
+              fontSize: 15,
+              marginHorizontal: 10,
+              color: 'black',
+              fontWeight: 'bold',
+            }}>
+            {tag.name}
+          </Text>
+        </View>
+      </View>
+    ));
+
+    // If a bathroom has no tags, just display "None!"
+    if(data.length == 0){
+      setTagsSection(
+        <View style={{}} >
+          <Text style={{ fontSize: 15, color: 'black' }}>None!</Text>
+        </View>
+      )
+    }else{
+      setTagsSection(data)
+    }
   }
 
   const toggleDialog = () => setShowDialog(!showDialog)
@@ -206,57 +294,6 @@ const BathroomDetailsScreen = ({ route }) => {
   const handleSheetChanges = useCallback(index => {
     // console.log('handleSheetChanges', index);
   }, [])
-
-  const ShowDialog = () => (
-    <Dialog
-      isVisible={showDialog}
-      onBackdropPress={toggleDialog}
-    >
-
-      <View style={{ alignItems: 'center' }}>
-        <Dialog.Title title={userRating ? 'YOUR PREVIOUS REVIEW' : 'LEAVE REVIEW'} />
-        <Text style={[styles.txt, { fontSize: 20 }]}>
-          {userRating ? 'Edit Review' : 'Leave review'}
-        </Text>
-
-        <AirbnbRating
-          showRating
-          size={35}
-          count={5}
-          defaultRating={stars}
-          starContainerStyle={{ alignSelf: 'center' }}
-          ratingContainerStyle={{ marginBottom: 10 }}
-          onFinishRating={val => setStars(val)}
-        />
-
-        <Input
-          value={desc}
-          placeholder={desc}
-          onChangeText={val => setDesc(val)}
-          multiline
-          verticalAlign='top'
-          containerStyle={{ height: 120 }}
-          inputContainerStyle={{
-            backgroundColor: 'lightgrey',
-            height: '100%',
-            paddingHorizontal: 10,
-            paddingVertical: 5,
-            borderBottomColor: 'lightgrey',
-            borderRadius: 5
-          }}
-        />
-
-      </View>
-
-      <Dialog.Actions>
-        <Dialog.Button
-          title={userRating ? 'UPDATE' : 'CONFIRM'}
-          onPress={updateRating}
-        />
-        <Dialog.Button title='CANCEL' onPress={toggleDialog} />
-      </Dialog.Actions>
-    </Dialog>
-  )
 
   return (
     <View style={{ backgroundColor: 'white' }}>
@@ -405,12 +442,24 @@ const BathroomDetailsScreen = ({ route }) => {
 
               <View style={{ width: '100%' }}>
                 <Text style={[styles.txt, { fontWeight: 'bold', fontSize: 18, marginLeft: 15, marginTop: 5 }]}>
-                  Features
+                  Features:
                 </Text>
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', marginTop: 10, marginLeft: 15 }}>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', marginTop: 5, marginLeft: 15 }}>
                   {tagsSection}
                 </View>
               </View>
+
+              <View style={{ width: '100%' }}>
+                <Text style={[styles.txt, { fontWeight: 'bold', fontSize: 18, marginLeft: 15, marginTop: 5 }]}>
+                    Reviews:
+                </Text>
+
+                <View >
+                  {userReviews}
+                </View>
+
+              </View>
+              
 
             </View>
           </ScrollView>
@@ -483,5 +532,16 @@ const styles = StyleSheet.create({
     marginLeft: 3,
     marginRight: 3,
     elevation: 2
-  }
+  },
+  userReview: {
+    width: '95%',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    borderRadius: 5,
+    backgroundColor: 'white',
+    // flexDirection: 'row',
+    padding: 10,
+    marginVertical: 3,
+    elevation: 1
+  },
 })

@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import firestore from '@react-native-firebase/firestore'
 import { AirbnbRating } from '@rneui/themed'
 import auth from '@react-native-firebase/auth'
-import { genericFlatListSeparator } from '../modules/flatListSeparator'
+import { getBathroomNameFromId, updateBathroomNameInReview } from '../modules/getAndSetBathroomNameFromId'
 
 import {
   StyleSheet,
@@ -36,28 +36,6 @@ const ProfileScreen = ({ navigation, route }) => {
     calcAverageReview()
   }, [userReviews])
 
-  // Grabs a bathroom's name given a bathroom_id
-  const getBathroomNameFromId = async (bathroom_id) => {
-    try {
-      const snap = await firestore().collection('bathrooms')
-        .where('id', '==', bathroom_id)
-        .get()
-      if (!snap.empty) {
-        return (snap.docs[0].data().name)
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  // Updates name field in a review
-  const updateBathroomNameInReview = async (review_id, name) => {
-    try {
-      await firestore().collection('reviews').doc(review_id).update({ bathroom_name: name }) // update with name if it wasnt there
-    } catch (error) {
-      console.log(error)
-    }
-  }
 
   // cleans firebase reviews (metadata is removed)
   const cleanupAndSetFirebaseUserReviews = async (junkyArray) => {
