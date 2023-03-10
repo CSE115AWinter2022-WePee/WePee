@@ -22,8 +22,9 @@ const ProfileScreen = ({ navigation, route }) => {
   const [userReviews, setUserReviews] = useState()
   const [averageUserReview, setAverageUserReview] = useState()
   const [noReviews, setNoReviews] = useState()
+  // sets display name, gets numbers from uid if anonymous
+  const displayName = (route.params?.displayName || 'WePee User ' + route.params?.uid.replace(/\D/g, ''))
   const uid = route.params?.uid // set userid, should not change
-  const genericNumberIdentifier = route.params?.uid.replace(/\D/g, '') // extracts numbers from iD as string
 
   // On initial render only, fetch all bathroom data
   useEffect(() => {
@@ -133,7 +134,7 @@ const ProfileScreen = ({ navigation, route }) => {
     return (
       <View style={[styles.displayName]}>
         <View>
-          <Text style={[styles.txt, { fontSize: 18, fontWeight: 'bold' }]}>{route.params?.displayName || 'WePee User ' + genericNumberIdentifier}</Text>
+          <Text style={[styles.txt, { fontSize: 18, fontWeight: 'bold' }]}>{displayName}</Text>
         </View>
       </View>
     )

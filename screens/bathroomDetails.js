@@ -25,6 +25,9 @@ const BathroomDetailsScreen = ({ route }) => {
   const mapViewRef = useRef(null)
   const [desc, setDesc] = useState('')
 
+  // sets display name, gets numbers from uid if anonymous
+  const displayName = (route.params?.displayName || 'WePee User ' + route.params?.uid.replace(/\D/g, ''))
+
   const [bathroomData, setBathroomData] = useState()
   const [coordinate, setCoordinate] = useState({ latitude: 37.78825, longitude: -122.4324 })
   const [tagsSection, setTagsSection] = useState()
@@ -116,7 +119,7 @@ const BathroomDetailsScreen = ({ route }) => {
     // else save new rating into reviews collection
     if (userRating && (userRating.stars != stars || userRating.desc != desc)) { // if user rating exists and they've changed stars/desc
       bathroomData.rating[userRating.stars - 1]--
-      await firestore().collection('reviews').doc(userRating.id).update({ stars, description: desc })
+      await firestore().collection('reviews').doc(userRating.id).update({ stars, description: desc, user_name: displayName })
       setUserRating({ id: userRating.id, stars, description: desc })
     } else {
       const id = firestore().collection('reviews').doc().id
@@ -126,6 +129,7 @@ const BathroomDetailsScreen = ({ route }) => {
         bathroom_id: route.params?.bathroomId,
         bathroom_name: route.params?.bathroomName, // now saves bathroom name, more efficient for profile page
         stars,
+        user_name: displayName,
         description: desc,
         id
       })
