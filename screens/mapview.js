@@ -300,7 +300,7 @@ const Mapview = ({ navigation, route }) => {
     //console.log('goToUser done')
   }
 
-  // Placehplder for handling stylesheet changes
+  // Placeholder for handling stylesheet changes
   const handleSheetChanges = useCallback(index => {
     // console.log('handleSheetChanges', index);
   }, [])
@@ -523,7 +523,6 @@ const Mapview = ({ navigation, route }) => {
               data={bathrooms.sort((a, b) => {
                 let [latA, lonA] = [a.data()["latitude"], a.data()["longitude"]]
                 let [latB, lonB] = [b.data()["latitude"], b.data()["longitude"]]
-                //console.log(latA, lonA)
                 return getDistance(latA, lonA) - getDistance(latB, lonB)
               })}
               ItemSeparatorComponent={genericFlatListSeparator}
@@ -607,7 +606,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'grey',
     elevation: 2
   },
-  // the following was used before but is now redundant
+  // The following was used before but is now redundant
+  // Hpwever, it's kept for potential future use
   mapTypeDropdown: {
     position: 'absolute',
     backgroundColor: 'white',

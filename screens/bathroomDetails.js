@@ -26,7 +26,8 @@ const BathroomDetailsScreen = ({ route }) => {
   const bottomSheetRef = useRef(null)
   const mapViewRef = useRef(null)
   const [desc, setDesc] = useState('')
-  const [userReviews, setUserReviews] = useState()
+  const [userReviews, setUserReviews] = useState([]) // State for storing user review elements
+  const [reviews, setReviews] = useState([]) // State for storing actual user review data
 
   // sets display name, gets numbers from uid if anonymous
   const displayName = (route.params?.displayName || 'WePee User ' + route.params?.uid.replace(/\D/g, ''))
@@ -48,12 +49,18 @@ const BathroomDetailsScreen = ({ route }) => {
   // State to store current mapType
   const [mapType, setMapType] = useState(route.params?.mapType)
 
+  // Only on initial render, fetch necessary data
   useEffect(() => {
     fetchBathroomData(route.params?.bathroomId)
     fetchBathroomReviewData(route.params?.bathroomId)
     getUserRatingIfAny(route.params?.bathroomId)
     getUserId()
   }, [])
+
+  // Update displayed reviews as they're updated
+  useEffect(() => {
+    if (reviews.length > 0) displayUserReviews(reviews)
+  }, [reviews])
 
   // Fetch user's review data from firestore database
   const fetchBathroomReviewData = async (bathroomId) => {
@@ -85,9 +92,8 @@ const BathroomDetailsScreen = ({ route }) => {
       }
       return { user_name: username, bath_name, id, bathroom_id, stars, description }
     }))
+    setReviews(cleanedData)
     displayUserReviews(cleanedData)
-    //console.log("REVIEWS:_____________________")
-    //console.log(cleanedData)
   }
 
   // get uid
@@ -161,6 +167,7 @@ const BathroomDetailsScreen = ({ route }) => {
       bathroomData.rating[userRating.stars - 1]--
       await firestore().collection('reviews').doc(userRating.id).update({ stars, description: desc, user_name: displayName })
       setUserRating({ id: userRating.id, stars, description: desc })
+      setReviews(reviews.map(o => o.id === userRating.id ? {...o, stars, description: desc} : o)) // Update user reviews with updated rating/review
     } else {
       const id = firestore().collection('reviews').doc().id
       uid = await getUserId()
@@ -168,12 +175,19 @@ const BathroomDetailsScreen = ({ route }) => {
         uid,
         bathroom_id: route.params?.bathroomId,
         bathroom_name: route.params?.bathroomName, // now saves bathroom name, more efficient for profile page
-        stars,
-        user_name: displayName,
+        user_name: displayName, // Save the user name!
         description: desc,
-        id
+        id, 
+        stars
       })
       setUserRating({ id, stars, description: desc })
+      setReviews(reviews.concat({ 
+        user_name: displayName, 
+        bath_name: route.params?.bathroomName, 
+        bathroom_id: route.params?.bathroomId,
+        description: desc,
+        id,
+        stars })) // Add new user review to current userReviews
     }
 
     bathroomData.rating[stars - 1]++
@@ -454,7 +468,7 @@ const BathroomDetailsScreen = ({ route }) => {
                     Reviews:
                 </Text>
 
-                <View >
+                <View>
                   {userReviews}
                 </View>
 
