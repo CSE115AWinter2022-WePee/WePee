@@ -23,7 +23,7 @@ const BathroomDetailsScreen = ({route}) => {
     // refs
     const bottomSheetRef = useRef(null);
     const mapViewRef = useRef(null);
-    const [desc, setDesc] = useState()
+    const [desc, setDesc] = useState("")
 
     const [bathroomData, setBathroomData] = useState()
     const [coordinate, setCoordinate] = useState({latitude: 37.78825, longitude: -122.4324})
@@ -92,7 +92,7 @@ const BathroomDetailsScreen = ({route}) => {
             if (!snap.empty && snap.docs.length > 0) {
                 setUserRating({id: snap.docs[0].id, stars: snap.docs[0].data().stars, description: snap.docs[0].data.description})
                 setStars(snap.docs[0].data().stars)
-                setDesc(snap.docs[0].data().description)
+                setDesc(snap.docs[0].data().description || "")
             }
         } catch (error) {
             console.log(error)
