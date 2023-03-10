@@ -10,7 +10,6 @@ import { ThemeProvider, createTheme, lightColors } from '@rneui/themed'
 import auth from '@react-native-firebase/auth'
 import { SocialButton } from 'react-native-login-screen'
 import { anonymousLogin, onGoogleButtonPress } from './modules/login'
-import MapView from 'react-native-maps'
 
 import {
   View,

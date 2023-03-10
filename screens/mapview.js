@@ -294,10 +294,10 @@ const Mapview = ({ navigation, route }) => {
 
   // Runs when goToUser button is pressed
   const goToUser = async () => {
-    //console.log('goToUser start')
+    // console.log('goToUser start')
     await _getLocation() // update user location
     mapViewRef.current.animateToRegion(region, 1000)
-    //console.log('goToUser done')
+    // console.log('goToUser done')
   }
 
   // Placeholder for handling stylesheet changes
@@ -469,7 +469,7 @@ const Mapview = ({ navigation, route }) => {
               region={region}
               onPress={() => { bottomSheetRef.current.close() }}
               zoomControlEnabled={false}
-              // The following was to ensure that the zoom level p[ersists when navigating to other screens
+              // The following was to ensure that the zoom level persists when navigating to other screens
               // However, it introduces a lot of lag, so it's been omitted at the moment
               // onRegionChangeComplete={newRegion => {
               //   setLatitudeDelta(newRegion.latitudeDelta)
@@ -521,8 +521,8 @@ const Mapview = ({ navigation, route }) => {
           <View style={{ flex: 1, alignItems: 'center', padding: 0 }}>
             <FlatList
               data={bathrooms.sort((a, b) => {
-                let [latA, lonA] = [a.data()["latitude"], a.data()["longitude"]]
-                let [latB, lonB] = [b.data()["latitude"], b.data()["longitude"]]
+                const [latA, lonA] = [a.data().latitude, a.data().longitude]
+                const [latB, lonB] = [b.data().latitude, b.data().longitude]
                 return getDistance(latA, lonA) - getDistance(latB, lonB)
               })}
               ItemSeparatorComponent={genericFlatListSeparator}
@@ -607,7 +607,7 @@ const styles = StyleSheet.create({
     elevation: 2
   },
   // The following was used before but is now redundant
-  // Hpwever, it's kept for potential future use
+  // However, it's kept for potential future use
   mapTypeDropdown: {
     position: 'absolute',
     backgroundColor: 'white',

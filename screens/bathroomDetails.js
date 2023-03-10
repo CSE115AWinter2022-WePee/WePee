@@ -14,7 +14,6 @@ import {
   Text,
   View,
   SafeAreaView,
-  ImageBackground,
   TouchableOpacity,
   Alert
 } from 'react-native'
@@ -86,9 +85,9 @@ const BathroomDetailsScreen = ({ route }) => {
         bath_name = await getBathroomNameFromId(bathroom_id)
         await updateBathroomNameInReview(id, bath_name) // updates the bathroom's name in a review, if it isnt there
       }
-      if(!username){
-        let randomNumber = Math.floor(Math.random() * 900) + 100;
-        username = 'WePee User ' + randomNumber;
+      if (!username) {
+        const randomNumber = Math.floor(Math.random() * 900) + 100
+        username = 'WePee User ' + randomNumber
       }
       return { user_name: username, bath_name, id, bathroom_id, stars, description }
     }))
@@ -123,7 +122,6 @@ const BathroomDetailsScreen = ({ route }) => {
         })
         setCoordinate({ latitude: snap.data().latitude, longitude: snap.data().longitude })
         displayTags(snap.data())
-
       }
     } catch (error) {
       console.log(error)
@@ -167,7 +165,7 @@ const BathroomDetailsScreen = ({ route }) => {
       bathroomData.rating[userRating.stars - 1]--
       await firestore().collection('reviews').doc(userRating.id).update({ stars, description: desc, user_name: displayName })
       setUserRating({ id: userRating.id, stars, description: desc })
-      setReviews(reviews.map(o => o.id === userRating.id ? {...o, stars, description: desc} : o)) // Update user reviews with updated rating/review
+      setReviews(reviews.map(o => o.id === userRating.id ? { ...o, stars, description: desc } : o)) // Update user reviews with updated rating/review
     } else {
       const id = firestore().collection('reviews').doc().id
       uid = await getUserId()
@@ -177,17 +175,18 @@ const BathroomDetailsScreen = ({ route }) => {
         bathroom_name: route.params?.bathroomName, // now saves bathroom name, more efficient for profile page
         user_name: displayName, // Save the user name!
         description: desc,
-        id, 
+        id,
         stars
       })
       setUserRating({ id, stars, description: desc })
-      setReviews(reviews.concat({ 
-        user_name: displayName, 
-        bath_name: route.params?.bathroomName, 
+      setReviews(reviews.concat({
+        user_name: displayName,
+        bath_name: route.params?.bathroomName,
         bathroom_id: route.params?.bathroomId,
         description: desc,
         id,
-        stars })) // Add new user review to current userReviews
+        stars
+      })) // Add new user review to current userReviews
     }
 
     bathroomData.rating[stars - 1]++
@@ -212,7 +211,7 @@ const BathroomDetailsScreen = ({ route }) => {
     console.log('rating updated!')
   }
 
-  function displayUserReviews(reviewData) {
+  function displayUserReviews (reviewData) {
     const data = reviewData.map((review) => (
       <View style={[styles.userReview]}>
         <View style={{ flexDirection: 'row' }}>
@@ -231,73 +230,75 @@ const BathroomDetailsScreen = ({ route }) => {
           <Text style={[styles.txt]}>{review.description || 'No Review...'}</Text>
         </View>
       </View>
-    ));
+    ))
 
     // If a bathroom has no tags, just display "None!"
-    if(data.length == 0){
+    if (data.length == 0) {
       setUserReviews(
         <View>
           <Text style={{ fontSize: 15, color: 'black' }}>None!</Text>
         </View>
       )
-    }else{
+    } else {
       setUserReviews(data)
     }
   }
 
   function displayTags (bathroomData) {
     const data = tags
-    .filter((tag) => bathroomData[tag.db_name])
-    .map((tag) => (
-      <View
-        key={tag.key}
-        style={{
-          borderRadius: 20,
-          elevation: 5,
-          backgroundColor: 'white',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: 8,
-          marginLeft: 5,
-          marginTop: 5,
-        }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Icon
-            name={tag.icon}
-            type={tag.iconType || 'font-awesome-5'}
-            color="white"
-            size={20}
-            containerStyle={{
-              width: 32,
-              height: 32,
-              backgroundColor: tag.iconColor,
-              borderRadius: 5,
-              padding: 5,
-              justifyContent: 'center',
-            }}
-          />
-          <Text
-            style={{
-              fontSize: 15,
-              marginHorizontal: 10,
-              color: 'black',
-              fontWeight: 'bold',
-            }}>
-            {tag.name}
-          </Text>
+      .filter((tag) => bathroomData[tag.db_name])
+      .map((tag) => (
+        <View
+          key={tag.key}
+          style={{
+            borderRadius: 20,
+            elevation: 5,
+            backgroundColor: 'white',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: 8,
+            marginLeft: 5,
+            marginTop: 5
+          }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Icon
+              name={tag.icon}
+              type={tag.iconType || 'font-awesome-5'}
+              color='white'
+              size={20}
+              containerStyle={{
+                width: 32,
+                height: 32,
+                backgroundColor: tag.iconColor,
+                borderRadius: 5,
+                padding: 5,
+                justifyContent: 'center'
+              }}
+            />
+            <Text
+              style={{
+                fontSize: 15,
+                marginHorizontal: 10,
+                color: 'black',
+                fontWeight: 'bold'
+              }}
+            >
+              {tag.name}
+            </Text>
+          </View>
         </View>
-      </View>
-    ));
+      ))
 
     // If a bathroom has no tags, just display "None!"
-    if(data.length == 0){
+    if (data.length == 0) {
       setTagsSection(
-        <View style={{}} >
+        <View style={{}}>
           <Text style={{ fontSize: 15, color: 'black' }}>None!</Text>
         </View>
       )
-    }else{
+    } else {
       setTagsSection(data)
     }
   }
@@ -465,7 +466,7 @@ const BathroomDetailsScreen = ({ route }) => {
 
               <View style={{ width: '100%' }}>
                 <Text style={[styles.txt, { fontWeight: 'bold', fontSize: 18, marginLeft: 15, marginTop: 5 }]}>
-                    Reviews:
+                  Reviews:
                 </Text>
 
                 <View>
@@ -473,7 +474,6 @@ const BathroomDetailsScreen = ({ route }) => {
                 </View>
 
               </View>
-              
 
             </View>
           </ScrollView>
@@ -557,5 +557,5 @@ const styles = StyleSheet.create({
     padding: 10,
     marginVertical: 3,
     elevation: 1
-  },
+  }
 })
