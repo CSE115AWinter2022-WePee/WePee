@@ -36,7 +36,6 @@ const ProfileScreen = ({ navigation, route }) => {
     calcAverageReview()
   }, [userReviews])
 
-
   // cleans firebase reviews (metadata is removed)
   const cleanupAndSetFirebaseUserReviews = async (junkyArray) => {
     const cleanedData = await Promise.all(junkyArray.map(async (review) => {

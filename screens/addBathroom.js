@@ -4,7 +4,7 @@ import BottomSheet from '@gorhom/bottom-sheet'
 import MapView, { Marker } from 'react-native-maps'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Input, Icon, Switch } from '@rneui/themed'
-import firestore, { firebase } from '@react-native-firebase/firestore'
+import firestore from '@react-native-firebase/firestore'
 import { tags } from '../modules/tags'
 import { AirbnbRating } from 'react-native-ratings'
 import {
@@ -15,7 +15,6 @@ import {
   Alert,
   View
 } from 'react-native'
-import { Dropdown } from 'react-native-element-dropdown'
 import { MapTypeDropdown } from '../modules/MapTypeDropdown'
 import { ScrollView } from 'react-native-gesture-handler'
 
