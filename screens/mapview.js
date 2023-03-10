@@ -348,7 +348,7 @@ const Mapview = ({ navigation, route }) => {
       </View>
     </TouchableOpacity>
   )
-  const EmptyBathroomsList = () => (
+  const EmptyListText = () => (
     <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
       <Text style={[styles.txt, { fontSize: 16, fontWeight: 'bold' }]}>We couldn't find any bathrooms that matched those criteria.</Text>
     </View>
@@ -530,7 +530,7 @@ const Mapview = ({ navigation, route }) => {
               renderItem={({ item, index }) => <Item props={item.data()} index={index} id={item.id} />}
               keyExtractor={item => item.id}
               style={{ width: '100%', marginBottom: 20 }}
-              ListEmptyComponent={EmptyBathroomsList()}
+              ListEmptyComponent={EmptyListText()}
             />
           </View>
         </BottomSheet>
