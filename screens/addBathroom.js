@@ -257,7 +257,7 @@ const AddBathroomScreen = ({ navigation, route }) => {
             />
           </MapView>
 
-          <MapTypeDropdown style={styles.mapTypeDropdown} mapType={mapType} setMapType={setMapType}/>
+          <MapTypeDropdown style={styles.mapTypeDropdown} mapType={mapType} setMapType={setMapType} />
 
           <TouchableOpacity // Show list button
             onPress={() => bottomSheetRef.current.snapToIndex(0)}

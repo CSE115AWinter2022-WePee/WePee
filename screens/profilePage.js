@@ -18,13 +18,12 @@ import {
   FlatList
 } from 'react-native-gesture-handler'
 
-const ProfileScreen = ({navigation, route }) => {
+const ProfileScreen = ({ navigation, route }) => {
   const [userReviews, setUserReviews] = useState()
   const [averageUserReview, setAverageUserReview] = useState()
   const [noReviews, setNoReviews] = useState()
   const uid = route.params?.uid // set userid, should not change
-  const genericNumberIdentifier = route.params?.uid.replace(/\D/g, ''); // extracts numbers from iD as string
-
+  const genericNumberIdentifier = route.params?.uid.replace(/\D/g, '') // extracts numbers from iD as string
 
   // On initial render only, fetch all bathroom data
   useEffect(() => {
@@ -40,62 +39,60 @@ const ProfileScreen = ({navigation, route }) => {
   const getBathroomNameFromId = async (bathroom_id) => {
     try {
       const snap = await firestore().collection('bathrooms')
-                          .where("id", "==", bathroom_id)
-                          .get()
+        .where('id', '==', bathroom_id)
+        .get()
       if (!snap.empty) {
-          return(snap.docs[0].data().name);
+        return (snap.docs[0].data().name)
       }
     } catch (error) {
-        console.log(error)
+      console.log(error)
     }
   }
-
 
   // Updates name field in a review
   const updateBathroomNameInReview = async (review_id, name) => {
     try {
-      await firestore().collection('reviews').doc(review_id).update({bathroom_name: name}); // update with name if it wasnt there
+      await firestore().collection('reviews').doc(review_id).update({ bathroom_name: name }) // update with name if it wasnt there
     } catch (error) {
-        console.log(error)
+      console.log(error)
     }
   }
 
   // cleans firebase reviews (metadata is removed)
   const cleanupAndSetFirebaseUserReviews = async (junkyArray) => {
     const cleanedData = await Promise.all(junkyArray.map(async (review) => {
-      const { bathroom_name, bathroom_id, id, stars, description} = review._data;
-      let name = bathroom_name;
+      const { bathroom_name, bathroom_id, id, stars, description } = review._data
+      let name = bathroom_name
       if (!name) { // if bathroom name is undefined
-        name = await getBathroomNameFromId(bathroom_id);
-        await updateBathroomNameInReview(id, name);  // updates the bathroom's name in a review, if it isnt there
+        name = await getBathroomNameFromId(bathroom_id)
+        await updateBathroomNameInReview(id, name) // updates the bathroom's name in a review, if it isnt there
       }
-      return { name, id, bathroom_id, stars, description};
-    }));
-    setUserReviews(cleanedData);
-    //console.log(cleanedData)
+      return { name, id, bathroom_id, stars, description }
+    }))
+    setUserReviews(cleanedData)
+    // console.log(cleanedData)
   }
 
   const calcAverageReview = () => {
-    if(userReviews){
-      let totalStars = 0;
-      for(const review of userReviews){
-        totalStars += review.stars;
+    if (userReviews) {
+      let totalStars = 0
+      for (const review of userReviews) {
+        totalStars += review.stars
       }
 
-      setAverageUserReview((totalStars/userReviews.length).toFixed(1))
+      setAverageUserReview((totalStars / userReviews.length).toFixed(1))
     }
   }
 
   // Fetch user's review data from firestore database
   const fetchBathroomData = async () => {
     try {
-      const snap = await firestore().collection('reviews').where("uid", "==", uid).get()
+      const snap = await firestore().collection('reviews').where('uid', '==', uid).get()
       if (!snap.empty) {
         cleanupAndSetFirebaseUserReviews(snap.docs)
       } else {
         setNoReviews(true)
       }
-
     } catch (error) {
       console.log(error)
     }
@@ -112,36 +109,35 @@ const ProfileScreen = ({navigation, route }) => {
 
   const LogoutButton = () => (
     <TouchableOpacity
-        onPress={ signInOutFunc }
-        style= {[styles.logoutButton, {color: 'red'}]}
-      >
-        <Text style={[styles.txt, {color: 'white'}, {fontWeight: 'bold', fontSize:18}]}>
-          {!route.params?.isAnonymous? "Log Out" : "Log In"}
-        </Text>
-      </TouchableOpacity>
+      onPress={signInOutFunc}
+      style={[styles.logoutButton, { color: 'red' }]}
+    >
+      <Text style={[styles.txt, { color: 'white' }, { fontWeight: 'bold', fontSize: 18 }]}>
+        {!route.params?.isAnonymous ? 'Log Out' : 'Log In'}
+      </Text>
+    </TouchableOpacity>
   )
-  
 
   const ProfilePic = ({}) => {
     return (
       <Image
         style={[styles.profilePic]}
         source={{
-          uri: route.params?.photoURL || "https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg",
+          uri: route.params?.photoURL || 'https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg'
         }}
       />
-    );
-  };
+    )
+  }
 
   const DisplayName = ({}) => {
     return (
       <View style={[styles.displayName]}>
         <View>
-          <Text style={[styles.txt, { fontSize: 18, fontWeight: 'bold' }]}>{ route.params?.displayName || 'WePee User ' + genericNumberIdentifier}</Text>
+          <Text style={[styles.txt, { fontSize: 18, fontWeight: 'bold' }]}>{route.params?.displayName || 'WePee User ' + genericNumberIdentifier}</Text>
         </View>
       </View>
-    );
-  };
+    )
+  }
 
   const Spacer = ({}) => {
     return (
@@ -149,40 +145,40 @@ const ProfileScreen = ({navigation, route }) => {
         style={{
           height: 30,
           top: 50,
-          backgroundColor: 'blue',
+          backgroundColor: 'blue'
         }}
       />
-    );
+    )
   }
 
   const ReviewStats = () => {
     return (
       <View
-        style={[styles.reviewStats]} >
+        style={[styles.reviewStats]}
+      >
 
         <View style={styles.stats}>
-          <Text style={[styles.txt, {fontWeight:'bold', marginBottom:5} ]}>Reviews</Text>
-          <Text style={[styles.txt, {fontWeight:'bold', color:'gray', fontSize:16}]}>{userReviews?.length || "None!"}</Text>
+          <Text style={[styles.txt, { fontWeight: 'bold', marginBottom: 5 }]}>Reviews</Text>
+          <Text style={[styles.txt, { fontWeight: 'bold', color: 'gray', fontSize: 16 }]}>{userReviews?.length || 'None!'}</Text>
         </View>
 
-        <View style={{height: '80%', width: 1, backgroundColor: 'gray'}} />
+        <View style={{ height: '80%', width: 1, backgroundColor: 'gray' }} />
 
         <View style={styles.stats}>
-          <Text style={[styles.txt, {fontWeight:'bold', marginBottom:5}]}>Avg. Review</Text>
-          <Text style={[styles.txt, {fontWeight:'bold', color:'gray', fontSize:16}]}>{averageUserReview? averageUserReview + " / 5": "None!" }</Text>
+          <Text style={[styles.txt, { fontWeight: 'bold', marginBottom: 5 }]}>Avg. Review</Text>
+          <Text style={[styles.txt, { fontWeight: 'bold', color: 'gray', fontSize: 16 }]}>{averageUserReview ? averageUserReview + ' / 5' : 'None!'}</Text>
         </View>
 
-        <View style={{height: '80%', width: 1, backgroundColor: 'gray'}} />
+        <View style={{ height: '80%', width: 1, backgroundColor: 'gray' }} />
 
         <View style={styles.stats}>
-          <Text style={[styles.txt, {fontWeight:'bold', marginBottom:5}]}>Days Peeing</Text>
-          <Text style={[styles.txt, {fontWeight:'bold', color:'gray', fontSize:16}]}>{route.params?.daysInApp.toFixed(0) || "None!"}</Text>
+          <Text style={[styles.txt, { fontWeight: 'bold', marginBottom: 5 }]}>Days Peeing</Text>
+          <Text style={[styles.txt, { fontWeight: 'bold', color: 'gray', fontSize: 16 }]}>{route.params?.daysInApp.toFixed(0) || 'None!'}</Text>
         </View>
 
       </View>
-    );
+    )
   }
-
 
   const HeadView = () => {
     return (
@@ -191,96 +187,96 @@ const ProfileScreen = ({navigation, route }) => {
         <DisplayName />
         <ReviewStats />
       </>
-     
+
     )
   }
 
-
-  const Item = ({item}) => {
+  const Item = ({ item }) => {
     switch (item.id) {
-      case "profilePic":
-        return <ProfilePic />;
-      case "displayName":
-        return <DisplayName />;
-      case "logoutButton":
-        return <LogoutButton />;
-      case "spacer":
-        return <Spacer />;
-      case "reviewStats":
-        return <ReviewStats />;
+      case 'profilePic':
+        return <ProfilePic />
+      case 'displayName':
+        return <DisplayName />
+      case 'logoutButton':
+        return <LogoutButton />
+      case 'spacer':
+        return <Spacer />
+      case 'reviewStats':
+        return <ReviewStats />
       default: // default is a user review
         return (
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.userReview]}
             onPress={() => navigation.navigate('Details', { bathroomId: item.bathroom_id, bathroomName: item.bathroom_name, uid: route.params?.uid, region: route.params?.region, mapType: route.params?.mapType })}
           >
-            <View style={{flexDirection: 'row'}}>
+            <View style={{ flexDirection: 'row' }}>
               <Text style={[styles.txt, { fontSize: 19, fontWeight: 'bold' }]}>{item.name}</Text>
-              <AirbnbRating 
-                isDisabled={true} 
+              <AirbnbRating
+                isDisabled
                 showRating={false}
                 size={25}
                 count={5}
-                defaultRating={item.stars} 
-                ratingContainerStyle={{ marginTop:0, marginLeft: 'auto'}}/>
+                defaultRating={item.stars}
+                ratingContainerStyle={{ marginTop: 0, marginLeft: 'auto' }}
+              />
             </View>
-            
+
             <View>
-              <Text style={[styles.txt, {fontWeight: 'bold'}]}>Description: </Text>
-              <Text style={[styles.txt,]}>{item.description || "No Review..."}</Text>
+              <Text style={[styles.txt, { fontWeight: 'bold' }]}>Description: </Text>
+              <Text style={[styles.txt]}>{item.description || 'No Review...'}</Text>
             </View>
           </TouchableOpacity>
-        );
+        )
     }
   }
 
   // Loading screen
-  if(!averageUserReview && !route.params?.isAnonymous && !noReviews){
-      return (
-        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-          <ImageBackground
-            source={require('../assets/wepee.png')}
-            style={{opacity: .7}}>
-            <View style={{justifyContent: 'center',alignItems:'center', height: 150, width: 150}}>
-              <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#3C99DC', opacity: 1}}>
-                  WePee
-              </Text>
-            </View>
-          </ImageBackground>
-          <Text style={{color: 'black'}}>
-            Loading profile data...
-          </Text>
-        </View>
-        
-      )
+  if (!averageUserReview && !route.params?.isAnonymous && !noReviews) {
+    return (
+      <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+        <ImageBackground
+          source={require('../assets/wepee.png')}
+          style={{ opacity: 0.7 }}
+        >
+          <View style={{ justifyContent: 'center', alignItems: 'center', height: 150, width: 150 }}>
+            <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#3C99DC', opacity: 1 }}>
+              WePee
+            </Text>
+          </View>
+        </ImageBackground>
+        <Text style={{ color: 'black' }}>
+          Loading profile data...
+        </Text>
+      </View>
+
+    )
   }
 
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView style={{ flex: 1 }}>
       <View style={{ flex: 1, alignItems: 'center', padding: 0 }}>
         <FlatList
           data={userReviews || []}
-          renderItem={({ item, index }) => <Item item={item} index={index}/>}
+          renderItem={({ item, index }) => <Item item={item} index={index} />}
           ListHeaderComponent={HeadView}
           keyExtractor={item => item.id}
-          horizontal = {false}
-          style={{width: '100%', marginBottom: 60}}
+          horizontal={false}
+          style={{ width: '100%', marginBottom: 60 }}
           showsVerticalScrollIndicator={false}
         />
-        
-       <TouchableOpacity
-          onPress={ signInOutFunc }
-          style= {[styles.logoutButton, {color: 'red'}]}
+
+        <TouchableOpacity
+          onPress={signInOutFunc}
+          style={[styles.logoutButton, { color: 'red' }]}
         >
-          <Text style={[styles.txt, {color: 'white'}, {fontWeight: 'bold', fontSize:18}]}>
-            {!route.params?.isAnonymous? "Log Out" : "Log In"}
+          <Text style={[styles.txt, { color: 'white' }, { fontWeight: 'bold', fontSize: 18 }]}>
+            {!route.params?.isAnonymous ? 'Log Out' : 'Log In'}
           </Text>
-      </TouchableOpacity>
+        </TouchableOpacity>
 
       </View>
     </SafeAreaView>
   )
-
 }
 
 export default ProfileScreen
@@ -293,7 +289,7 @@ const styles = StyleSheet.create({
   displayName: {
     width: '100%',
     marginTop: 15,
-    //marginBottom: 5,
+    // marginBottom: 5,
     alignItems: 'center'
   },
   reviewStats: {
@@ -305,15 +301,15 @@ const styles = StyleSheet.create({
     top: 20,
     backgroundColor: 'white',
     flexDirection: 'row',
-    alignItems: "center",
-    justifyContent: "space-evenly",
-    elevation: 2,
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    elevation: 2
   },
   stats: {
-    justifyContent: "center", 
-    marginLeft: 10, 
-    marginRight: 10, 
-    alignItems: "center"
+    justifyContent: 'center',
+    marginLeft: 10,
+    marginRight: 10,
+    alignItems: 'center'
   },
   spacer: {
     position: 'absolute',
@@ -329,32 +325,32 @@ const styles = StyleSheet.create({
     marginRight: 'auto',
     borderRadius: 5,
     backgroundColor: 'white',
-    //flexDirection: 'row',
+    // flexDirection: 'row',
     padding: 10,
     marginVertical: 3,
-    elevation: 1,
+    elevation: 1
   },
   logoutButton: {
     position: 'absolute',
-    width:'90%',
-    height:50,
+    width: '90%',
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 'auto',
-    backgroundColor:'#3C99DC',
+    backgroundColor: '#3C99DC',
     padding: 8,
     borderRadius: 10,
     bottom: 5
   },
   profilePic: {
     width: 120,
-    height: 120, 
-    borderRadius: 100, 
+    height: 120,
+    borderRadius: 100,
     borderColor: 'white',
     borderWidth: 1,
-    flexDirection:'row', 
-    marginTop: 15, 
-    marginLeft:'auto', 
+    flexDirection: 'row',
+    marginTop: 15,
+    marginLeft: 'auto',
     marginRight: 'auto'
   }
 })
