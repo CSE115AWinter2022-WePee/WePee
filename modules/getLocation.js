@@ -16,8 +16,8 @@ export const getCurrentLocation = (latitudeDelta, longitudeDelta) => {
           const region = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
-            latitudeDelta: latitudeDelta,
-            longitudeDelta: longitudeDelta
+            latitudeDelta,
+            longitudeDelta
           }
           resolve({ coordinates, region })
         },

@@ -8,7 +8,7 @@ import { getCurrentLocation } from '../modules/getLocation'
 import { genericFlatListSeparator } from '../modules/flatListSeparator'
 import firestore from '@react-native-firebase/firestore'
 import { tags } from '../modules/tags'
-import { Dropdown } from 'react-native-element-dropdown';
+import { Dropdown } from 'react-native-element-dropdown'
 import { MapTypeDropdown } from '../modules/MapTypeDropdown'
 import {
   SafeAreaView,
@@ -39,7 +39,7 @@ const Mapview = ({ navigation, route }) => {
   // Ref to hold mapview element reference
   const mapViewRef = useRef(null)
   // State to hold type of map selected
-  const [mapType, setMapType] = useState("Standard")
+  const [mapType, setMapType] = useState('Standard')
 
   // States to determine if tag is active or not
   const [cleanliness, setCleanliness] = useState(false)
@@ -54,11 +54,11 @@ const Mapview = ({ navigation, route }) => {
 
   // State for and data for selectedStarCount
   const starCountData = [
-    {label:'1+', value:1},
-    {label:'2+', value:2},
-    {label:'3+', value:3},
-    {label:'4+', value:4},
-    {label:'5+', value:5},
+    { label: '1+', value: 1 },
+    { label: '2+', value: 2 },
+    { label: '3+', value: 3 },
+    { label: '4+', value: 4 },
+    { label: '5+', value: 5 }
   ]
 
   // bottom sheet snap points
@@ -127,7 +127,7 @@ const Mapview = ({ navigation, route }) => {
       else return false
     })
     filterBathrooms(data)
-}, [rating]);
+  }, [rating])
 
   // Grab bathrooms from database
   const fetchBathrooms = async () => {
@@ -156,7 +156,7 @@ const Mapview = ({ navigation, route }) => {
         setLocated(true)
       })
       .catch(message => {
-        Alert.alert("Location Permission Denied", "WePee requires location permission to work. \nPlease enable it in the settings and refresh the app.")
+        Alert.alert('Location Permission Denied', 'WePee requires location permission to work. \nPlease enable it in the settings and refresh the app.')
       })
   }
 
@@ -169,58 +169,61 @@ const Mapview = ({ navigation, route }) => {
 
     // If no tags selected update bathrooms else run filter func with selected tags
     const searchedTags = getSelectedTags(tag, newState)
-    if(searchedTags.length == 0){
-      const filteredBathrooms = allBathrooms.filter(bathroom => calcRating(bathroom.data()['rating']) > rating);
-      setBathrooms(filteredBathrooms);
-    }else{
+    if (searchedTags.length == 0) {
+      const filteredBathrooms = allBathrooms.filter(bathroom => calcRating(bathroom.data().rating) > rating)
+      setBathrooms(filteredBathrooms)
+    } else {
       filterBathrooms(searchedTags)
     }
   }
 
-  const [starLabel, setStarLabel] = useState("1+");
+  const [starLabel, setStarLabel] = useState('1+')
 
   const renderItem = item => {
     return (
-      <View style={{flexDirection: 'row', width: 70, marginTop: 5, marginBottom: 5, justifyContent: 'center', alignItems: 'center',}}>
+      <View style={{ flexDirection: 'row', width: 70, marginTop: 5, marginBottom: 5, justifyContent: 'center', alignItems: 'center' }}>
         <Text style={[styles.tagButtonText]}>{item.label}</Text>
-        <Icon name='star' type='font-awesome' size={20} style={{marginLeft: 5}} color='gold' />
+        <Icon name='star' type='font-awesome' size={20} style={{ marginLeft: 5 }} color='gold' />
       </View>
-    );
-  };
+    )
+  }
 
   // Code for dropdown star-filter tag
   const starFilterTag = () => {
     return (
-      <View style={{flexDirection: 'row', alignItems: "center", justifyContent: "center"}}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
         <Dropdown
-              //setSelected={(val) => setSelectedStarCount(val)} 
-              style={[styles.tagButtonNotPressed, {width: 70}]}
-              containerStyle={{ width: 70 , borderRadius: 18, backgroundColor: 'white'}}
-              data={starCountData} 
-              labelField="label"
-              valueField="value"
-              onChange={item => {
-                setStarLabel(item.label);
-                setRating(item.value);
-              }}
-              renderRightIcon={() => 
-                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center',}}>
-                  <Text style={[styles.tagButtonText]}>{starLabel}</Text>
-                  <Icon name='star' type='font-awesome' style={{marginLeft: 5}} 
-                  size={20} color='gold' />
-                  <Icon name='caret-down' type='font-awesome' style={{marginLeft: 5}} size={15} color='gray' />
-                </View>
-              }
-              search={false}
-              placeholder={''}
-              renderItem={renderItem}
-          />
-      
-        <MapTypeDropdown style={[styles.tagButtonNotPressed, {width: 110}]} 
-                         mapType={mapType} setMapType={setMapType}/>
- 
+              // setSelected={(val) => setSelectedStarCount(val)}
+          style={[styles.tagButtonNotPressed, { width: 70 }]}
+          containerStyle={{ width: 70, borderRadius: 18, backgroundColor: 'white' }}
+          data={starCountData}
+          labelField='label'
+          valueField='value'
+          onChange={item => {
+            setStarLabel(item.label)
+            setRating(item.value)
+          }}
+          renderRightIcon={() =>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={[styles.tagButtonText]}>{starLabel}</Text>
+              <Icon
+                name='star' type='font-awesome' style={{ marginLeft: 5 }}
+                size={20} color='gold'
+              />
+              <Icon name='caret-down' type='font-awesome' style={{ marginLeft: 5 }} size={15} color='gray' />
+            </View>}
+          search={false}
+          placeholder=''
+          renderItem={renderItem}
+        />
+
+        <MapTypeDropdown
+          style={[styles.tagButtonNotPressed, { width: 110 }]}
+          mapType={mapType} setMapType={setMapType}
+        />
+
       </View>
-    );
+    )
   }
 
   const getSelectedTags = (tag, add) => {
@@ -244,13 +247,12 @@ const Mapview = ({ navigation, route }) => {
     // runs for every bathroom, checking their qualities against the tags
     for (const bath of allBathrooms) {
       let hasAllTags = true
-      
+
       // Calc rating using V and if rating is >= thres
-      let rat = calcRating(bath.data()['rating'])
+      const rat = calcRating(bath.data().rating)
       if (rat < (rating)) { // Verify if bath has good rating
         hasAllTags = false
-      } 
-      else { // Verify if bath has all tags
+      } else { // Verify if bath has all tags
         for (const tag of searchedTags) { // for each tag
           if (bath.data()[tag.db_name] !== true) {
             // don't add bathroom
@@ -280,7 +282,7 @@ const Mapview = ({ navigation, route }) => {
       number += list[i]
       sum += (list[i] * (i + 1))
     }
- 
+
     return sum / number
   }
 
@@ -292,10 +294,10 @@ const Mapview = ({ navigation, route }) => {
 
   // Runs when goToUser button is pressed
   const goToUser = async () => {
-    console.log("goToUser start")
+    console.log('goToUser start')
     await _getLocation() // update user location
     mapViewRef.current.animateToRegion(region, 1000)
-    console.log("goToUser done")
+    console.log('goToUser done')
   }
 
   // Placehplder for handling stylesheet changes
@@ -329,7 +331,7 @@ const Mapview = ({ navigation, route }) => {
 
   // Custom component for each bathroom list item
   // in the bathroom list (bottomSheet)
-  const Item = ({ props, index, id}) => (
+  const Item = ({ props, index, id }) => (
     <TouchableOpacity
       style={{
         width: '100%',
@@ -338,7 +340,7 @@ const Mapview = ({ navigation, route }) => {
         padding: 10,
         marginVertical: 5
       }}
-      onPress={() => navigation.navigate('Details', { bathroomId: id, bathroomName: props.name, region: region, uid: route.params?.uid, mapType})}
+      onPress={() => navigation.navigate('Details', { bathroomId: id, bathroomName: props.name, region, uid: route.params?.uid, mapType })}
     >
       <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
         <Text style={[styles.txt, { fontSize: 16, fontWeight: 'bold' }]}>{props.name}</Text>
@@ -378,20 +380,21 @@ const Mapview = ({ navigation, route }) => {
   // otherwise render the default mapview with the current user location and all UI components
   if (!located || !loaded) {
     return (
-      <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-          <ImageBackground
-            source={require('../assets/wepee.png')}
-            style={{opacity: .7}}>
-            <View style={{justifyContent: 'center',alignItems:'center', height: 150, width: 150}}>
-              <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#3C99DC', opacity: 1}}>
-                  WePee
-              </Text>
-            </View>
-          </ImageBackground>
-          <Text style={{color: 'black'}}>
-            Loading user location...
-          </Text>
-        </View>
+      <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+        <ImageBackground
+          source={require('../assets/wepee.png')}
+          style={{ opacity: 0.7 }}
+        >
+          <View style={{ justifyContent: 'center', alignItems: 'center', height: 150, width: 150 }}>
+            <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#3C99DC', opacity: 1 }}>
+              WePee
+            </Text>
+          </View>
+        </ImageBackground>
+        <Text style={{ color: 'black' }}>
+          Loading user location...
+        </Text>
+      </View>
     )
   }
   return (
@@ -426,24 +429,28 @@ const Mapview = ({ navigation, route }) => {
                 value={searchTxt}
               />
 
-              <TouchableOpacity style={{ width: 40, height: 40, borderRadius: 20, justifyContent: 'center' }} onPress={() => navigation.navigate('Add', { region, mapType, uid: route.params?.uid})}>
+              <TouchableOpacity style={{ width: 40, height: 40, borderRadius: 20, justifyContent: 'center' }} onPress={() => navigation.navigate('Add', { region, mapType, uid: route.params?.uid })}>
                 <Icon name='plus' type='font-awesome' size={20} color='#3C99DC' />
               </TouchableOpacity>
 
-              <TouchableOpacity style={{ justifyContent: 'center' }} onPress={() => navigation.navigate('Profile', { 
-                              uid: route.params?.uid, 
-                              displayName: route.params?.displayName,
-                              photoURL: route.params?.photoURL, 
-                              isAnonymous: route.params?.isAnonymous, 
-                              daysInApp: route.params?.daysInApp,
-                              region,
-                              mapType})}>
+              <TouchableOpacity
+                style={{ justifyContent: 'center' }} onPress={() => navigation.navigate('Profile', {
+                  uid: route.params?.uid,
+                  displayName: route.params?.displayName,
+                  photoURL: route.params?.photoURL,
+                  isAnonymous: route.params?.isAnonymous,
+                  daysInApp: route.params?.daysInApp,
+                  region,
+                  mapType
+                })}
+              >
                 <Image // profile image
-                    style={{width: 30, height: 30, borderRadius: 15, borderWidth:0,}}
-                    source={{ // source is user profile pic or the static google one
-                    uri: route.params?.photoURL || "https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg"
-                }}/>
-            
+                  style={{ width: 30, height: 30, borderRadius: 15, borderWidth: 0 }}
+                  source={{ // source is user profile pic or the static google one
+                    uri: route.params?.photoURL || 'https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg'
+                  }}
+                />
+
               </TouchableOpacity>
 
             </View>
@@ -476,9 +483,8 @@ const Mapview = ({ navigation, route }) => {
               showsHorizontalScrollIndicator={false}
               renderItem={({ item, index }) => <TagItem tag={item} index={index} />}
               keyExtractor={item => item.key}
-              style={{ width: '100%', height: 40, position: 'absolute', top: 108}}
+              style={{ width: '100%', height: 40, position: 'absolute', top: 108 }}
             />
-
 
             <TouchableOpacity // Show list button
               onPress={() => bottomSheetRef.current.snapToIndex(0)}
@@ -611,19 +617,19 @@ const styles = StyleSheet.create({
   },
   ratingFilterButton: {
     position: 'absolute',
-    alignItems:'center',
+    alignItems: 'center',
     justifyContent: 'center',
     top: 156,
     left: '3%',
     height: 50,
     width: 50,
-    opacity: .8,
+    opacity: 0.8,
     padding: 5,
     borderRadius: 100,
-    backgroundColor: 'gray',
+    backgroundColor: 'gray'
   },
   ratingTxt: {
-    fontSize:24,
-    color:'lightblue'
+    fontSize: 24,
+    color: 'lightblue'
   }
 })

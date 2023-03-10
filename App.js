@@ -51,9 +51,9 @@ function App () {
   // if it works incorrectly, it is Rohan's fault
   const [initializing, setInitializing] = useState(true)
   const [user, setUser] = useState()
-  
+
   function onAuthStateChanged (user) {
-    console.log("auth state changed")
+    console.log('auth state changed')
     setUser(user)
     console.log(user)
     if (initializing) setInitializing(false)
@@ -67,7 +67,7 @@ function App () {
   if (!user) {
     return (
       <View style={styles.buttonsStyle}>
-        <Text style={{ fontSize: 50, fontWeight: 'bold', color: '#3C99DC', opacity: 1}}>
+        <Text style={{ fontSize: 50, fontWeight: 'bold', color: '#3C99DC', opacity: 1 }}>
           WePee
         </Text>
         <Image source={require('./assets/wepee.png')} />
@@ -79,15 +79,14 @@ function App () {
         {/* The javscript:void() just prevents it from rendering the facebook icon (default logo) */}
         <SocialButton
           text='Skip login'
-          //imageSource={""}
           onPress={anonymousLogin}
         />
       </View>
     )
   };
 
-  const d = new Date(user.metadata.creationTime);
-  const daysInApp = ((Date.now() - d.valueOf())/86400000)
+  const d = new Date(user.metadata.creationTime)
+  const daysInApp = ((Date.now() - d.valueOf()) / 86400000)
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -103,7 +102,7 @@ function App () {
                 component={Mapview}
                 options={{
                   headerShown: false
-                }} initialParams={{ displayName: user.displayName, uid: user.uid, photoURL: user.photoURL, isAnonymous: user.isAnonymous, daysInApp: daysInApp}}
+                }} initialParams={{ displayName: user.displayName, uid: user.uid, photoURL: user.photoURL, isAnonymous: user.isAnonymous, daysInApp }}
               />
               <Stack.Screen
                 name='Add'
