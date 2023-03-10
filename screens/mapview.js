@@ -335,7 +335,11 @@ const Mapview = ({ navigation, route }) => {
       </View>
     </TouchableOpacity>
   )
-
+  const EmptyBathroomsList = () => (
+    <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
+      <Text style={[styles.txt, { fontSize: 16, fontWeight: 'bold' }]}>We couldn't find any bathrooms that matched those criteria.</Text>
+    </View>
+  )
   // Custom component for each tag filter
   const TagItem = ({ tag, index }) => (
     <View key={tag.key}>
@@ -495,11 +499,17 @@ const Mapview = ({ navigation, route }) => {
         >
           <View style={{ flex: 1, alignItems: 'center', padding: 0 }}>
             <FlatList
-              data={bathrooms}
+              data={bathrooms.sort((a, b) => {
+                let [latA, lonA] = [a.data()["latitude"], a.data()["longitude"]]
+                let [latB, lonB] = [b.data()["latitude"], b.data()["longitude"]]
+                console.log(latA, lonA)
+                return getDistance(latA, lonA) - getDistance(latB, lonB)
+              })}
               ItemSeparatorComponent={genericFlatListSeparator}
               renderItem={({ item, index }) => <Item props={item.data()} index={index} id={item.id} />}
               keyExtractor={item => item.id}
               style={{ width: '100%', marginBottom: 20 }}
+              ListEmptyComponent={EmptyBathroomsList()}
             />
           </View>
         </BottomSheet>
