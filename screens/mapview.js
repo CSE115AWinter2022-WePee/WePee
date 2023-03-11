@@ -481,7 +481,7 @@ const Mapview = ({ navigation, route }) => {
               showsHorizontalScrollIndicator={false}
               renderItem={({ item, index }) => <TagItem tag={item} index={index} />}
               keyExtractor={item => item.key}
-              style={{ width: '100%', height: 40, position: 'absolute', top: 108 }}
+              style={{ width: '100%', height: 40, position: 'absolute', top: 70 }}
             />
 
             <TouchableOpacity // Show list button
