@@ -58,7 +58,9 @@ const BathroomDetailsScreen = ({ route }) => {
 
   // Update displayed reviews as they're updated
   useEffect(() => {
-    if (reviews.length > 0) displayUserReviews(reviews)
+    if (reviews.length > 0) {
+      displayUserReviews(reviews)
+    }
   }, [reviews])
 
   // Fetch user's review data from firestore database
@@ -136,9 +138,10 @@ const BathroomDetailsScreen = ({ route }) => {
         .where('bathroom_id', '==', bathroomId)
         .get()
       if (!snap.empty && snap.docs.length > 0) {
-        setUserRating({ id: snap.docs[0].id, stars: snap.docs[0].data().stars, description: snap.docs[0].data.description })
-        setStars(snap.docs[0].data().stars)
-        setDesc(snap.docs[0].data().description || '')
+        const data = await snap.docs[0].data()
+        setUserRating(data)
+        setStars(data.stars)
+        setDesc(data.description || '')
       }
     } catch (error) {
       console.log(error)
@@ -158,14 +161,16 @@ const BathroomDetailsScreen = ({ route }) => {
     return [(totalSum > 0 ? Number((totalSum / numRatings).toFixed(1)) : 0), numRatings]
   }
 
+  // New data MUST be inserted in the order { user_name, bathroom_name, bathroom_id, id, stars, description } !!!!
   const updateRating = async () => {
     // update user previous rating if any
     // else save new rating into reviews collection
     if (userRating && (userRating.stars !== stars || userRating.desc !== desc)) { // if user rating exists and they've changed stars/desc
       bathroomData.rating[userRating.stars - 1]--
       await firestore().collection('reviews').doc(userRating.id).update({ stars, description: desc, user_name: displayName })
-      setUserRating({ id: userRating.id, stars, description: desc })
-      setReviews(reviews.map(o => o.id === userRating.id ? { ...o, stars, description: desc } : o)) // Update user reviews with updated rating/review
+      setUserRating({ ...userRating, stars, description: desc })
+      const updatedReviews = reviews.map(o => o.id === userRating.id ? { ...o, user_name: displayName, stars, description: desc } : o) // Update user reviews with updated rating/review
+      setReviews(updatedReviews)
     } else {
       const id = firestore().collection('reviews').doc().id
       const uid = await getUserId()
@@ -179,14 +184,15 @@ const BathroomDetailsScreen = ({ route }) => {
         stars
       })
       setUserRating({ id, stars, description: desc })
-      setReviews(reviews.concat({
+      const reviewAdded = reviews.concat({
         user_name: displayName,
         bath_name: route.params?.bathroomName,
         bathroom_id: route.params?.bathroomId,
         description: desc,
         id,
         stars
-      })) // Add new user review to current userReviews
+      }) // Add new user review to current userReviews
+      setReviews(reviewAdded)
     }
 
     bathroomData.rating[stars - 1]++
@@ -410,8 +416,8 @@ const BathroomDetailsScreen = ({ route }) => {
 
                   <View style={{ alignItems: 'center' }}>
                     <Dialog.Title title={userRating ? 'YOUR PREVIOUS REVIEW' : 'LEAVE REVIEW'} />
-                    <Text style={[styles.txt, { fontSize: 20 }]}>
-                      {userRating ? 'Edit Review' : 'Leave review'}
+                    <Text style={userRating ? [styles.txt, { fontSize: 20 }] : { display: 'none' }}>
+                      Edit Review
                     </Text>
 
                     <AirbnbRating
