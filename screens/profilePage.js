@@ -212,16 +212,10 @@ const ProfileScreen = ({ navigation, route }) => {
   if (!averageUserReview && !route.params?.isAnonymous && !noReviews) {
     return (
       <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-        <ImageBackground
-          source={require('../assets/wepee.png')}
-          style={{ opacity: 0.7 }}
-        >
-          <View style={{ justifyContent: 'center', alignItems: 'center', height: 150, width: 150 }}>
-            <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#3C99DC', opacity: 1 }}>
-              WePee
-            </Text>
-          </View>
-        </ImageBackground>
+        <Image
+          source={require('../assets/logo.png')}
+          style={{ opacity: 0.7, width: 200, height: 200}}
+        />
         <Text style={{ color: 'black' }}>
           Loading profile data...
         </Text>

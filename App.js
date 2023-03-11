@@ -69,7 +69,7 @@ function App () {
         <Text style={{ fontSize: 50, fontWeight: 'bold', color: '#3C99DC', opacity: 1 }}>
           WePee
         </Text>
-        <Image source={require('./assets/wepee.png')} />
+        <Image source={require('./assets/logo.png')} style={{width: 200, height: 200}}/>
         <SocialButton
           text='Continue with Google'
           imageSource={require('./assets/google.png')}
