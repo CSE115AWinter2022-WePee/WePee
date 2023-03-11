@@ -274,6 +274,7 @@ const Mapview = ({ navigation, route }) => {
 
   // Calculates rating given a 5 element list (this is how ratings are stored in database)
   function calcRating (list) {
+    if (!list || !list.length) return 0
     if (list.length !== 5) return 0
     let number = 0
     let sum = 0
