@@ -573,7 +573,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    bottom: 115,
+    bottom: 75,
     right: '1%',
     height: 50,
     width: 130,

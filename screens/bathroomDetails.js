@@ -504,13 +504,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     bottom: 15,
-    right: 15,
+    right: '1%',
     height: 50,
     width: 130,
     opacity: 0.8,
     padding: 5,
     borderRadius: 100,
-    backgroundColor: '#3C99DC'
+    backgroundColor: '#3C99DC',
+    elevation: 2
   },
   leaveReview: {
     height: 35,
