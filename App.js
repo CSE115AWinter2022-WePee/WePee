@@ -85,7 +85,7 @@ function App () {
   };
 
   const d = new Date(user.metadata.creationTime)
-  const daysInApp = ((Date.now() - d.valueOf()) / 86400000)
+  const daysInApp = Math.abs((Date.now() - d.valueOf()) / 86400000)
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
