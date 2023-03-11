@@ -59,7 +59,7 @@ const BathroomDetailsScreen = ({ route }) => {
   // Update displayed reviews as they're updated
   useEffect(() => {
     if (reviews.length > 0) {
-        displayUserReviews(reviews)
+      displayUserReviews(reviews)
     }
   }, [reviews])
 
@@ -168,7 +168,7 @@ const BathroomDetailsScreen = ({ route }) => {
     if (userRating && (userRating.stars !== stars || userRating.desc !== desc)) { // if user rating exists and they've changed stars/desc
       bathroomData.rating[userRating.stars - 1]--
       await firestore().collection('reviews').doc(userRating.id).update({ stars, description: desc, user_name: displayName })
-      setUserRating({...userRating, stars, description: desc })
+      setUserRating({ ...userRating, stars, description: desc })
       const updatedReviews = reviews.map(o => o.id === userRating.id ? { ...o, user_name: displayName, stars, description: desc } : o) // Update user reviews with updated rating/review
       setReviews(updatedReviews)
     } else {
