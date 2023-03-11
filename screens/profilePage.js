@@ -48,7 +48,6 @@ const ProfileScreen = ({ navigation, route }) => {
       return { name, id, bathroom_id, stars, description }
     }))
     setUserReviews(cleanedData)
-    // console.log(cleanedData)
   }
 
   const calcAverageReview = () => {

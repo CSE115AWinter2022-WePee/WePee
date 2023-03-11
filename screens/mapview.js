@@ -162,7 +162,6 @@ const Mapview = ({ navigation, route }) => {
 
   // Runs when a tag is pressed
   const onTagPress = (tag, index) => {
-    // console.log('called onTag pressed')
     const newState = !tag.state[0]
     // Change the tags state
     tag.state[1](newState)
@@ -236,7 +235,6 @@ const Mapview = ({ navigation, route }) => {
     // check if current selected shoud be added to previously selected tags
     add ? data.push(tag) : data.splice(data.indexOf(tag), 1)
 
-    // console.log('selected tags ', JSON.stringify(data))
     return data
   }
 
@@ -294,10 +292,8 @@ const Mapview = ({ navigation, route }) => {
 
   // Runs when goToUser button is pressed
   const goToUser = async () => {
-    // console.log('goToUser start')
     await _getLocation() // update user location
     mapViewRef.current.animateToRegion(region, 1000)
-    // console.log('goToUser done')
   }
 
   // Placeholder for handling stylesheet changes
@@ -433,7 +429,7 @@ const Mapview = ({ navigation, route }) => {
                 value={searchTxt}
               />
 
-              <TouchableOpacity style={{ width: 40, height: 40, borderRadius: 20, justifyContent: 'center' }} onPress={() => navigation.navigate('Add', { region, mapType, uid: route.params?.uid })}>
+              <TouchableOpacity style={{ width: 40, height: 40, borderRadius: 20, justifyContent: 'center' }} onPress={() => navigation.navigate('Add', { region, mapType, uid: route.params?.uid, displayName: route.params?.displayName })}>
                 <Icon name='plus' type='font-awesome' size={20} color='#3C99DC' />
               </TouchableOpacity>
 
