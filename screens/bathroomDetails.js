@@ -416,8 +416,8 @@ const BathroomDetailsScreen = ({ route }) => {
 
                   <View style={{ alignItems: 'center' }}>
                     <Dialog.Title title={userRating ? 'YOUR PREVIOUS REVIEW' : 'LEAVE REVIEW'} />
-                    <Text style={[styles.txt, { fontSize: 20 }]}>
-                      {userRating ? 'Edit Review' : 'Leave review'}
+                    <Text style={userRating ? [styles.txt, { fontSize: 20 }] : { display: 'none' }}>
+                      Edit Review
                     </Text>
 
                     <AirbnbRating
