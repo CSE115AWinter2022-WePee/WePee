@@ -407,13 +407,6 @@ const Mapview = ({ navigation, route }) => {
         <View style={{ height: '100%' }}>
 
           <View style={{ alignItems: 'center' }}>
-
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#3C99DC' }}>
-                WePee
-              </Text>
-            </View>
-
             <View style={{
               height: 60,
               flexDirection: 'row',
