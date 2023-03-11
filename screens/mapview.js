@@ -382,7 +382,7 @@ const Mapview = ({ navigation, route }) => {
   if (!located || !loaded) {
     return (
       <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-        <Image source={require('../assets/logo.png')} style={{ opacity: 0.7, width: 200, height:200}}/>
+        <Image source={require('../assets/logo.png')} style={{ opacity: 0.7, width: 200, height: 200 }} />
         {/* <ImageBackground
           source={require('../assets/wepee.png')}
           style={{ opacity: 0.7 }}

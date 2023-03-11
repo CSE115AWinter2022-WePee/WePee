@@ -213,7 +213,7 @@ const ProfileScreen = ({ navigation, route }) => {
       <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
         <Image
           source={require('../assets/logo.png')}
-          style={{ opacity: 0.7, width: 200, height: 200}}
+          style={{ opacity: 0.7, width: 200, height: 200 }}
         />
         <Text style={{ color: 'black' }}>
           Loading profile data...
