@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import firestore from '@react-native-firebase/firestore'
 import { AirbnbRating } from '@rneui/themed'
 import auth from '@react-native-firebase/auth'
@@ -96,7 +96,7 @@ const ProfileScreen = ({ navigation, route }) => {
     </TouchableOpacity>
   )
 
-  const ProfilePic = ({}) => {
+  const ProfilePic = () => {
     return (
       <Image
         style={[styles.profilePic]}
@@ -107,7 +107,7 @@ const ProfileScreen = ({ navigation, route }) => {
     )
   }
 
-  const DisplayName = ({}) => {
+  const DisplayName = () => {
     return (
       <View style={[styles.displayName]}>
         <View>
@@ -117,7 +117,7 @@ const ProfileScreen = ({ navigation, route }) => {
     )
   }
 
-  const Spacer = ({}) => {
+  const Spacer = () => {
     return (
       <View
         style={{

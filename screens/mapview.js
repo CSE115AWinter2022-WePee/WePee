@@ -67,8 +67,8 @@ const Mapview = ({ navigation, route }) => {
   // set map default region state variable
   const [region, setRegion] = useState(null)
   // States to hold latitude and longitude zoom levels
-  const [latitudeDelta, setLatitudeDelta] = useState(0.0922)
-  const [longitudeDelta, setLongitudeDelta] = useState(0.0421)
+  const latitudeDelta = 0.0922
+  const longitudeDelta = 0.0421
 
   // states to hold when app data fully fetched on initial render
   const [located, setLocated] = useState(false)
@@ -169,7 +169,7 @@ const Mapview = ({ navigation, route }) => {
 
     // If no tags selected update bathrooms else run filter func with selected tags
     const searchedTags = getSelectedTags(tag, newState)
-    if (searchedTags.length == 0) {
+    if (searchedTags.length === 0) {
       const filteredBathrooms = allBathrooms.filter(bathroom => calcRating(bathroom.data().rating) > rating)
       setBathrooms(filteredBathrooms)
     } else {
@@ -274,7 +274,7 @@ const Mapview = ({ navigation, route }) => {
 
   // Calculates rating given a 5 element list (this is how ratings are stored in database)
   function calcRating (list) {
-    if (list.length != 5) return 0
+    if (list.length !== 5) return 0
     let number = 0
     let sum = 0
 
