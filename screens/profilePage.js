@@ -186,20 +186,20 @@ const ProfileScreen = ({ navigation, route }) => {
             style={[styles.userReview]}
             onPress={() => navigation.navigate('Details', { bathroomId: item.bathroom_id, bathroomName: item.bathroom_name, uid: route.params?.uid, region: route.params?.region, mapType: route.params?.mapType })}
           >
-            <View style={{ flexDirection: 'row' }}>
+            <View style={{ flexDirection: 'column' }}>
               <Text style={[styles.txt, { fontSize: 19, fontWeight: 'bold' }]}>{item.name}</Text>
               <AirbnbRating
                 isDisabled
                 showRating={false}
-                size={25}
+                size={20}
                 count={5}
                 defaultRating={item.stars}
-                ratingContainerStyle={{ marginTop: 0, marginLeft: 'auto' }}
+                ratingContainerStyle={{ marginTop: 0, marginRight: 'auto' }}
               />
             </View>
 
             <View>
-              <Text style={[styles.txt, { fontWeight: 'bold' }]}>Description: </Text>
+              <Text style={[styles.txt, { fontWeight: 'bold' }]}>Review: </Text>
               <Text style={[styles.txt]}>{item.description || 'No Review...'}</Text>
             </View>
           </TouchableOpacity>
