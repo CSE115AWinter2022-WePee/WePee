@@ -128,17 +128,17 @@ const AddBathroomScreen = ({ navigation, route }) => {
   }
 
   const doesBathroomExist = async () => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const snap = await firestore().collection('bathrooms')
-          .where('latitude', '==', pinnedCoordinate.latitude)
-          .where('longitude', '==', pinnedCoordinate.longitude)
-          .get()
+    try {
+      const snap = await firestore().collection('bathrooms')
+        .where('latitude', '==', pinnedCoordinate.latitude)
+        .where('longitude', '==', pinnedCoordinate.longitude)
+        .get()
+      return new Promise((resolve, reject) => {
         snap.empty ? resolve(false) : resolve(true)
-      } catch (error) {
-        reject(error)
-      }
-    })
+      })
+    } catch (error) {
+      return Promise.reject(new Error(error))
+    }
   }
 
   const showAlert = (title, message, onPress = null) => {

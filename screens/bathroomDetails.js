@@ -70,7 +70,7 @@ const BathroomDetailsScreen = ({ route }) => {
       if (!snap.empty) {
         cleanupAndSetFirebaseUserReviews(snap.docs)
       } else {
-        setNoReviews(true)
+        // setReviews(false)
       }
     } catch (error) {
       console.log(error)
@@ -102,8 +102,8 @@ const BathroomDetailsScreen = ({ route }) => {
   // get uid
   // if no user uid, then use uid = deviceId
   const getUserId = async () => {
-    return new Promise(async resolve => {
-      let uid = await DeviceInfo.getUniqueId()
+    let uid = await DeviceInfo.getUniqueId()
+    return new Promise(resolve => {
       if (auth().currentUser) uid = auth().currentUser.uid
       resolve(uid)
     })
@@ -132,7 +132,7 @@ const BathroomDetailsScreen = ({ route }) => {
 
   const getUserRatingIfAny = async (bathroomId) => {
     try {
-      uid = await getUserId()
+      const uid = await getUserId()
       const snap = await firestore().collection('reviews')
         .where('uid', '==', uid)
         .where('bathroom_id', '==', bathroomId)
@@ -152,8 +152,8 @@ const BathroomDetailsScreen = ({ route }) => {
     if (!data) {
       return 5
     }
-    totalSum = 0
-    numRatings = 0
+    let totalSum = 0
+    let numRatings = 0
     for (let i = 0; i < data.rating.length; i++) {
       totalSum += (i + 1) * data.rating[i]
       numRatings += data.rating[i]
@@ -165,7 +165,7 @@ const BathroomDetailsScreen = ({ route }) => {
   const updateRating = async () => {
     // update user previous rating if any
     // else save new rating into reviews collection
-    if (userRating && (userRating.stars != stars || userRating.description != desc)) { // if user rating exists and they've changed stars/desc
+    if (userRating && (userRating.stars !== stars || userRating.desc !== desc)) { // if user rating exists and they've changed stars/desc
       bathroomData.rating[userRating.stars - 1]--
       await firestore().collection('reviews').doc(userRating.id).update({ stars, description: desc, user_name: displayName })
       setUserRating({...userRating, stars, description: desc })
@@ -173,7 +173,7 @@ const BathroomDetailsScreen = ({ route }) => {
       setReviews(updatedReviews)
     } else {
       const id = firestore().collection('reviews').doc().id
-      uid = await getUserId()
+      const uid = await getUserId()
       await firestore().collection('reviews').doc(id).set({
         uid,
         bathroom_id: route.params?.bathroomId,
@@ -239,7 +239,7 @@ const BathroomDetailsScreen = ({ route }) => {
     ))
 
     // If a bathroom has no tags, just display "None!"
-    if (data.length == 0) {
+    if (data.length === 0) {
       setUserReviews(
         <View>
           <Text style={{ fontSize: 15, color: 'black' }}>None!</Text>
@@ -298,7 +298,7 @@ const BathroomDetailsScreen = ({ route }) => {
       ))
 
     // If a bathroom has no tags, just display "None!"
-    if (data.length == 0) {
+    if (data.length === 0) {
       setTagsSection(
         <View style={{}}>
           <Text style={{ fontSize: 15, color: 'black' }}>None!</Text>

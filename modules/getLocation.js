@@ -3,10 +3,10 @@ import { requestLocationPermission } from '../modules/requestLocation'
 
 // function to check permissions and get location
 // Takes the `latitudeDelta` and `longitudeDelta` for the region view as arguments
-export const getCurrentLocation = (latitudeDelta, longitudeDelta) => {
-  return new Promise(async (resolve, reject) => {
-    const res = await requestLocationPermission()
-    if (res) {
+export const getCurrentLocation = async (latitudeDelta, longitudeDelta) => {
+  const res = await requestLocationPermission()
+  if (res) {
+    return new Promise((resolve, reject) => {
       Geolocation.getCurrentPosition(
         position => {
           const coordinates = {
@@ -26,8 +26,8 @@ export const getCurrentLocation = (latitudeDelta, longitudeDelta) => {
         },
         { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
       )
-    } else {
-      reject(new Error('No location permission'))
-    }
-  })
+    })
+  } else {
+    return Promise.reject(new Error('No location permission'))
+  }
 }
