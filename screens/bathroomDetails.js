@@ -234,7 +234,7 @@ const BathroomDetailsScreen = ({ route }) => {
       <View key={review.id} style={[styles.userReview]}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems:'flex-start' }}>
           <Text style={[styles.txt, { fontSize: 18, fontWeight: 'bold', width:'50%', marginBottom:10 }]}>
-            {review.user_name.length > 18 ? review.user_name.substr(0, 18) + '...' : review.user_name}
+            {review.user_name}
           </Text>
           <AirbnbRating
             isDisabled
