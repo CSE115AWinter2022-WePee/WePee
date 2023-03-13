@@ -59,7 +59,7 @@ const BathroomDetailsScreen = ({ route }) => {
   // Update displayed reviews as they're updated
   useEffect(() => {
     if (reviews.length > 0) {
-      displayUserReviews(reviews)
+      buildUserReviewObjects(reviews)
     }
   }, [reviews])
 
@@ -87,14 +87,14 @@ const BathroomDetailsScreen = ({ route }) => {
         bath_name = await getBathroomNameFromId(bathroom_id)
         await updateBathroomNameInReview(id, bath_name) // updates the bathroom's name in a review, if it isnt there
       }
-      if (!username) {
-        const randomNumber = Math.floor(Math.random() * 900) + 100
+      if (!username) { // if username is undefined
+        const randomNumber = Math.floor(Math.random() * 1000);
         username = 'WePee User ' + randomNumber
       }
       return { user_name: username, bath_name, id, bathroom_id, stars, description, timestamp }
     }))
     setReviews(cleanedData)
-    displayUserReviews(cleanedData)
+    buildUserReviewObjects(cleanedData)
   }
 
   // get uid
@@ -109,6 +109,7 @@ const BathroomDetailsScreen = ({ route }) => {
     })
   }
 
+  // Grab bathroom details and data from firebase
   const fetchBathroomData = async (bathroomId) => {
     try {
       const doc = firestore().collection('bathrooms').doc(bathroomId)
@@ -123,13 +124,14 @@ const BathroomDetailsScreen = ({ route }) => {
           longitude: snap.data().longitude
         })
         setCoordinate({ latitude: snap.data().latitude, longitude: snap.data().longitude })
-        displayTags(snap.data())
+        buildBathroomTagsObject(snap.data())
       }
     } catch (error) {
       console.log(error)
     }
   }
 
+  // Fetch all user ratings of this bathroom from firebase
   const getUserRatingIfAny = async (bathroomId) => {
     try {
       const uid = await getUserId()
@@ -148,7 +150,8 @@ const BathroomDetailsScreen = ({ route }) => {
     }
   }
 
-  const getRating = function (data) {
+  // calculate rating of a bathroom
+  const calculateBathroomRating = function (data) {
     if (!data) {
       return 5
     }
@@ -161,10 +164,10 @@ const BathroomDetailsScreen = ({ route }) => {
     return [(totalSum > 0 ? Number((totalSum / numRatings).toFixed(1)) : 0), numRatings]
   }
 
-  // New data MUST be inserted in the order { user_name, bathroom_name, bathroom_id, id, stars, description } !!!!
+  // update user previous rating if any
+  // else save new rating into reviews collection
+  // New data MUST be inserted in the order { user_name, bathroom_name, bathroom_id, id, stars, description, timestamp } !!!!
   const updateRating = async () => {
-    // update user previous rating if any
-    // else save new rating into reviews collection
     if (userRating && (userRating.stars !== stars || userRating.desc !== desc)) { // if user rating exists and they've changed stars/desc
       bathroomData.rating[userRating.stars - 1]--
       // Add timestamp if none exists for review
@@ -223,14 +226,16 @@ const BathroomDetailsScreen = ({ route }) => {
     console.log('rating updated!')
   }
 
-  function displayUserReviews (reviewData) {
+  function buildUserReviewObjects (reviewData) {
     const data = reviewData.sort((a, b) => {
       // console.log(a.timestamp, b.timestamp)
       return b.timestamp - a.timestamp
     }).map((review) => (
       <View key={review.id} style={[styles.userReview]}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
-          <Text style={[styles.txt, { fontSize: 19, fontWeight: 'bold' }]}>{review.user_name}</Text>
+          <Text style={[styles.txt, { fontSize: 18, fontWeight: 'bold' }]}>
+            {review.user_name.length > 18 ? review.user_name.substr(0, 18) + '...' : review.user_name}
+          </Text>
           <AirbnbRating
             isDisabled
             showRating={false}
@@ -267,7 +272,8 @@ const BathroomDetailsScreen = ({ route }) => {
     }
   }
 
-  function displayTags (bathroomData) {
+  // Display a bathroom's tags
+  function buildBathroomTagsObject (bathroomData) {
     const data = tags
       .filter((tag) => bathroomData[tag.db_name])
       .map((tag) => (
@@ -394,7 +400,7 @@ const BathroomDetailsScreen = ({ route }) => {
 
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
                   <Text style={[styles.txt]}>
-                    {getRating(bathroomData)[0]}
+                    {calculateBathroomRating(bathroomData)[0]}
                   </Text>
 
                   <AirbnbRating
@@ -402,12 +408,12 @@ const BathroomDetailsScreen = ({ route }) => {
                     showRating={false}
                     size={20}
                     count={5}
-                    defaultRating={getRating(bathroomData)[0]}
+                    defaultRating={calculateBathroomRating(bathroomData)[0]}
                     ratingContainerStyle={{ marginTop: 0 }}
                   />
 
                   <Text style={[styles.txt]}>
-                    ({getRating(bathroomData)[1]} reviews)
+                    ({calculateBathroomRating(bathroomData)[1]} reviews)
                   </Text>
                 </View>
 
