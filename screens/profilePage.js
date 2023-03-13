@@ -189,15 +189,15 @@ const ProfileScreen = ({ navigation, route }) => {
             style={[styles.userReview]}
             onPress={() => navigation.navigate('Details', { bathroomId: item.bathroom_id, bathroomName: item.bathroom_name, uid: route.params?.uid, region: route.params?.region, mapType: route.params?.mapType, displayName: route.params?.displayName })}
           >
-            <View style={{ flexDirection: 'column' }}>
-              <Text style={[styles.txt, { fontSize: 19, fontWeight: 'bold' }]}>{item.name}</Text>
+            <View style={{ flexDirection: 'row', justifyContent:'space-between', alignItems:'flex-start' }}>
+              <Text style={[styles.txt, { fontSize: 19, fontWeight: 'bold', width:'50%', marginBottom:15 }]}>{item.name}</Text>
               <AirbnbRating
                 isDisabled
                 showRating={false}
                 size={20}
                 count={5}
                 defaultRating={item.stars}
-                ratingContainerStyle={{ marginTop: 0, marginRight: 'auto' }}
+                ratingContainerStyle={{ }}
               />
             </View>
 
