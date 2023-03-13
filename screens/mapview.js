@@ -314,6 +314,14 @@ const Mapview = ({ navigation, route }) => {
         }}
         title={snap.data().name || ''}
         description={snap.data().description || ''}
+        onPress={() => navigation.navigate('Details', { 
+                      bathroomId: snap.data().id, 
+                      bathroomName: snap.data().name, 
+                      region,
+                      displayName: route.params?.displayName,
+                      uid: route.params?.uid, 
+                      mapType })
+              }
       />
     ))
 
