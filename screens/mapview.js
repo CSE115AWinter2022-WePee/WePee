@@ -23,7 +23,6 @@ import {
   Alert
 } from 'react-native'
 
-
 const Mapview = ({ navigation, route }) => {
   // state to hold location, default is false. setCoordinate(a) sets `coordinate` to `a`
   const [coordinate, setCoordinate] = useState()
@@ -298,14 +297,14 @@ const Mapview = ({ navigation, route }) => {
         }}
         title={snap.data().name || ''}
         description={snap.data().description || ''}
-        onCalloutPress={() => navigation.navigate('Details', { 
-                      bathroomId: snap.data().id, 
-                      bathroomName: snap.data().name, 
-                      region,
-                      displayName: route.params?.displayName,
-                      uid: route.params?.uid, 
-                      mapType })
-              }
+        onCalloutPress={() => navigation.navigate('Details', {
+          bathroomId: snap.data().id,
+          bathroomName: snap.data().name,
+          region,
+          displayName: route.params?.displayName,
+          uid: route.params?.uid,
+          mapType
+        })}
       />
     ))
 
@@ -334,7 +333,7 @@ const Mapview = ({ navigation, route }) => {
       <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
         {/* Truncate bathroom names to 32 chars */}
         <Text style={[styles.txt, { fontSize: 16, fontWeight: 'bold' }]}>
-          {props.name.length > 31 ? props.name.substr(0,31) + "..." : props.name}
+          {props.name.length > 31 ? props.name.substr(0, 31) + '...' : props.name}
         </Text>
         <Text style={[styles.txt]}>{getDistance(props.latitude, props.longitude)} mi.</Text>
       </View>
