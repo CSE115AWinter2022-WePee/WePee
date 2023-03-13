@@ -2,11 +2,12 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import MapView, { Marker } from 'react-native-maps'
 import BottomSheet from '@gorhom/bottom-sheet'
+import firestore from '@react-native-firebase/firestore'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { lightColors, SearchBar, Icon } from '@rneui/themed'
 import { getCurrentLocation } from '../modules/getLocation'
 import { genericFlatListSeparator } from '../modules/flatListSeparator'
-import firestore from '@react-native-firebase/firestore'
+import { FlatList } from 'react-native-gesture-handler'
 import { tags } from '../modules/tags'
 import { Dropdown } from 'react-native-element-dropdown'
 import { MapTypeDropdown } from '../modules/MapTypeDropdown'
@@ -22,9 +23,6 @@ import {
   Alert
 } from 'react-native'
 
-import {
-  FlatList
-} from 'react-native-gesture-handler'
 
 const Mapview = ({ navigation, route }) => {
   // state to hold location, default is false. setCoordinate(a) sets `coordinate` to `a`
@@ -53,15 +51,6 @@ const Mapview = ({ navigation, route }) => {
   const [urinal, setUrinal] = useState(false)
   const [rating, setRating] = useState(1)
 
-  // State for and data for selectedStarCount
-  const starCountData = [
-    { label: '1+', value: 1 },
-    { label: '2+', value: 2 },
-    { label: '3+', value: 3 },
-    { label: '4+', value: 4 },
-    { label: '5+', value: 5 }
-  ]
-
   // bottom sheet snap points
   const snapPoints = useMemo(() => ['30%', '60%'], [])
 
@@ -75,7 +64,16 @@ const Mapview = ({ navigation, route }) => {
   const [located, setLocated] = useState(false)
   const [loaded, setLoaded] = useState(false)
 
-  // Copy tags and add states
+  // Variable for and data for selectedStarCount
+  const starCountData = [
+    { label: '1+', value: 1 },
+    { label: '2+', value: 2 },
+    { label: '3+', value: 3 },
+    { label: '4+', value: 4 },
+    { label: '5+', value: 5 }
+  ]
+
+  // Variable to copy "tags" and add states
   const mTags = [
     {
       ...tags[0],
