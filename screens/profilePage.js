@@ -31,7 +31,7 @@ const ProfileScreen = ({ navigation, route }) => {
     fetchBathroomData()
   }, [])
 
-  // Update user's avergae reviews whenever userReviews changes
+  // Update user's average reviews whenever userReviews changes
   useEffect(() => {
     calcAverageReview()
   }, [userReviews])
@@ -39,15 +39,18 @@ const ProfileScreen = ({ navigation, route }) => {
   // cleans firebase reviews (metadata is removed)
   const cleanupAndSetFirebaseUserReviews = async (junkyArray) => {
     const cleanedData = await Promise.all(junkyArray.map(async (review) => {
-      const { bathroom_name, bathroom_id, id, stars, description } = review._data
+      const { bathroom_name, bathroom_id, id, stars, description, timestamp } = review._data
       let name = bathroom_name
       if (!name) { // if bathroom name is undefined
         name = await getBathroomNameFromId(bathroom_id)
         await updateBathroomNameInReview(id, name) // updates the bathroom's name in a review, if it isnt there
       }
-      return { name, id, bathroom_id, stars, description }
+      return { name, id, bathroom_id, stars, description, timestamp }
     }))
-    setUserReviews(cleanedData)
+    setUserReviews(cleanedData.sort((a, b) => {
+      // console.log(a.timestamp, b.timestamp)
+      return a.timestamp - b.timestamp
+    }))
   }
 
   const calcAverageReview = () => {

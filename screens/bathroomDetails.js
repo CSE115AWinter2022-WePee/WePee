@@ -33,7 +33,7 @@ const BathroomDetailsScreen = ({ route }) => {
 
   const [bathroomData, setBathroomData] = useState()
   const [coordinate, setCoordinate] = useState({ latitude: 37.78825, longitude: -122.4324 })
-  const [tagsSection, setTagsSection] = useState()
+  const [tagsSection, setTagsSection] = useState([])
 
   const [showDialog, setShowDialog] = useState(false)
   // will be object {id: RatingIdInReviewsCollection, stars: Number}
@@ -80,7 +80,7 @@ const BathroomDetailsScreen = ({ route }) => {
   // cleans firebase reviews (metadata is removed)
   const cleanupAndSetFirebaseUserReviews = async (junkyArray) => {
     const cleanedData = await Promise.all(junkyArray.map(async (review) => {
-      const { user_name, bathroom_name, bathroom_id, id, stars, description } = review._data
+      const { user_name, bathroom_name, bathroom_id, id, stars, description, timestamp } = review._data
       let bath_name = bathroom_name
       let username = user_name
       if (!bath_name) { // if bathroom name is undefined
@@ -91,7 +91,7 @@ const BathroomDetailsScreen = ({ route }) => {
         const randomNumber = Math.floor(Math.random() * 900) + 100
         username = 'WePee User ' + randomNumber
       }
-      return { user_name: username, bath_name, id, bathroom_id, stars, description }
+      return { user_name: username, bath_name, id, bathroom_id, stars, description, timestamp }
     }))
     setReviews(cleanedData)
     displayUserReviews(cleanedData)
@@ -167,21 +167,26 @@ const BathroomDetailsScreen = ({ route }) => {
     // else save new rating into reviews collection
     if (userRating && (userRating.stars !== stars || userRating.desc !== desc)) { // if user rating exists and they've changed stars/desc
       bathroomData.rating[userRating.stars - 1]--
-      await firestore().collection('reviews').doc(userRating.id).update({ stars, description: desc, user_name: displayName })
-      setUserRating({ ...userRating, stars, description: desc })
-      const updatedReviews = reviews.map(o => o.id === userRating.id ? { ...o, user_name: displayName, stars, description: desc } : o) // Update user reviews with updated rating/review
+      // Add timestamp if none exists for review
+      // else keep existing timestamp
+      const timestamp = Date.now()
+      await firestore().collection('reviews').doc(userRating.id).update({ stars, description: desc, user_name: displayName, timestamp: userRating.timestamp || timestamp })
+      setUserRating({ ...userRating, stars, description: desc, timestamp: userRating.timestamp || timestamp })
+      const updatedReviews = reviews.map(o => o.id === userRating.id ? { ...o, user_name: displayName, stars, description: desc, timestamp: userRating.timestamp || timestamp } : o) // Update user reviews with updated rating/review
       setReviews(updatedReviews)
     } else {
       const id = firestore().collection('reviews').doc().id
       const uid = await getUserId()
+      const timestamp = Date.now()
       await firestore().collection('reviews').doc(id).set({
         uid,
         bathroom_id: route.params?.bathroomId,
         bathroom_name: route.params?.bathroomName, // now saves bathroom name, more efficient for profile page
-        user_name: displayName, // Save the user name!
+        user_name: displayName, // Save the username!
         description: desc,
         id,
-        stars
+        stars,
+        timestamp: timestamp
       })
       setUserRating({ id, stars, description: desc })
       const reviewAdded = reviews.concat({
@@ -190,7 +195,8 @@ const BathroomDetailsScreen = ({ route }) => {
         bathroom_id: route.params?.bathroomId,
         description: desc,
         id,
-        stars
+        stars,
+        timestamp: timestamp
       }) // Add new user review to current userReviews
       setReviews(reviewAdded)
     }
@@ -218,7 +224,10 @@ const BathroomDetailsScreen = ({ route }) => {
   }
 
   function displayUserReviews (reviewData) {
-    const data = reviewData.map((review) => (
+    const data = reviewData.sort((a, b) => {
+        // console.log(a.timestamp, b.timestamp)
+        return a.timestamp - b.timestamp
+    }).map((review) => (
       <View key={review.id} style={[styles.userReview]}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
           <Text style={[styles.txt, { fontSize: 19, fontWeight: 'bold' }]}>{review.user_name}</Text>
@@ -243,13 +252,16 @@ const BathroomDetailsScreen = ({ route }) => {
       </View>
     ))
 
-    // If a bathroom has no tags, just display "None!"
+    // If a bathroom has no reviews, just display "None!"
     if (data.length === 0) {
+        // This check is unneeded since we ensure that there's at least one review before ever getting to this point
+        // However, it's still included in case we ever have situations where we don't
       setUserReviews(
         <View>
           <Text style={{ fontSize: 15, color: 'black' }}>None!</Text>
         </View>
       )
+      // console.log("No reviews!")
     } else {
       setUserReviews(data)
     }
@@ -466,7 +478,7 @@ const BathroomDetailsScreen = ({ route }) => {
 
               </View>
 
-              <View style={{ width: '100%' }}>
+              <View style={tagsSection.length > 0 ? { width: '100%' } : { display: 'none' }}>
                 <Text style={[styles.txt, { fontWeight: 'bold', fontSize: 18, marginLeft: 15, marginTop: 5 }]}>
                   Features:
                 </Text>
@@ -475,7 +487,7 @@ const BathroomDetailsScreen = ({ route }) => {
                 </View>
               </View>
 
-              <View style={{ width: '100%' }}>
+              <View style={reviews.length > 0 ? { width: '100%' } : { display: 'none' }}>
                 <Text style={[styles.txt, { fontWeight: 'bold', fontSize: 18, marginLeft: 15, marginTop: 5 }]}>
                   Reviews:
                 </Text>

@@ -114,7 +114,8 @@ const AddBathroomScreen = ({ navigation, route }) => {
         user_name: route.params?.displayName,
         id: review_id,
         stars,
-        uid: route.params?.uid
+        uid: route.params?.uid,
+        timestamp: Date.now()
       }
       await firestore().collection('bathrooms').doc(id).set(data)
       await firestore().collection('reviews').doc(review_id).set(review_data) // This is where the "review_id" bug was!!!
