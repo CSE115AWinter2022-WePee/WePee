@@ -226,7 +226,7 @@ const BathroomDetailsScreen = ({ route }) => {
   function displayUserReviews (reviewData) {
     const data = reviewData.sort((a, b) => {
       // console.log(a.timestamp, b.timestamp)
-      return a.timestamp - b.timestamp
+      return b.timestamp - a.timestamp
     }).map((review) => (
       <View key={review.id} style={[styles.userReview]}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
