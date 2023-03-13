@@ -8,6 +8,7 @@ import { tags } from '../modules/tags'
 import DeviceInfo from 'react-native-device-info'
 import { MapTypeDropdown } from '../modules/MapTypeDropdown'
 import { getBathroomNameFromId, updateBathroomNameInReview } from '../modules/getAndSetBathroomNameFromId'
+import { calculateBathroomRating } from '../modules/calculateBathroomRating'
 
 import {
   StyleSheet,
@@ -21,32 +22,33 @@ import {
 import { ScrollView } from 'react-native-gesture-handler'
 
 const BathroomDetailsScreen = ({ route }) => {
-  // refs
-  const bottomSheetRef = useRef(null)
-  const mapViewRef = useRef(null)
-  const [desc, setDesc] = useState('')
-  const [userReviews, setUserReviews] = useState([]) // State for storing user review elements
-  const [reviews, setReviews] = useState([]) // State for storing actual user review data
-
   // sets display name, gets numbers from uid if anonymous
   const displayName = (route.params?.displayName || 'WePee User ' + route.params?.uid.replace(/\D/g, ''))
 
-  const [bathroomData, setBathroomData] = useState()
-  const [coordinate, setCoordinate] = useState({ latitude: 37.78825, longitude: -122.4324 })
-  const [tagsSection, setTagsSection] = useState([])
-
-  const [showDialog, setShowDialog] = useState(false)
-  // will be object {id: RatingIdInReviewsCollection, stars: Number}
-  const [userRating, setUserRating] = useState()
-
-  const [stars, setStars] = useState(3)
-  const [dbDocument, setDbDocument] = useState()
-
+  // bottomSheetRef and snapPoints
+  const bottomSheetRef = useRef(null)
   const snapPoints = useMemo(() => ['30%', '60%', '85%'], [])
 
-  const [region, setRegion] = useState(route.params?.region)
-  // State to store current mapType
+  // Map ref, type, coordinates, and region
+  const mapViewRef = useRef(null)
   const [mapType, setMapType] = useState(route.params?.mapType)
+  const [coordinate, setCoordinate] = useState({ latitude: 37.78825, longitude: -122.4324 })
+  const [region, setRegion] = useState(route.params?.region)
+
+  // Firebase data
+  const [defaultReviewDescription, setDefaultReviewDescription] = useState('') // Stores user's description review of bathroom
+  const [userReviews, setUserReviews] = useState([]) // State for storing user review elements
+  const [dbDocument, setDbDocument] = useState() // Stores reference to firebase document, used for updating.
+
+  // Bathroom data
+  const [reviews, setReviews] = useState([]) // State for storing actual user review data
+  const [bathroomData, setBathroomData] = useState() // All firebase data about bathroom, except ratings
+  const [stars, setStars] = useState(3)
+  const [userRating, setUserRating] = useState()
+
+  // Misc
+  const [tagsSection, setTagsSection] = useState([]) // for building a renderable object of a bathroom's tags
+  const [showDialog, setShowDialog] = useState(false) // dialog t/f, used when updating review
 
   // Only on initial render, fetch necessary data
   useEffect(() => {
@@ -143,39 +145,25 @@ const BathroomDetailsScreen = ({ route }) => {
         const data = await snap.docs[0].data()
         setUserRating(data)
         setStars(data.stars)
-        setDesc(data.description || '')
+        setDefaultReviewDescription(data.description || '')
       }
     } catch (error) {
       console.log(error)
     }
   }
 
-  // calculate rating of a bathroom
-  const calculateBathroomRating = function (data) {
-    if (!data) {
-      return 5
-    }
-    let totalSum = 0
-    let numRatings = 0
-    for (let i = 0; i < data.rating.length; i++) {
-      totalSum += (i + 1) * data.rating[i]
-      numRatings += data.rating[i]
-    }
-    return [(totalSum > 0 ? Number((totalSum / numRatings).toFixed(1)) : 0), numRatings]
-  }
-
   // update user previous rating if any
   // else save new rating into reviews collection
   // New data MUST be inserted in the order { user_name, bathroom_name, bathroom_id, id, stars, description, timestamp } !!!!
   const updateRating = async () => {
-    if (userRating && (userRating.stars !== stars || userRating.desc !== desc)) { // if user rating exists and they've changed stars/desc
+    if (userRating && (userRating.stars !== stars || userRating.desc !== defaultReviewDescription)) { // if user rating exists and they've changed stars/desc
       bathroomData.rating[userRating.stars - 1]--
       // Add timestamp if none exists for review
       // else keep existing timestamp
       const timestamp = Date.now()
-      await firestore().collection('reviews').doc(userRating.id).update({ stars, description: desc, user_name: displayName, timestamp: userRating.timestamp || timestamp })
-      setUserRating({ ...userRating, stars, description: desc, timestamp: userRating.timestamp || timestamp })
-      const updatedReviews = reviews.map(o => o.id === userRating.id ? { ...o, user_name: displayName, stars, description: desc, timestamp: userRating.timestamp || timestamp } : o) // Update user reviews with updated rating/review
+      await firestore().collection('reviews').doc(userRating.id).update({ stars, description: defaultReviewDescription, user_name: displayName, timestamp: userRating.timestamp || timestamp })
+      setUserRating({ ...userRating, stars, description: defaultReviewDescription, timestamp: userRating.timestamp || timestamp })
+      const updatedReviews = reviews.map(o => o.id === userRating.id ? { ...o, user_name: displayName, stars, description: defaultReviewDescription, timestamp: userRating.timestamp || timestamp } : o) // Update user reviews with updated rating/review
       setReviews(updatedReviews)
     } else {
       const id = firestore().collection('reviews').doc().id
@@ -186,17 +174,17 @@ const BathroomDetailsScreen = ({ route }) => {
         bathroom_id: route.params?.bathroomId,
         bathroom_name: route.params?.bathroomName, // now saves bathroom name, more efficient for profile page
         user_name: displayName, // Save the username!
-        description: desc,
+        description: defaultReviewDescription,
         id,
         stars,
         timestamp
       })
-      setUserRating({ id, stars, description: desc })
+      setUserRating({ id, stars, description: defaultReviewDescription })
       const reviewAdded = reviews.concat({
         user_name: displayName,
         bath_name: route.params?.bathroomName,
         bathroom_id: route.params?.bathroomId,
-        description: desc,
+        description: defaultReviewDescription,
         id,
         stars,
         timestamp
@@ -400,7 +388,7 @@ const BathroomDetailsScreen = ({ route }) => {
 
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
                   <Text style={[styles.txt]}>
-                    {calculateBathroomRating(bathroomData)[0]}
+                    {calculateBathroomRating(bathroomData?.rating)[0]}
                   </Text>
 
                   <AirbnbRating
@@ -408,12 +396,12 @@ const BathroomDetailsScreen = ({ route }) => {
                     showRating={false}
                     size={20}
                     count={5}
-                    defaultRating={calculateBathroomRating(bathroomData)[0]}
+                    defaultRating={calculateBathroomRating(bathroomData?.rating)[0]}
                     ratingContainerStyle={{ marginTop: 0 }}
                   />
 
                   <Text style={[styles.txt]}>
-                    ({calculateBathroomRating(bathroomData)[1]} reviews)
+                    ({calculateBathroomRating(bathroomData?.rating)[1]} reviews)
                   </Text>
                 </View>
 
@@ -454,10 +442,10 @@ const BathroomDetailsScreen = ({ route }) => {
                     />
 
                     <Input
-                      value={desc}
+                      value={defaultReviewDescription}
                       placeholder='Your review...'
-                      onChangeText={val => setDesc(val)}
-                      defaultValue={desc}
+                      onChangeText={val => setDefaultReviewDescription(val)}
+                      defaultValue={defaultReviewDescription}
                       multiline
                       verticalAlign='top'
                       containerStyle={{ height: 120 }}

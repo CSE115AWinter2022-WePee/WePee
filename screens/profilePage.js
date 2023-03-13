@@ -50,7 +50,7 @@ const ProfileScreen = ({ navigation, route }) => {
     }))
     setUserReviews(cleanedData.sort((a, b) => {
       // console.log(a.timestamp, b.timestamp)
-      return a.timestamp - b.timestamp
+      return b.timestamp - a.timestamp
     }))
   }
 
