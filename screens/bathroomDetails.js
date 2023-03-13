@@ -373,7 +373,7 @@ const BathroomDetailsScreen = ({ route }) => {
             style={styles.showListButton}
           >
             <Icon name='list' type='material' size={30} color='white' containerStyle={{ marginRight: 3 }} />
-            <Text style={{ fontSize: 14, fontWeight: 'bold', color: 'white' }}>View List</Text>
+            <Text style={{ fontSize: 14, fontWeight: 'bold', color: 'white' }}>View Details</Text>
           </TouchableOpacity>
         </View>
 
