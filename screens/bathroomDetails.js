@@ -186,7 +186,7 @@ const BathroomDetailsScreen = ({ route }) => {
         description: desc,
         id,
         stars,
-        timestamp: timestamp
+        timestamp
       })
       setUserRating({ id, stars, description: desc })
       const reviewAdded = reviews.concat({
@@ -196,7 +196,7 @@ const BathroomDetailsScreen = ({ route }) => {
         description: desc,
         id,
         stars,
-        timestamp: timestamp
+        timestamp
       }) // Add new user review to current userReviews
       setReviews(reviewAdded)
     }
@@ -225,8 +225,8 @@ const BathroomDetailsScreen = ({ route }) => {
 
   function displayUserReviews (reviewData) {
     const data = reviewData.sort((a, b) => {
-        // console.log(a.timestamp, b.timestamp)
-        return a.timestamp - b.timestamp
+      // console.log(a.timestamp, b.timestamp)
+      return a.timestamp - b.timestamp
     }).map((review) => (
       <View key={review.id} style={[styles.userReview]}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
@@ -254,8 +254,8 @@ const BathroomDetailsScreen = ({ route }) => {
 
     // If a bathroom has no reviews, just display "None!"
     if (data.length === 0) {
-        // This check is unneeded since we ensure that there's at least one review before ever getting to this point
-        // However, it's still included in case we ever have situations where we don't
+      // This check is unneeded since we ensure that there's at least one review before ever getting to this point
+      // However, it's still included in case we ever have situations where we don't
       setUserReviews(
         <View>
           <Text style={{ fontSize: 15, color: 'black' }}>None!</Text>
