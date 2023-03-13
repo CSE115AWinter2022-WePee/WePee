@@ -10,7 +10,7 @@ import {
   View,
   SafeAreaView,
   Image,
-  ImageBackground,
+  RefreshControl,
   TouchableOpacity
 } from 'react-native'
 
@@ -19,9 +19,10 @@ import {
 } from 'react-native-gesture-handler'
 
 const ProfileScreen = ({ navigation, route }) => {
-  const [userReviews, setUserReviews] = useState()
-  const [averageUserReview, setAverageUserReview] = useState()
-  const [noReviews, setNoReviews] = useState()
+  const [userReviews, setUserReviews] = useState() // state for holding user reviews in an array
+  const [averageUserReview, setAverageUserReview] = useState() // state for holding average user eview
+  const [noReviews, setNoReviews] = useState() // boolean state for whether user has any reviews
+  const [refresh, setRefresh] = useState(false)
   // sets display name, gets numbers from uid if anonymous
   const displayName = (route.params?.displayName || 'WePee User ' + route.params?.uid.replace(/\D/g, ''))
   const uid = route.params?.uid // set userid, should not change
@@ -73,6 +74,7 @@ const ProfileScreen = ({ navigation, route }) => {
       } else {
         setNoReviews(true)
       }
+      setRefresh(false)
     } catch (error) {
       console.log(error)
     }
@@ -189,8 +191,8 @@ const ProfileScreen = ({ navigation, route }) => {
             style={[styles.userReview]}
             onPress={() => navigation.navigate('Details', { bathroomId: item.bathroom_id, bathroomName: item.bathroom_name, uid: route.params?.uid, region: route.params?.region, mapType: route.params?.mapType, displayName: route.params?.displayName })}
           >
-            <View style={{ flexDirection: 'row', justifyContent:'space-between', alignItems:'flex-start' }}>
-              <Text style={[styles.txt, { fontSize: 19, fontWeight: 'bold', width:'50%', marginBottom:15 }]}>{item.name}</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <Text style={[styles.txt, { fontSize: 19, fontWeight: 'bold', width: '50%', marginBottom: 15 }]}>{item.name}</Text>
               <AirbnbRating
                 isDisabled
                 showRating={false}
@@ -237,6 +239,20 @@ const ProfileScreen = ({ navigation, route }) => {
           horizontal={false}
           style={{ width: '100%', marginBottom: 60 }}
           showsVerticalScrollIndicator={false}
+          refreshing={refresh}
+          refreshControl={
+            <RefreshControl
+              refreshing={refresh}
+              onRefresh={() => {
+                setRefresh(true)
+                fetchBathroomData()
+              }}
+            />
+          }
+          onRefresh={() => {
+            setRefresh(true)
+            fetchBathroomData()
+          }}
         />
 
         <TouchableOpacity

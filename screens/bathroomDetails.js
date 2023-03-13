@@ -88,7 +88,7 @@ const BathroomDetailsScreen = ({ route }) => {
         await updateBathroomNameInReview(id, bath_name) // updates the bathroom's name in a review, if it isnt there
       }
       if (!username) { // if username is undefined
-        const randomNumber = Math.floor(Math.random() * 1000);
+        const randomNumber = Math.floor(Math.random() * 1000)
         username = 'WePee User ' + randomNumber
       }
       return { user_name: username, bath_name, id, bathroom_id, stars, description, timestamp }
@@ -232,8 +232,8 @@ const BathroomDetailsScreen = ({ route }) => {
       return b.timestamp - a.timestamp
     }).map((review) => (
       <View key={review.id} style={[styles.userReview]}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems:'flex-start' }}>
-          <Text style={[styles.txt, { fontSize: 18, fontWeight: 'bold', width:'50%', marginBottom:10 }]}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'flex-start' }}>
+          <Text style={[styles.txt, { fontSize: 18, fontWeight: 'bold', width: '50%', marginBottom: 10 }]}>
             {review.user_name}
           </Text>
           <AirbnbRating

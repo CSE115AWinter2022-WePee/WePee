@@ -3,7 +3,7 @@ import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import MapView, { Marker } from 'react-native-maps'
 import BottomSheet, { BottomSheetFlatList, TouchableOpacity as BottomSheetTO } from '@gorhom/bottom-sheet'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { lightColors, SearchBar, Icon} from '@rneui/themed'
+import { lightColors, SearchBar, Icon } from '@rneui/themed'
 import { getCurrentLocation } from '../modules/getLocation'
 import { genericFlatListSeparator } from '../modules/flatListSeparator'
 import firestore from '@react-native-firebase/firestore'
@@ -17,7 +17,7 @@ import {
   View,
   TouchableOpacity,
   Image,
-  Alert,
+  Alert
 } from 'react-native'
 
 import {
@@ -40,7 +40,7 @@ const Mapview = ({ navigation, route }) => {
   // State to hold type of map selected
   const [mapType, setMapType] = useState('Standard')
 
-  //state to hold flatlist refresh status
+  // state to hold flatlist refresh status
   const [refresh, setRefresh] = useState(false)
 
   // States to determine if tag is active or not
@@ -343,9 +343,9 @@ const Mapview = ({ navigation, route }) => {
       }}
       onPress={() => navigation.navigate('Details', { bathroomId: id, bathroomName: props.name, region, displayName: route.params?.displayName, uid: route.params?.uid, mapType })}
     >
-      <View style={{ flex: 1,  flexDirection: 'row', justifyContent: 'space-between' }}>
-        <Text style={[styles.txt, { fontSize: 16, fontWeight: 'bold',  width:'80%'  }]}>
-          { props.name }
+      <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
+        <Text style={[styles.txt, { fontSize: 16, fontWeight: 'bold', width: '80%' }]}>
+          {props.name}
         </Text>
         <Text style={[styles.txt]}>{getDistance(props.latitude, props.longitude)} mi.</Text>
       </View>
