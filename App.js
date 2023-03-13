@@ -86,6 +86,7 @@ function App () {
 
   const d = new Date(user.metadata.creationTime)
   const daysInApp = Math.abs((Date.now() - d.valueOf()) / 86400000)
+  const displayName = (user.displayName || 'WePee User ' + user.uid.replace(/\D/g, ''))
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -101,7 +102,7 @@ function App () {
                 component={Mapview}
                 options={{
                   headerShown: false
-                }} initialParams={{ displayName: user.displayName, uid: user.uid, photoURL: user.photoURL, isAnonymous: user.isAnonymous, daysInApp }}
+                }} initialParams={{ displayName, uid: user.uid, photoURL: user.photoURL, isAnonymous: user.isAnonymous, daysInApp }}
               />
               <Stack.Screen
                 name='Add'

@@ -2,14 +2,16 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import MapView, { Marker } from 'react-native-maps'
 import BottomSheet from '@gorhom/bottom-sheet'
+import firestore from '@react-native-firebase/firestore'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { lightColors, SearchBar, Icon } from '@rneui/themed'
 import { getCurrentLocation } from '../modules/getLocation'
 import { genericFlatListSeparator } from '../modules/flatListSeparator'
-import firestore from '@react-native-firebase/firestore'
+import { FlatList } from 'react-native-gesture-handler'
 import { tags } from '../modules/tags'
 import { Dropdown } from 'react-native-element-dropdown'
 import { MapTypeDropdown } from '../modules/MapTypeDropdown'
+import { calculateBathroomRating } from '../modules/calculateBathroomRating'
 import {
   SafeAreaView,
   StyleSheet,
@@ -20,10 +22,6 @@ import {
   ImageBackground,
   Alert
 } from 'react-native'
-
-import {
-  FlatList
-} from 'react-native-gesture-handler'
 
 const Mapview = ({ navigation, route }) => {
   // state to hold location, default is false. setCoordinate(a) sets `coordinate` to `a`
@@ -52,15 +50,6 @@ const Mapview = ({ navigation, route }) => {
   const [urinal, setUrinal] = useState(false)
   const [rating, setRating] = useState(1)
 
-  // State for and data for selectedStarCount
-  const starCountData = [
-    { label: '1+', value: 1 },
-    { label: '2+', value: 2 },
-    { label: '3+', value: 3 },
-    { label: '4+', value: 4 },
-    { label: '5+', value: 5 }
-  ]
-
   // bottom sheet snap points
   const snapPoints = useMemo(() => ['30%', '60%'], [])
 
@@ -74,7 +63,16 @@ const Mapview = ({ navigation, route }) => {
   const [located, setLocated] = useState(false)
   const [loaded, setLoaded] = useState(false)
 
-  // Copy tags and add states
+  // Variable for and data for selectedStarCount
+  const starCountData = [
+    { label: '1+', value: 1 },
+    { label: '2+', value: 2 },
+    { label: '3+', value: 3 },
+    { label: '4+', value: 4 },
+    { label: '5+', value: 5 }
+  ]
+
+  // Variable to copy "tags" and add states
   const mTags = [
     {
       ...tags[0],
@@ -169,7 +167,7 @@ const Mapview = ({ navigation, route }) => {
     // If no tags selected update bathrooms else run filter func with selected tags
     const searchedTags = getSelectedTags(tag, newState)
     if (searchedTags.length === 0) {
-      const filteredBathrooms = allBathrooms.filter(bathroom => calcRating(bathroom.data().rating) > rating)
+      const filteredBathrooms = allBathrooms.filter(bathroom => calculateBathroomRating(bathroom.data().rating)[0] > rating)
       setBathrooms(filteredBathrooms)
     } else {
       filterBathrooms(searchedTags)
@@ -247,7 +245,7 @@ const Mapview = ({ navigation, route }) => {
       let hasAllTags = true
 
       // Calc rating using V and if rating is >= thres
-      const rat = calcRating(bath.data().rating)
+      const rat = calculateBathroomRating(bath.data().rating)[0]
       if (rat < (rating)) { // Verify if bath has good rating
         hasAllTags = false
       } else { // Verify if bath has all tags
@@ -268,21 +266,6 @@ const Mapview = ({ navigation, route }) => {
 
     // set bathrooms state, triggers rerender of markers and flatlist
     setBathrooms(newBathrooms)
-  }
-
-  // Calculates rating given a 5 element list (this is how ratings are stored in database)
-  function calcRating (list) {
-    if (!list || !list.length) return 0
-    if (list.length !== 5) return 0
-    let number = 0
-    let sum = 0
-
-    for (let i = 0; i < 5; i++) {
-      number += list[i]
-      sum += (list[i] * (i + 1))
-    }
-
-    return sum / number
   }
 
   // Searches case-insensitively through bathroom names for search text `txt` appaearing anywhere in the bathroom name
@@ -314,6 +297,14 @@ const Mapview = ({ navigation, route }) => {
         }}
         title={snap.data().name || ''}
         description={snap.data().description || ''}
+        onCalloutPress={() => navigation.navigate('Details', {
+          bathroomId: snap.data().id,
+          bathroomName: snap.data().name,
+          region,
+          displayName: route.params?.displayName,
+          uid: route.params?.uid,
+          mapType
+        })}
       />
     ))
 
@@ -340,7 +331,10 @@ const Mapview = ({ navigation, route }) => {
       onPress={() => navigation.navigate('Details', { bathroomId: id, bathroomName: props.name, region, displayName: route.params?.displayName, uid: route.params?.uid, mapType })}
     >
       <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
-        <Text style={[styles.txt, { fontSize: 16, fontWeight: 'bold' }]}>{props.name}</Text>
+        {/* Truncate bathroom names to 32 chars */}
+        <Text style={[styles.txt, { fontSize: 16, fontWeight: 'bold' }]}>
+          {props.name.length > 31 ? props.name.substr(0, 31) + '...' : props.name}
+        </Text>
         <Text style={[styles.txt]}>{getDistance(props.latitude, props.longitude)} mi.</Text>
       </View>
     </TouchableOpacity>
