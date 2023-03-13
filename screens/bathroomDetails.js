@@ -200,7 +200,7 @@ const BathroomDetailsScreen = ({ route }) => {
     // dismiss the review dialog
     toggleDialog()
 
-    // show alert on succesfull review
+    // show alert on successful review
     Alert.alert(
       'Thank you!',
       'Your review has been saved',
@@ -212,6 +212,28 @@ const BathroomDetailsScreen = ({ route }) => {
       ]
     )
     console.log('rating updated!')
+  }
+
+  const deleteReview = async () => {
+    bathroomData.rating[userRating.stars - 1]--
+    await firestore().collection('reviews').doc(userRating.id).delete()
+    setUserRating(undefined)
+    setReviews(reviews.filter(o => o.id !== userRating.id))
+
+    // dismiss the review dialog
+    toggleDialog()
+
+    // Alert on review being deleted
+    Alert.alert(
+      'Deleted',
+      'Your review has been deleted',
+      [
+        {
+          text: 'OK',
+          style: 'cancel'
+        }
+      ]
+    )
   }
 
   function buildUserReviewObjects (reviewData) {
@@ -462,6 +484,12 @@ const BathroomDetailsScreen = ({ route }) => {
                   </View>
 
                   <Dialog.Actions>
+                    <Dialog.Button
+                      titleStyle={{ color: 'red' }}
+                      buttonStyle={{ display: userRating ? 'flex' : 'none' }}
+                      title='DELETE'
+                      onPress={deleteReview}
+                    />
                     <Dialog.Button
                       title={userRating ? 'UPDATE' : 'CONFIRM'}
                       onPress={updateRating}
