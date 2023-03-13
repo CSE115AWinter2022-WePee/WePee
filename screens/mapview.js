@@ -340,7 +340,10 @@ const Mapview = ({ navigation, route }) => {
       onPress={() => navigation.navigate('Details', { bathroomId: id, bathroomName: props.name, region, displayName: route.params?.displayName, uid: route.params?.uid, mapType })}
     >
       <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
-        <Text style={[styles.txt, { fontSize: 16, fontWeight: 'bold' }]}>{props.name}</Text>
+        {/* Truncate bathroom names to 32 chars */}
+        <Text style={[styles.txt, { fontSize: 16, fontWeight: 'bold' }]}>
+          {props.name.length > 31 ? props.name.substr(0,31) + "..." : props.name}
+        </Text>
         <Text style={[styles.txt]}>{getDistance(props.latitude, props.longitude)} mi.</Text>
       </View>
     </TouchableOpacity>
