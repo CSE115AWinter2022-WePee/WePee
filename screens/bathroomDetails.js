@@ -8,6 +8,7 @@ import { tags } from '../modules/tags'
 import DeviceInfo from 'react-native-device-info'
 import { MapTypeDropdown } from '../modules/MapTypeDropdown'
 import { getBathroomNameFromId, updateBathroomNameInReview } from '../modules/getAndSetBathroomNameFromId'
+import { calculateBathroomRating } from '../modules/calculateBathroomRatings'
 
 import {
   StyleSheet,
@@ -148,20 +149,6 @@ const BathroomDetailsScreen = ({ route }) => {
     } catch (error) {
       console.log(error)
     }
-  }
-
-  // calculate rating of a bathroom
-  const calculateBathroomRating = function (data) {
-    if (!data) {
-      return 5
-    }
-    let totalSum = 0
-    let numRatings = 0
-    for (let i = 0; i < data.rating.length; i++) {
-      totalSum += (i + 1) * data.rating[i]
-      numRatings += data.rating[i]
-    }
-    return [(totalSum > 0 ? Number((totalSum / numRatings).toFixed(1)) : 0), numRatings]
   }
 
   // update user previous rating if any
