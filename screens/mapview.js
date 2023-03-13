@@ -10,6 +10,7 @@ import firestore from '@react-native-firebase/firestore'
 import { tags } from '../modules/tags'
 import { Dropdown } from 'react-native-element-dropdown'
 import { MapTypeDropdown } from '../modules/MapTypeDropdown'
+import { calculateBathroomRating } from '../modules/calculateBathroomRating'
 import {
   SafeAreaView,
   StyleSheet,
@@ -169,7 +170,7 @@ const Mapview = ({ navigation, route }) => {
     // If no tags selected update bathrooms else run filter func with selected tags
     const searchedTags = getSelectedTags(tag, newState)
     if (searchedTags.length === 0) {
-      const filteredBathrooms = allBathrooms.filter(bathroom => calcRating(bathroom.data().rating) > rating)
+      const filteredBathrooms = allBathrooms.filter(bathroom => calculateBathroomRating(bathroom.data().rating)[0] > rating)
       setBathrooms(filteredBathrooms)
     } else {
       filterBathrooms(searchedTags)
@@ -247,7 +248,7 @@ const Mapview = ({ navigation, route }) => {
       let hasAllTags = true
 
       // Calc rating using V and if rating is >= thres
-      const rat = calcRating(bath.data().rating)
+      const rat = calculateBathroomRating(bath.data().rating)[0]
       if (rat < (rating)) { // Verify if bath has good rating
         hasAllTags = false
       } else { // Verify if bath has all tags
@@ -268,21 +269,6 @@ const Mapview = ({ navigation, route }) => {
 
     // set bathrooms state, triggers rerender of markers and flatlist
     setBathrooms(newBathrooms)
-  }
-
-  // Calculates rating given a 5 element list (this is how ratings are stored in database)
-  function calcRating (list) {
-    if (!list || !list.length) return 0
-    if (list.length !== 5) return 0
-    let number = 0
-    let sum = 0
-
-    for (let i = 0; i < 5; i++) {
-      number += list[i]
-      sum += (list[i] * (i + 1))
-    }
-
-    return sum / number
   }
 
   // Searches case-insensitively through bathroom names for search text `txt` appaearing anywhere in the bathroom name
