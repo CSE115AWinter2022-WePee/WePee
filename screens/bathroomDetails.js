@@ -220,8 +220,8 @@ const BathroomDetailsScreen = ({ route }) => {
   function displayUserReviews (reviewData) {
     const data = reviewData.map((review) => (
       <View key={review.id} style={[styles.userReview]}>
-        <View style={{ flexDirection: 'row' }}>
-          <Text style={[styles.txt, { fontSize: 19, fontWeight: 'bold' }]}>{review.user_name}</Text>
+        <View style={{ flexDirection: 'row', justifyContent:'space-around', alignItems:'center' }}>
+          <Text style={[styles.txt, { fontSize: 19, fontWeight: 'bold'}]}>{review.user_name}</Text>
           <AirbnbRating
             isDisabled
             showRating={false}
@@ -231,10 +231,15 @@ const BathroomDetailsScreen = ({ route }) => {
             ratingContainerStyle={{ marginTop: 0, marginLeft: 'auto' }}
           />
         </View>
-        <View>
-          <Text style={[styles.txt, { fontWeight: 'bold' }]}>Description: </Text>
-          <Text style={[styles.txt]}>{review.description || 'No Review...'}</Text>
-        </View>
+        {
+          review.description 
+            ?  <View>
+                {/* <Text style={[styles.txt, { fontWeight: 'bold' }]}>Description: </Text> */}
+                <Text style={[styles.txt]}>{review.description || 'No Review...'}</Text>
+              </View>
+            : null
+        }
+       
       </View>
     ))
 
@@ -395,9 +400,9 @@ const BathroomDetailsScreen = ({ route }) => {
                 </View>
 
                 <View style={{ flexDirection: 'column', marginTop: 12, marginRight: 'auto', marginLeft: 'auto' }}>
-                  <Text style={{ fontSize: 10, color: 'black' }}>
+                  {/* <Text style={{ fontSize: 10, color: 'black' }}>
                     Description:
-                  </Text>
+                  </Text> */}
                   <Text style={[styles.txt]}>
                     {bathroomData?.description || 'No description :('}
                   </Text>
