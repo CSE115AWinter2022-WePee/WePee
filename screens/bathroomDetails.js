@@ -220,7 +220,7 @@ const BathroomDetailsScreen = ({ route }) => {
   function displayUserReviews (reviewData) {
     const data = reviewData.map((review) => (
       <View key={review.id} style={[styles.userReview]}>
-        <View style={{ flexDirection: 'row' }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
           <Text style={[styles.txt, { fontSize: 19, fontWeight: 'bold' }]}>{review.user_name}</Text>
           <AirbnbRating
             isDisabled
@@ -231,10 +231,15 @@ const BathroomDetailsScreen = ({ route }) => {
             ratingContainerStyle={{ marginTop: 0, marginLeft: 'auto' }}
           />
         </View>
-        <View>
-          <Text style={[styles.txt, { fontWeight: 'bold' }]}>Description: </Text>
-          <Text style={[styles.txt]}>{review.description || 'No Review...'}</Text>
-        </View>
+        {
+          review.description
+            ? <View>
+              {/* <Text style={[styles.txt, { fontWeight: 'bold' }]}>Description: </Text> */}
+              <Text style={[styles.txt]}>{review?.description}</Text>
+              </View>
+            : null
+        }
+
       </View>
     ))
 
@@ -394,12 +399,12 @@ const BathroomDetailsScreen = ({ route }) => {
                   </Text>
                 </View>
 
-                <View style={{ flexDirection: 'column', marginTop: 12, marginRight: 'auto', marginLeft: 'auto' }}>
-                  <Text style={{ fontSize: 10, color: 'black' }}>
+                <View style={bathroomData?.description ? { flexDirection: 'column', marginTop: 12, marginRight: 'auto', marginLeft: 'auto' } : { display: 'none' }}>
+                  {/* <Text style={{ fontSize: 10, color: 'black' }}>
                     Description:
-                  </Text>
+                  </Text> */}
                   <Text style={[styles.txt]}>
-                    {bathroomData?.description || 'No description :('}
+                    {bathroomData?.description}
                   </Text>
                 </View>
 

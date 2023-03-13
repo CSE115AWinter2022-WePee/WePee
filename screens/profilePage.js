@@ -198,9 +198,9 @@ const ProfileScreen = ({ navigation, route }) => {
               />
             </View>
 
-            <View>
-              <Text style={[styles.txt, { fontWeight: 'bold' }]}>Review: </Text>
-              <Text style={[styles.txt]}>{item.description || 'No Review...'}</Text>
+            <View style={item.description ? styles.txt : { display: 'none' }}>
+              {/* <Text style={[styles.txt, { fontWeight: 'bold' }]}>Review: </Text> */}
+              <Text style={[styles.txt]}>{item.description}</Text>
             </View>
           </TouchableOpacity>
         )
