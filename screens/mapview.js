@@ -298,7 +298,7 @@ const Mapview = ({ navigation, route }) => {
         }}
         title={snap.data().name || ''}
         description={snap.data().description || ''}
-        onPress={() => navigation.navigate('Details', { 
+        onCalloutPress={() => navigation.navigate('Details', { 
                       bathroomId: snap.data().id, 
                       bathroomName: snap.data().name, 
                       region,
