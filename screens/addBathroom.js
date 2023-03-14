@@ -15,7 +15,7 @@ import {
   Alert,
   View
 } from 'react-native'
-import { MapTypeDropdown } from '../modules/MapTypeDropdown'
+import { MapTypeDropdown } from '../modules/mapTypeDropdown'
 import { ScrollView } from 'react-native-gesture-handler'
 
 // Currently not implemented: Set rating, delete/report bathroom, edit tags for bathroom

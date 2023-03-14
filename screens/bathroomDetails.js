@@ -6,7 +6,7 @@ import auth from '@react-native-firebase/auth'
 import { Input, Icon, AirbnbRating, Dialog } from '@rneui/themed'
 import { tags } from '../modules/tags'
 import DeviceInfo from 'react-native-device-info'
-import { MapTypeDropdown } from '../modules/MapTypeDropdown'
+import { MapTypeDropdown } from '../modules/mapTypeDropdown'
 import { getBathroomNameFromId, updateBathroomNameInReview } from '../modules/getAndSetBathroomNameFromId'
 import { calculateBathroomRating } from '../modules/calculateBathroomRating'
 
