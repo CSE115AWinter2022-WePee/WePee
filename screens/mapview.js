@@ -311,10 +311,6 @@ const Mapview = ({ navigation, route }) => {
       />
     ))
 
-  // 1º lat ~ 69 mi
-  // 1º long ~ 54.6 mi
-  // at 38º N latitude (Stockton, CA)
-  // https://www.usgs.gov/faqs/how-much-distance-does-degree-minute-and-second-cover-your-maps#:~:text=One%2Ddegree%20of%20longitude%20equals,one%20second%20equals%2080%20feet.
   // Computes the stright line distance to bathroom, and rounds to 2 decimal places using the method detailed above
   const getDistance = (latitude, longitude) => {
     return ((((coordinate.latitude - latitude) * 69) ** 2 + ((coordinate.longitude - longitude) * 54.6) ** 2) ** 0.5).toFixed(2)
@@ -380,16 +376,6 @@ const Mapview = ({ navigation, route }) => {
     return (
       <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
         <Image source={require('../assets/logo.png')} style={{ opacity: 0.7, width: 200, height: 200 }} />
-        {/* <ImageBackground
-          source={require('../assets/wepee.png')}
-          style={{ opacity: 0.7 }}
-        >
-          <View style={{ justifyContent: 'center', alignItems: 'center', height: 150, width: 150 }}>
-            <Text style={{ fontSize: 30, fontWeight: 'bold', color: '#3C99DC', opacity: 1 }}>
-              WePee
-            </Text>
-          </View>
-        </ImageBackground> */}
         <Text style={{ color: 'black' }}>
           Loading user location...
         </Text>
@@ -457,12 +443,12 @@ const Mapview = ({ navigation, route }) => {
               region={region}
               onPress={() => { bottomSheetRef.current.close() }}
               zoomControlEnabled={false}
-              // The following was to ensure that the zoom level persists when navigating to other screens
-              // However, it introduces a lot of lag, so it's been omitted at the moment
-              // onRegionChangeComplete={newRegion => {
-              //   setLatitudeDelta(newRegion.latitudeDelta)
-              //   setLongitudeDelta(newRegion.longitudeDelta)
-              // }}
+              /* The following was to ensure that the zoom level persists when navigating to other screens
+                However, it introduces a lot of lag, so it's been omitted at the moment
+                onRegionChangeComplete={newRegion => {
+                setLatitudeDelta(newRegion.latitudeDelta)
+                setLongitudeDelta(newRegion.longitudeDelta)
+               }} */
             >
               {bathroomMarkers}
             </MapView>

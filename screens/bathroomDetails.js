@@ -100,8 +100,6 @@ const BathroomDetailsScreen = ({ route }) => {
   }
 
   // get uid
-  // if no user uid = deviceId
-  // get uid
   // if no user uid, then use uid = deviceId
   const getUserId = async () => {
     let uid = await DeviceInfo.getUniqueId()
@@ -152,9 +150,9 @@ const BathroomDetailsScreen = ({ route }) => {
     }
   }
 
-  // update user previous rating if any
-  // else save new rating into reviews collection
-  // New data MUST be inserted in the order { user_name, bathroom_name, bathroom_id, id, stars, description, timestamp } !!!!
+  /* update user previous rating if any
+     else save new rating into reviews collection
+     New data MUST be inserted in the order { user_name, bathroom_name, bathroom_id, id, stars, description, timestamp } !!!! */
   const updateRating = async () => {
     if (userRating && (userRating.stars !== stars || userRating.desc !== defaultReviewDescription)) { // if user rating exists and they've changed stars/desc
       bathroomData.rating[userRating.stars - 1]--
