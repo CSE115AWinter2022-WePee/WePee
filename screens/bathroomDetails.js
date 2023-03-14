@@ -257,10 +257,7 @@ const BathroomDetailsScreen = ({ route }) => {
         </View>
         {
           review.description
-            ? <View>
-              {/* <Text style={[styles.txt, { fontWeight: 'bold' }]}>Description: </Text> */}
-              <Text style={[styles.txt]}>{review?.description}</Text>
-              </View>
+            ? <Text style={[styles.txt]}>{review?.description}</Text>
             : null
         }
 
