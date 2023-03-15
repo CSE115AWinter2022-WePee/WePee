@@ -10,7 +10,7 @@ import { genericFlatListSeparator } from '../modules/flatListSeparator'
 import { FlatList } from 'react-native-gesture-handler'
 import { tags } from '../modules/tags'
 import { Dropdown } from 'react-native-element-dropdown'
-import { MapTypeDropdown } from '../modules/'
+import { MapTypeDropdown } from '../modules/mapTypeDropdownComponent'
 import { calculateBathroomRating } from '../modules/calculateBathroomRating'
 import {
   SafeAreaView,
