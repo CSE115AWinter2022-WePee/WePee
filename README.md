@@ -18,9 +18,8 @@ npm install react-native-cli @react-native-community/cli
 - Install CocoaPods. it is a dependency management system available for iOS. On most platforms, the following works:
     ```sh
     $ sudo gem install cocoapods
-    $ brew install cocoapods (for Apple Silicon)
     ```
-    However for Apple Silicon, run the following instead:
+    However for Apple Silicon, you need to run the following instead:
     ```sh
     $ brew install cocoapods
     ```
@@ -51,11 +50,7 @@ npm install react-native-cli @react-native-community/cli
             end
         end
     end
-    ```
-
-    
-
-
+   
 #### Android
 - Install Java Development Kit
     ``` sh
@@ -93,3 +88,6 @@ npm run android
 
 ## File structure
 Our working directory is called `screens`. Files will be added as we move along.
+
+## Documentation
+Documentation is stored in our Google Drive folder.
