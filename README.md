@@ -10,20 +10,19 @@ brew install node
 brew install watchman
 npm install react-native-cli @react-native-community/cli
 ```
-
-### MACOS
-#### iOS
+### iOS
 - Install Xcode by going to the Mac app Store.
 - Install Command Line Tools: Open Xcode, then choose "Preferences..." from the Xcode menu. Go to the Locations panel and install the tools by selecting the most recent version in the Command Line Tools dropdown.
-- Install CocoaPods. it is a dependency management system available for iOS. On most platforms, the following works:
+- Install CocoaPods. It is a dependency management system available for iOS. On most platforms, the following works:
     ```sh
     $ sudo gem install cocoapods
-    $ brew install cocoapods (for Apple Silicon)
     ```
-    However for Apple Silicon, run the following instead:
+    However for Apple Silicon, you need to run the following instead:
     ```sh
     $ brew install cocoapods
     ```
+    Be sure you install CocoaPods version 1.12.0 or later (due to [this](https://github.com/CocoaPods/CocoaPods/issues/11402#issuecomment-1379702414) issue with Xcode 14.2 in prior versions)! 
+    
     Then run the following:
     ```sh
     $ cd ios && pod install && cd ..
@@ -34,7 +33,8 @@ npm install react-native-cli @react-native-community/cli
     [!] Invalid `hermes-engine.podspec` file: undefined method `exists?' for File:Class.
     ```
     see [this](https://github.com/facebook/react-native/issues/35807) React-Native issue for a workaround.
-- Also for M1 or other Apple silicon devices, see [this](https://stackoverflow.com/questions/71933392/react-native-ios-undefined-symbols-for-architecture-x86-64) for a workaround for `undefined symbol` errors when building for iOS. Specifically, the workaround is replacing the original `post_install do` directive with the following:
+    
+- Also for M1 or other Apple silicon devices, see [this](https://stackoverflow.com/questions/71933392/react-native-ios-undefined-symbols-for-architecture-x86-64) for a workaround for `undefined symbol` errors when building for the iOS _simulator_. Specifically, the workaround is replacing the original `post_install do` directive with the following when building for the iOS _simulator_ device:
     ```ruby
     post_install do |installer|
         react_native_post_install(
@@ -52,11 +52,10 @@ npm install react-native-cli @react-native-community/cli
         end
     end
     ```
+    and then running `pod install --clean-install`. Note that the above workaround is _not_ needed if building for an actual iOS device.
+- To build for an _actual_ iOS device, plug the device into your macOS device with Xcode 14.2+ installed. Then open `ios/WePee.xcworkspace` in Xcode and select your iOS device as the build target and perform the build. Note that you will first need to enable [developer mode](https://developer.apple.com/documentation/xcode/enabling-developer-mode-on-a-device) on the iOS device and create a personal [Apple developer account](https://developer.apple.com/) with which you sign the app before you can deploy the app to your device.
 
-    
-
-
-#### Android
+### Android
 - Install Java Development Kit
     ``` sh
     brew tap homebrew/cask-versions
@@ -93,3 +92,6 @@ npm run android
 
 ## File structure
 Our working directory is called `screens`. Files will be added as we move along.
+
+## Documentation
+Documentation is stored in our Google Drive folder.
