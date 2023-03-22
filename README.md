@@ -33,6 +33,7 @@ npm install react-native-cli @react-native-community/cli
     [!] Invalid `hermes-engine.podspec` file: undefined method `exists?' for File:Class.
     ```
     see [this](https://github.com/facebook/react-native/issues/35807) React-Native issue for a workaround.
+    
 - Also for M1 or other Apple silicon devices, see [this](https://stackoverflow.com/questions/71933392/react-native-ios-undefined-symbols-for-architecture-x86-64) for a workaround for `undefined symbol` errors when building for the iOS _simulator_. Specifically, the workaround is replacing the original `post_install do` directive with the following when building for the iOS _simulator_ device:
     ```ruby
     post_install do |installer|
@@ -52,6 +53,7 @@ npm install react-native-cli @react-native-community/cli
     end
     ```
     and then running `pod install --clean-install`. Note that the above workaround is _not_ needed if building for an actual iOS device.
+- To build for an _actual_ iOS device, plug the device into your macOS device with Xcode 14.2+ installed. Then open `ios/WePee.xcworkspace` in Xcode and select your iOS device as the build target and perform the build. Note that you will first need to enable [developer mode](https://developer.apple.com/documentation/xcode/enabling-developer-mode-on-a-device) on the iOS device and create a personal [Apple developer account](https://developer.apple.com/) with which you sign the app before you can deploy the app to your device.
 
 ### Android
 - Install Java Development Kit
